@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.oth.projekt.orange.polizei;
+package de.oth.se.projekt.orange.polizei;
 
 /**
  *
