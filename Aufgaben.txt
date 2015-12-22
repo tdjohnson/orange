@@ -1,0 +1,17 @@
+USI
+	Klo
+	Bett
+	Tür (bewegbar)
+
+Matze
+	Fenster (transparent)
+	Raum
+
+Philipp
+	Tisch
+	Stuhl
+	Jailbot (bewegbar)
+
+Tobi
+	Lampe (drehbar)
+	Neon Röhren (Gang)
