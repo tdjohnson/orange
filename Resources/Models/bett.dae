@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.76.0 commit date:2015-10-11, commit time:06:55, hash:48f7dd6</authoring_tool>
     </contributor>
-    <created>2015-12-25T18:29:24</created>
-    <modified>2015-12-25T18:29:24</modified>
+    <created>2015-12-25T18:27:44</created>
+    <modified>2015-12-25T18:27:44</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -29,7 +29,7 @@
           </sampler2D>
         </newparam>
         <technique sid="common">
-          <lambert>
+          <phong>
             <emission>
               <color sid="emission">0 0 0 1</color>
             </emission>
@@ -39,10 +39,16 @@
             <diffuse>
               <texture texture="wood_jpg-sampler"/>
             </diffuse>
+            <specular>
+              <color sid="specular">0.5 0.5 0.5 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">50</float>
+            </shininess>
             <index_of_refraction>
               <float sid="index_of_refraction">1</float>
             </index_of_refraction>
-          </lambert>
+          </phong>
         </technique>
       </profile_COMMON>
     </effect>
