@@ -6,6 +6,8 @@ USI
 Matze
 	Fenster (transparent)
 	Raum
+	Seife
+	Buch
 
 Philipp
 	Tisch
