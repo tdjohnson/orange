@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.76.0 commit date:2015-10-11, commit time:06:55, hash:48f7dd6</authoring_tool>
     </contributor>
-    <created>2015-12-25T15:37:36</created>
-    <modified>2015-12-25T15:37:36</modified>
+    <created>2015-12-25T20:17:49</created>
+    <modified>2015-12-25T20:17:49</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -56,9 +56,9 @@
     <geometry id="Plane-mesh" name="Plane">
       <mesh>
         <source id="Plane-mesh-positions">
-          <float_array id="Plane-mesh-positions-array" count="12">-1 -1 0 1 -1 0 -1 1 0 1 1 0</float_array>
+          <float_array id="Plane-mesh-positions-array" count="78">-1 -1 0 1 -1 0 -1 1 0 1 1 0 -1 -1 0.8590508 1 -1 0.8590508 -1 1 0.8590508 1 1 0.8590508 -0.9397594 -0.9397594 0.03103452 0.9397594 -0.9397594 0.03103452 -0.9397594 0.9397594 0.03103452 0.9397594 0.9397594 0.03103452 -0.9397594 -0.9397594 0.8280162 0.9397594 -0.9397594 0.8280162 -0.9397594 0.9397594 0.8280162 0.9397594 0.9397594 0.8280162 0 -1 0 0 -1 0.8590508 1 -1 0.6293246 -1 -1 0.5151767 0 -1 0.6293246 0 -0.9397594 0.03103452 0 -0.9397594 0.8280162 0.9397594 -0.9397594 0.6293246 -0.9397594 -0.9397594 0.5151767 0 -0.9397594 0.6293246</float_array>
           <technique_common>
-            <accessor source="#Plane-mesh-positions-array" count="4" stride="3">
+            <accessor source="#Plane-mesh-positions-array" count="26" stride="3">
               <param name="X" type="float"/>
               <param name="Y" type="float"/>
               <param name="Z" type="float"/>
@@ -66,9 +66,9 @@
           </technique_common>
         </source>
         <source id="Plane-mesh-normals">
-          <float_array id="Plane-mesh-normals-array" count="3">0 0 1</float_array>
+          <float_array id="Plane-mesh-normals-array" count="51">0 0 -1 0 1 0 1 0 0 -1 0 0 0 0 1 0 -1 0 1 0 0 0 -0.4579741 -0.8889657 -0.4579741 0 0.8889656 -0.7071063 -0.7071073 0 0 -0.4579748 0.8889652 0 0.4579741 0.8889657 0 -0.4579753 -0.888965 -0.4579747 0 0.8889653 -0.7071073 -0.7071064 0 0 -0.4579734 0.888966 0 0.4579753 0.888965</float_array>
           <technique_common>
-            <accessor source="#Plane-mesh-normals-array" count="1" stride="3">
+            <accessor source="#Plane-mesh-normals-array" count="17" stride="3">
               <param name="X" type="float"/>
               <param name="Y" type="float"/>
               <param name="Z" type="float"/>
@@ -78,11 +78,11 @@
         <vertices id="Plane-mesh-vertices">
           <input semantic="POSITION" source="#Plane-mesh-positions"/>
         </vertices>
-        <polylist material="Material_004-material" count="2">
+        <polylist material="Material_004-material" count="50">
           <input semantic="VERTEX" source="#Plane-mesh-vertices" offset="0"/>
           <input semantic="NORMAL" source="#Plane-mesh-normals" offset="1"/>
-          <vcount>3 3 </vcount>
-          <p>1 0 3 0 2 0 0 0 1 0 2 0</p>
+          <vcount>3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 </vcount>
+          <p>3 0 1 0 16 0 2 1 6 1 7 1 7 2 5 2 18 2 19 3 4 3 6 3 21 4 11 4 10 4 15 5 14 5 10 5 23 3 15 3 11 3 14 6 24 6 10 6 20 5 17 5 4 5 16 5 20 5 19 5 21 2 25 2 20 2 24 1 25 1 21 1 12 1 22 1 25 1 12 7 22 7 17 7 5 8 7 8 15 8 18 9 23 9 9 9 22 3 21 3 16 3 16 10 1 10 9 10 13 11 22 11 17 11 18 5 5 5 17 5 25 1 22 1 13 1 20 0 25 0 23 0 16 0 0 0 2 0 2 0 3 0 16 0 3 1 2 1 7 1 18 2 1 2 3 2 3 2 7 2 18 2 6 3 2 3 19 3 0 3 19 3 2 3 10 4 8 4 21 4 21 4 9 4 11 4 11 5 15 5 10 5 11 3 9 3 23 3 23 3 13 3 15 3 8 2 10 2 24 2 14 2 12 2 24 2 19 5 20 5 4 5 0 5 16 5 19 5 16 2 21 2 20 2 8 1 24 1 21 1 24 1 12 1 25 1 4 12 12 12 17 12 13 13 5 13 15 13 1 14 18 14 9 14 17 3 22 3 16 3 21 15 16 15 9 15 5 16 13 16 17 16 20 5 18 5 17 5 23 1 25 1 13 1 18 0 20 0 23 0</p>
         </polylist>
       </mesh>
     </geometry>
@@ -91,7 +91,7 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Plane" name="Plane" type="NODE">
-        <matrix sid="transform">13.956 0 0 -7.818535 0 13.956 0 8.38895 0 0 13.956 -0.03131853 0 0 0 1</matrix>
+        <matrix sid="transform">13.956 0 0 0 0 13.956 0 0 0 0 13.956 0 0 0 0 1</matrix>
         <instance_geometry url="#Plane-mesh" name="Plane">
           <bind_material>
             <technique_common>
