@@ -22,7 +22,7 @@
         "blending": "NormalBlending",
         "wireframe": false,
         "DbgIndex": 1,
-        "colorSpecular": [0.070175,0.070175,0.070175],
+        "colorDiffuse": [0.070175,0.070175,0.070175],
         "shading": "phong",
         "depthWrite": true,
         "DbgColor": 15597568,

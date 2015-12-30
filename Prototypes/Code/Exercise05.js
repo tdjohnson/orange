@@ -11,7 +11,7 @@
       canJump;
   var velocity = new THREE.Vector3();
   var loader;
-  var klo, tuer1, tuer2, boden, bett, zelle, buch, lampe;
+  var klo, tuer1, tuer2, boden, bett, zelle, buch, lampe, luefter, seife;
 
   //animate();
 
@@ -34,7 +34,7 @@
     var light = new THREE.PointLight(0xffffff);
 	light.position.y = 3;
 	light.position.z = 4;
-	scene.add(light);
+	//scene.add(light);
 	
 	var light2 = new THREE.HemisphereLight(0xffffff, 0.6);
 	light.position.x = 5;
@@ -45,11 +45,13 @@
 	loadKlo();
 	loadDoor1();
 	loadDoor2();
-	loadFloor();
+	//loadFloor();
 	loadBett();
 	loadBuch();
 	loadLampe();
-	//loadZelle();
+	loadZelle();
+	loadLuefter();
+	loadSeife();
 
     renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -68,38 +70,27 @@
    
 function loadZelle()
 {
-	loader = new THREE.ColladaLoader();
-	loader.options.convertUpAxis = true;
-	var path = "../../Resources/Models/zelle_wandtextur.dae";
-    loader.load(path, function(geometry) {
-        zelle = geometry.scene;
-        zelle.castShadow = true;
-        zelle.updateMatrix();
-        scene.add(zelle);
-    });
+	var loader = new THREE.JSONLoader();
+	loader.load( '../../Resources/Models/Zelle_neu_comb_text.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    zelle = new THREE.Mesh( geometry, material );
+	    zelle.scale.x = zelle.scale.z = 3.5;
+	    zelle.scale.y = 3.5;
+	    zelle.rotation.y = Math.PI / -2;
+	    scene.add(zelle);
+	});
 }
 
 function loadKlo()
 {
-	/*
-	loader = new THREE.ColladaLoader();
-	loader.options.convertUpAxis = true;
-	var path = "../../Resources/Models/klo.dae";
-    loader.load(path, function(geometry) {
-        klo = geometry.scene;
-        klo.position.z = -15;
-        klo.position.x = -10;
-        klo.castShadow = true;
-        klo.updateMatrix();
-        scene.add(klo);
-    });*/
    try {
    var loader = new THREE.JSONLoader();
 	loader.load( '../../Resources/Models/klo.json', function ( geometry, materials ) {
-		var material = new THREE.MeshPhongMaterial( materials );
+		var material = new THREE.MeshFaceMaterial( materials );
 	    klo = new THREE.Mesh( geometry, material );
-	    klo.position.z = -15;
-        klo.position.x = -10;
+	    klo.rotation.y =  Math.PI*0.5;
+	    klo.position.z = 5;
+        klo.position.x = 2.5;
 	    scene.add(klo);
 	});
 	
@@ -110,18 +101,6 @@ function loadKlo()
 
 function loadFloor()
 {
-	/*
-	loader = new THREE.ColladaLoader();
-	loader.options.convertUpAxis = true;
-	var path = "../../Resources/Models/boden.dae";
-    loader.load(path, function(geometry) {
-        boden = geometry.scene;
-        boden.receiveShadow = true;
-        boden.position.x = -6;
-        boden.position.z = -8;
-        boden.position.y = -0.3;
-        scene.add(boden);
-    });*/
     var loader = new THREE.JSONLoader();
 	loader.load( '../../Resources/Models/boden.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
@@ -139,27 +118,54 @@ function loadBuch()
 	loader.load( '../../Resources/Models/buch_neu_comb.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 	    buch = new THREE.Mesh( geometry, material );
-        buch.position.y = 2;
+        buch.position.y = 3;
+        buch.position.x = 2;
+        buch.position.z = 8;
+        buch.rotation.y =  Math.PI*1.5;
         buch.scale.x = buch.scale.y = buch.scale.z = 0.3;
 	    scene.add(buch);
 	});
 }
 
-function loadLampe()
+function loadSeife()
 {
 	var loader = new THREE.JSONLoader();
-	loader.load( '../../Resources/Models/TischLampe.json', function ( geometry, materials ) {
+	loader.load( '../../Resources/Models/seife.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    lampe = new THREE.Mesh( geometry, material );
-        lampe.position.x = 2;
-        lampe.scale.x = lampe.scale.y = lampe.scale.z = 0.3;
-	    scene.add(lampe);
+	    seife = new THREE.Mesh( geometry, material );
+        seife.position.y = 2;
+        seife.position.x = 2;
+        seife.position.z = 10;
+        
+        seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
+	    scene.add(seife);
 	});
+}
+
+function loadLuefter()
+{
+	var loader = new THREE.JSONLoader();
+	loader.load( '../../Resources/Models/luefter.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    luefter = new THREE.Mesh( geometry, material );
+        luefter.position.y = 6;
+        luefter.position.x = 1;
+        luefter.position.z = 9.9;
+        luefter.rotation.y =  Math.PI*0.5;
+        luefter.scale.y = luefter.scale.z = 0.7;
+        luefter.scale.x = 1.2;
+	    scene.add(luefter);
+	});
+}
+
+function loadLampe()
+{
+	addTischLampe(5,5,5);
 }
 
 function loadBett()
 {
-	loader = new THREE.ColladaLoader();
+	/*loader = new THREE.ColladaLoader();
 	loader.options.convertUpAxis = true;
 	var path = "../../Resources/Models/bett.dae";
     loader.load(path, function(geometry) {
@@ -171,6 +177,18 @@ function loadBett()
         bett.updateMatrix();
         scene.add(bett);
     });
+    */
+    var loader = new THREE.JSONLoader();
+	loader.load( '../../Resources/Models/bett.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    bett = new THREE.Mesh( geometry, material );
+        bett.rotation.y =  Math.PI;
+        bett.position.z = 5;
+        bett.position.x = 9;
+        bett.scale.x = bett.scale.y = bett.scale.z = 1;
+        bett.updateMatrix();
+	    scene.add(bett);
+	});
 }
 
 function loadDoor1()
@@ -180,29 +198,30 @@ function loadDoor1()
 	var path = "../../Resources/Models/tuer1.dae";
     loader.load(path, function(geometry) {
         tuer1 = geometry.scene;
-        tuer1.position.z = 5;
-        tuer1.position.x = 3;
+        tuer1.position.z = 14.8;
+        tuer1.position.x = 4;
         tuer1.position.y = 3.8;
-        tuer1.scale.y = 1.5;
+        tuer1.scale.y = 1.4;
         tuer1.castShadow = true;
         tuer1.updateMatrix();
         scene.add(tuer1);
     });
 }
 function loadDoor2() {
-	loader = new THREE.ColladaLoader();
-	loader.options.convertUpAxis = true;
-    var path = "../../Resources/Models/tuer2.dae";
-    loader.load(path, function(geometry) {
-        tuer2 = geometry.scene;
-        tuer2.position.x = -3;
-        tuer2.position.z = 5;
+
+    var loader = new THREE.JSONLoader();
+	loader.load( "../../Resources/Models/tuer2.json", function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    tuer2 = new THREE.Mesh( geometry, material );
+        tuer2.position.x = 8;
+        tuer2.position.z = 14.8;
         tuer2.position.y = 3.8;
         tuer2.castShadow = true;
-        tuer2.scale.y = 1.5;
+        tuer2.scale.y = 1.4;
         tuer2.updateMatrix();
         scene.add(tuer2);
-    });
+	    scene.add(tuer2);
+	});
 }
 
   function checkForPointerLock() {
