@@ -26,8 +26,11 @@
     camera.position.x = 5;
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
+    
+	scaleTischLampe(1,1,1); //scale TischLampe;  
+	initTischLampe(5,5,5); //init TischLampe;
 
-	addTischLampe(5,5,5); //add TischLampe;
+	
 
     renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -99,7 +102,6 @@
         break;
       case 82: // r
           rotate(lampeT, 10 * Math.PI/180);
-          
         break;
       case 40: // down
       case 83: // s
