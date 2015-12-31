@@ -71,7 +71,7 @@
 function loadZelle()
 {
 	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Zelle/Zelle_neu_comb_text.json', function ( geometry, materials ) {
+	loader.load( '../Prototypes/Zelle/Zelle.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 	    zelle = new THREE.Mesh( geometry, material );
 	    zelle.scale.x = zelle.scale.z = 3.5;
