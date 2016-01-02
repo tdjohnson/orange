@@ -43,8 +43,8 @@
 	//scene.add(light2);
    	
 	loadKlo();
-	//loadDoor1();
-	//loadDoor2();
+	loadDoor1();
+	loadDoor2();
 	//loadFloor();
 	loadBett();
 	loadBuch();
