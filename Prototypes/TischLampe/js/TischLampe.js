@@ -3,7 +3,7 @@
   var TLloader;
   var px,py,pz;
   var sx,sy,sz;
-  var info = "Lamp: Push key e|e to rotate";
+  var info = "Push key q|e to rotate";
 var axis = new THREE.Vector3(0,1,0);
 
 function rotate(object,angle) {
@@ -52,7 +52,7 @@ TLloader.load( '../Prototypes/TischLampe/TischLampeTop.json', function ( geometr
     lampeT.position.set(px,py,pz);
     lampeT.scale.set(sx,sy,sz);
 	lampeT.add(spotlight);
-	lampeT.name = "lamp top";
+	lampeT.name = "Lampe";
 	lampeT.userData.info = info;
 	scene.add(lampeT);
 });

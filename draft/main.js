@@ -13,11 +13,13 @@
   var loader;
   var klo, tuer1, tuer2, boden, bett, zelle, buch, lampe, luefter, seife;
   var raycaster = new THREE.Raycaster();
-  var arrow;
-
+  var arrow; //for raycasterhelper
+  var enablerc = true; //for pausing raycaster updates
+  var lastObject = new THREE.Object3D();//for pausing raycaster updates
   //animate();
 
   function init() {
+  
     initControls();
     initPointerLock();
 
@@ -69,39 +71,52 @@
 
 
 
-	function raycast() {
+	function proximityDetector() {
+		$( "#dialog" ).dialog(); //buggy... needed here so it can be closed later...
 		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection());	
-		
-		//Raycaster helper - displays raycaster as vector
-		//scene.remove (arrow);
-		//arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
-		//scene.add( arrow );
+		showraycasthelper();//Raycaster helper - displays raycaster as vector
+	
+			var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
+	
+			 if ( intersects.length > 0 ) { //if objects are intersected
+			 	if(intersects[0].object.name.length >= 1){ //if object has a name
+			 		if(intersects[0].object.name != lastObject.name){ //do if object is new
+			 			if(intersects[0].distance <= 4){ //only show near objects
+			 				showinfo(intersects[0]); //show alert and log to console
+			 				lastObject = intersects[0].object; //remember last object
+			 			}
+			 		}
+   	 			}else{
+   				 $( "#dialog" ).dialog("close");
+   			}
+   			}
+        }
 
-		var intersects = raycaster.intersectObjects( scene.children );
+  function showinfo(intersect){
+ 	var message = intersect.object.name + ": " + intersect.object.userData.info;
+	  	 $("#dialog").html(message);
+		 $("#dialog").dialog( 'option', 'position', ['left',20] );
+		 console.log(message);
+		//log distance to object
+		// console.log("distance to " +intersect.object.name + ": " + intersect.distance); 
+  }
+  
 
-			for ( var i = 0; i < intersects.length; i++ ) {
-				try{
-					if(intersects[i].object.name.length >= 1 && intersects[i].distance <= 5){
-						console.log( intersects[i].object.name + ": distance:" + intersects[i].distance );
-						if(intersects[i].object.userData.info.length >=1){
-						  $( "#dialog" ).innerHTML = intersects[i].object.userData.info;
-						  $( "#dialog" ).dialog();
-						}
-					}
-					}catch(err){
-					}
-				}
-		}
+  
+    function showraycasthelper(){
+			scene.remove (arrow);
+			arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
+			scene.add( arrow );
+  }
+
+
 
   function animate() {
-  	
-	raycast();
-			
     requestAnimationFrame(animate);
     updateControls();
     renderer.render(scene, camera);
-        camera.updateProjectionMatrix();
- 
+    camera.updateProjectionMatrix();
+ 	proximityDetector();
   }
   
 function loadZelle()
@@ -128,7 +143,8 @@ function loadKlo()
 	    klo.position.z = 5;
         klo.position.x = 2.5;
         klo.castShadow = true;
-        klo.name = "klo";
+        klo.name = "Klo";
+        klo.userData.info = "Sehr schön";
 	    scene.add(klo);
 
 	});
@@ -163,7 +179,8 @@ function loadBuch()
         buch.position.z = 12;
         buch.rotation.y =  Math.PI*1.5;
         buch.scale.x = buch.scale.y = buch.scale.z = 0.3;
-        buch.name = "buch";
+        buch.name = "Buch";
+        buch.userData.info = "Lies Faust";
 	    scene.add(buch);
 
 	});
@@ -180,7 +197,8 @@ function loadSeife()
         seife.position.z = 10;
         seife.castShadow = true;
         seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
-        seife.name = "seife";
+        seife.name = "Seife";
+        seife.userData.info = "Sehr sauber";
 	    scene.add(seife);
 	    	});
 }
@@ -197,7 +215,8 @@ function loadLuefter()
         luefter.rotation.y =  Math.PI*0.5;
         luefter.scale.y = luefter.scale.z = 0.7;
         luefter.scale.x = 1.2;
-        luefter.name = "luefter";
+        luefter.name = "Luefter";
+        luefter.userData.info = "BRRRRRRRR";
 	    scene.add(luefter);
 
 	});
@@ -220,7 +239,8 @@ function loadBett()
         bett.position.x = 9;
         bett.scale.x = bett.scale.y = bett.scale.z = 1;
         bett.updateMatrix();
-        bett.name = "bett";
+        bett.name = "Bett";
+        bett.userData.info = "Einsteigen!";
 	    scene.add(bett);
 
 	});
@@ -239,7 +259,8 @@ function loadDoor1()
         tuer1.scale.y = 1.4;
         tuer1.castShadow = true;
         tuer1.updateMatrix();
-        tuer1.name = "tuer1";
+        tuer1.name = "Tuer1";
+        tuer1.userData.info = "geschlossen!";
         scene.add(tuer1);
 
     });
@@ -256,7 +277,8 @@ function loadDoor2() {
         tuer2.castShadow = true;
         tuer2.scale.y = 1.4;
         tuer2.updateMatrix();
-        tuer2.name = "tuer2";
+        tuer2.name = "Tuer2";
+        tuer2.userData.info = "geschlossen!";
         scene.add(tuer2);
 
 	});
