@@ -66,13 +66,16 @@
 
     document.body.appendChild(renderer.domElement);
     animate();
+    $( "#dialog" ).dialog({
+	  autoOpen: false
+	});
   }
 
 
 
 
 	function proximityDetector() {
-		$( "#dialog" ).dialog(); //buggy... needed here so it can be closed later...
+		
 		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection());	
 		showraycasthelper();//Raycaster helper - displays raycaster as vector
 	
@@ -80,14 +83,17 @@
 	
 			 if ( intersects.length > 0 ) { //if objects are intersected
 			 	if(intersects[0].object.name.length >= 1){ //if object has a name
-			 		if(intersects[0].object.name != lastObject.name){ //do if object is new
+			 		//if(intersects[0].object.name != lastObject.name){ //do if object is new
 			 			if(intersects[0].distance <= 4){ //only show near objects
+			 				$( "#dialog" ).dialog("open"); //buggy... needed here so it can be closed later...
 			 				showinfo(intersects[0]); //show alert and log to console
 			 				lastObject = intersects[0].object; //remember last object
 			 			}
-			 		}
+			 		//}
    	 			}else{
-   				 $( "#dialog" ).dialog("close");
+   	 				if ($( "#dialog" ).dialog("isOpen")) {
+   						$( "#dialog" ).dialog("close");
+   					}
    			}
    			}
         }
