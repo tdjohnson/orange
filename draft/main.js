@@ -17,6 +17,7 @@ var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
 var enablerc = true; //for pausing raycaster updates
 var lastObject = new THREE.Object3D();//for pausing raycaster updates
+var collidableMeshList = [];
 //animate();
 
 function init() { 
@@ -69,7 +70,7 @@ function init() {
 	$( "#dialog" ).dialog({
 		  autoOpen: false
 		});
-	}
+}
 	
 function proximityDetector() {
 	raycaster.set(camera.getWorldPosition(),camera.getWorldDirection());	
@@ -94,6 +95,39 @@ function proximityDetector() {
 	}
 }
 
+function collisionDetectionPositive() {
+	var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
+	bbox.update();
+	if ((controls.getObject().position.x+0.3 >= bbox.box.min.x) &&
+		(controls.getObject().position.x+0.3 <= bbox.box.max.x) &&
+		(controls.getObject().position.z+0.3 >= bbox.box.min.z) &&
+		(controls.getObject().position.z+0.3 <= bbox.box.max.z))
+		 {
+			//alert(controls.getObject().position.x+" "+bbox.box.min.x);
+			return false;
+		} else {
+			//alert(controls.getObject().position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
+			return true;
+		}
+}
+
+function collisionDetectionNegative() {
+	var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
+	bbox.update();
+	if ((controls.getObject().position.x-0.3 >= bbox.box.min.x) &&
+		(controls.getObject().position.x-0.3 <= bbox.box.max.x) &&
+		(controls.getObject().position.z-0.3 >= bbox.box.min.z) &&
+		(controls.getObject().position.z-0.3 <= bbox.box.max.z))
+		 {
+			//alert(controls.getObject().position.x+" "+bbox.box.min.x);
+			return false;
+		} else {
+			//alert(controls.getObject().position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
+			return true;
+		}
+}
+
+
 function showinfo(intersect){
 	var message = intersect.object.name + ": " + intersect.object.userData.info;
 	$("#dialog").html(message);
@@ -116,6 +150,7 @@ function animate() {
     camera.updateProjectionMatrix();
  	proximityDetector();
  	animateDoor();
+ 	//collisionDetectionPositive();
 }
   
 function loadZelle() {
@@ -132,9 +167,8 @@ function loadZelle() {
 
 function loadKlo()
 {
-	try {
-		var loader = new THREE.JSONLoader();
-		loader.load( '../Prototypes/Klo/klo.json', function ( geometry, materials ) {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Klo/klo.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 		klo = new THREE.Mesh( geometry, material );
 		klo.rotation.y =  Math.PI*0.5;
@@ -143,11 +177,12 @@ function loadKlo()
 		klo.castShadow = true;
 		klo.name = "Klo";
 		klo.userData.info = "Sehr schön";
-			    scene.add(klo);	
-			});
-	} catch (e) {
-		alert(e);
-	}
+		scene.add(klo);
+		var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
+		bbox.update();
+		collidableMeshList.push(klo);
+		scene.add( bbox );
+	});
 }
 
 function loadFloor()
@@ -178,6 +213,9 @@ function loadBuch()
 		buch.name = "Buch";
 		buch.userData.info = "Lies Faust";
 		scene.add(buch);
+		var bbox = new THREE.BoundingBoxHelper( buch, 0xffffff );
+		bbox.update();
+		scene.add( bbox );
 	});
 }
 
@@ -195,6 +233,9 @@ function loadSeife()
 		seife.name = "Seife";
 		seife.userData.info = "Sehr sauber";
 		scene.add(seife);
+		var bbox = new THREE.BoundingBoxHelper( seife, 0xffffff );
+		bbox.update();
+		//scene.add( bbox );
 	});
 }
 
@@ -213,6 +254,9 @@ function loadLuefter()
 		luefter.name = "Luefter";
 		luefter.userData.info = "BRRRRRRRR";
 		scene.add(luefter);
+		var bbox = new THREE.BoundingBoxHelper( luefter, 0xffffff );
+		bbox.update();
+		scene.add( bbox );
 	});
 }
 
@@ -236,6 +280,9 @@ function loadBett()
 		bett.name = "Bett";
 		bett.userData.info = "Einsteigen!";
 		scene.add(bett);
+		var bbox = new THREE.BoundingBoxHelper( bett, 0xffffff );
+		bbox.update();
+		scene.add( bbox );
 	});
 }
 
@@ -255,6 +302,9 @@ function loadDoor1()
 	    tuer1.name = "Tuer1";
 		tuer1.userData.info = "geschlossen!, öffne mit T";
 		scene.add(tuer1);
+		var bbox = new THREE.BoundingBoxHelper( tuer1, 0xffffff );
+		bbox.update();
+		scene.add( bbox );
 	});
 }
 function loadDoor2() {
@@ -272,6 +322,9 @@ function loadDoor2() {
 		tuer2.name = "Tuer2";
 		tuer2.userData.info = "geschlossen!<br/> öffne mit T";
 		scene.add(tuer2);
+		var bbox = new THREE.BoundingBoxHelper( tuer2, 0xffffff );
+		bbox.update();
+		//scene.add( bbox );
 	});
 }
 
@@ -319,6 +372,7 @@ function onKeyDown(e) {
     	case 38: // up
   		case 87: // w
     		moveForward = true;
+    		
     		break;
   		case 37: // left
   		case 65: // a
@@ -343,7 +397,7 @@ function onKeyDown(e) {
 		    canJump = false;
 		    break;
 		case 84: // space
-	    	triggerDoor();
+	    	//triggerDoor();
 	    	break;
     	}
   }
@@ -374,7 +428,7 @@ function animateDoor() {
 			else
 				isOpenable = true;
 		}
-		}
+	}
 }
 
 function onKeyUp(e) {
@@ -382,6 +436,7 @@ function onKeyUp(e) {
     	case 38: // up
 	  	case 87: // w
 	    	moveForward = false;
+	    	
 	    	break;
 	  	case 37: // left
 	  	case 65: // a
@@ -413,12 +468,25 @@ function updateControls() {
 	    velocity.z -= velocity.z * 10.0 * delta;
 	    velocity.y -= 9.8 * 30.0 * delta;
 	
-	    if (moveForward) velocity.z -= walkingSpeed * delta;
-	    if (moveBackward) velocity.z += walkingSpeed * delta;
-	
+	    if (moveForward) {
+		    if (collisionDetectionPositive())
+		    	velocity.z -= walkingSpeed * delta;
+		    else {
+		    	velocity.z = 0;
+		    	velocity.x = 0;
+		    }
+		}
+	    if (moveBackward) {
+			if (collisionDetectionNegative())
+			    velocity.z += walkingSpeed * delta;
+		    else {
+		    	velocity.z = 0;
+		    	velocity.x = 0;
+		    }
+		}
 	    if (moveLeft) velocity.x -= walkingSpeed * delta;
 	    if (moveRight) velocity.x += walkingSpeed * delta;
-	
+
 	
 	    controls.getObject().translateX(velocity.x * delta);
 	    controls.getObject().translateY(velocity.y * delta);
