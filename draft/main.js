@@ -1,26 +1,26 @@
 
-  var clock;
-  var scene, camera, renderer;
-  var geometry, material, mesh;
-  var havePointerLock = checkForPointerLock();
-  var controls, controlsEnabled;
-  var moveForward,
-      moveBackward,
-      moveLeft,
-      moveRight,
-      canJump;
-  var velocity = new THREE.Vector3();
-  var loader;
-  var klo, tuer1, tuer2, boden, bett, zelle, buch, lampe, luefter, seife;
-  var raycaster = new THREE.Raycaster();
-  var arrow; //for raycasterhelper
-  var enablerc = true; //for pausing raycaster updates
-  var lastObject = new THREE.Object3D();//for pausing raycaster updates
-  //animate();
+var clock;
+var scene, camera, renderer;
+var geometry, material, mesh;
+var havePointerLock = checkForPointerLock();
+var controls, controlsEnabled;
+var moveForward,
+    moveBackward,
+    moveLeft,
+    moveRight,
+    canJump;
+var velocity = new THREE.Vector3();
+var loader;
+var klo, tuer1, tuer2, boden, bett, zelle, buch, lampe, luefter, seife;
+var raycaster = new THREE.Raycaster();
+var isOpenable = true; //for animating door
+var arrow; //for raycasterhelper
+var enablerc = true; //for pausing raycaster updates
+var lastObject = new THREE.Object3D();//for pausing raycaster updates
+//animate();
 
-  function init() {
-  
-    initControls();
+function init() { 
+	initControls();
     initPointerLock();
 
     clock = new THREE.Clock();
@@ -33,12 +33,12 @@
 	//camera.position.x = 5;
 	//camera.position.y = -2;
 	//camera.position.z = 40;
-    controls = new THREE.PointerLockControls(camera);
-    scene.add(controls.getObject());
-
-
-    //objects
-    var light = new THREE.PointLight(0xffffff);
+	controls = new THREE.PointerLockControls(camera);
+	scene.add(controls.getObject());
+	
+	
+	//objects
+	var light = new THREE.PointLight(0xffffff);
 	light.position.y = 3;
 	light.position.z = 4;
 	scene.add(light);
@@ -48,7 +48,7 @@
 	light.position.y = 3;
 	light.position.z = 4;
 	//scene.add(light2);
-   	
+	
 	loadKlo();
 	loadDoor1();
 	loadDoor2();
@@ -59,74 +59,66 @@
 	loadZelle();
 	loadLuefter();
 	loadSeife();
-
-    renderer = new THREE.WebGLRenderer({antialias:true});
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0xb2e1f2);
-
-    document.body.appendChild(renderer.domElement);
-    animate();
-    $( "#dialog" ).dialog({
-	  autoOpen: false
-	});
-  }
-
-
-
-
-	function proximityDetector() {
-		
-		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection());	
-		showraycasthelper();//Raycaster helper - displays raycaster as vector
 	
-			var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
+	renderer = new THREE.WebGLRenderer({antialias:true});
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor(0xb2e1f2);
 	
-			 if ( intersects.length > 0 ) { //if objects are intersected
-			 	if(intersects[0].object.name.length >= 1){ //if object has a name
-			 		//if(intersects[0].object.name != lastObject.name){ //do if object is new
-			 			if(intersects[0].distance <= 4){ //only show near objects
-			 				$( "#dialog" ).dialog("open"); //buggy... needed here so it can be closed later...
-			 				showinfo(intersects[0]); //show alert and log to console
-			 				lastObject = intersects[0].object; //remember last object
-			 			}
-			 		//}
-   	 			}else{
-   	 				if ($( "#dialog" ).dialog("isOpen")) {
-   						$( "#dialog" ).dialog("close");
-   					}
-   			}
-   			}
-        }
+	document.body.appendChild(renderer.domElement);
+	animate();
+	$( "#dialog" ).dialog({
+		  autoOpen: false
+		});
+	}
+	
+function proximityDetector() {
+	raycaster.set(camera.getWorldPosition(),camera.getWorldDirection());	
+	showraycasthelper();//Raycaster helper - displays raycaster as vector
+	
+	var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
+	
+	if ( intersects.length > 0 ) { //if objects are intersected
+		if(intersects[0].object.name.length >= 1){ //if object has a name
+		//if(intersects[0].object.name != lastObject.name){ //do if object is new
+			if(intersects[0].distance <= 4){ //only show near objects
+				$( "#dialog" ).dialog("open"); //buggy... needed here so it can be closed later...
+				showinfo(intersects[0]); //show alert and log to console
+				lastObject = intersects[0].object; //remember last object
+			}
+		//}
+		} else {
+			if ($( "#dialog" ).dialog("isOpen")) {
+			$( "#dialog" ).dialog("close");
+		   					}
+			}
+	}
+}
 
-  function showinfo(intersect){
- 	var message = intersect.object.name + ": " + intersect.object.userData.info;
-	  	 $("#dialog").html(message);
-		 $("#dialog").dialog( 'option', 'position', ['left',20] );
-		 console.log(message);
-		//log distance to object
-		// console.log("distance to " +intersect.object.name + ": " + intersect.distance); 
-  }
+function showinfo(intersect){
+	var message = intersect.object.name + ": " + intersect.object.userData.info;
+	$("#dialog").html(message);
+	$("#dialog").dialog( 'option', 'position', ['left',20] );
+	console.log(message);
+	//log distance to object
+	// console.log("distance to " +intersect.object.name + ": " + intersect.distance); 
+}
   
+function showraycasthelper(){
+	scene.remove (arrow);
+	arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
+	scene.add( arrow );
+}
 
-  
-    function showraycasthelper(){
-			scene.remove (arrow);
-			arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
-			scene.add( arrow );
-  }
-
-
-
-  function animate() {
+function animate() {
     requestAnimationFrame(animate);
     updateControls();
     renderer.render(scene, camera);
     camera.updateProjectionMatrix();
  	proximityDetector();
-  }
+ 	animateDoor();
+}
   
-function loadZelle()
-{
+function loadZelle() {
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Zelle/Zelle.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
@@ -140,21 +132,19 @@ function loadZelle()
 
 function loadKlo()
 {
-   try {
-   var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Klo/klo.json', function ( geometry, materials ) {
+	try {
+		var loader = new THREE.JSONLoader();
+		loader.load( '../Prototypes/Klo/klo.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    klo = new THREE.Mesh( geometry, material );
-	    klo.rotation.y =  Math.PI*0.5;
-	    klo.position.z = 5;
-        klo.position.x = 2.5;
-        klo.castShadow = true;
-        klo.name = "Klo";
-        klo.userData.info = "Sehr schön";
-	    scene.add(klo);
-
-	});
-	
+		klo = new THREE.Mesh( geometry, material );
+		klo.rotation.y =  Math.PI*0.5;
+		klo.position.z = 5;
+		klo.position.x = 2.5;
+		klo.castShadow = true;
+		klo.name = "Klo";
+		klo.userData.info = "Sehr schön";
+			    scene.add(klo);	
+			});
 	} catch (e) {
 		alert(e);
 	}
@@ -179,16 +169,15 @@ function loadBuch()
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Buch/buch_neu_comb.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    buch = new THREE.Mesh( geometry, material );
-        buch.position.y = 0;
-        buch.position.x = 10;
-        buch.position.z = 12;
-        buch.rotation.y =  Math.PI*1.5;
-        buch.scale.x = buch.scale.y = buch.scale.z = 0.3;
-        buch.name = "Buch";
-        buch.userData.info = "Lies Faust";
-	    scene.add(buch);
-
+		buch = new THREE.Mesh( geometry, material );
+		buch.position.y = 0;
+		buch.position.x = 10;
+		buch.position.z = 12;
+		buch.rotation.y =  Math.PI*1.5;
+		buch.scale.x = buch.scale.y = buch.scale.z = 0.3;
+		buch.name = "Buch";
+		buch.userData.info = "Lies Faust";
+		scene.add(buch);
 	});
 }
 
@@ -197,16 +186,16 @@ function loadSeife()
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Seife/seife.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    seife = new THREE.Mesh( geometry, material );
-        seife.position.y = 2;
-        seife.position.x = 2;
-        seife.position.z = 10;
-        seife.castShadow = true;
-        seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
-        seife.name = "Seife";
-        seife.userData.info = "Sehr sauber";
-	    scene.add(seife);
-	    	});
+		seife = new THREE.Mesh( geometry, material );
+		seife.position.y = 2;
+		seife.position.x = 2;
+		seife.position.z = 10;
+		seife.castShadow = true;
+		seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
+		seife.name = "Seife";
+		seife.userData.info = "Sehr sauber";
+		scene.add(seife);
+	});
 }
 
 function loadLuefter()
@@ -214,17 +203,16 @@ function loadLuefter()
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Luefter/luefter.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    luefter = new THREE.Mesh( geometry, material );
-        luefter.position.y = 6;
-        luefter.position.x = 1;
-        luefter.position.z = 9.9;
-        luefter.rotation.y =  Math.PI*0.5;
-        luefter.scale.y = luefter.scale.z = 0.7;
-        luefter.scale.x = 1.2;
-        luefter.name = "Luefter";
-        luefter.userData.info = "BRRRRRRRR";
-	    scene.add(luefter);
-
+		luefter = new THREE.Mesh( geometry, material );
+		luefter.position.y = 6;
+		luefter.position.x = 1;
+		luefter.position.z = 9.9;
+		luefter.rotation.y =  Math.PI*0.5;
+		luefter.scale.y = luefter.scale.z = 0.7;
+		luefter.scale.x = 1.2;
+		luefter.name = "Luefter";
+		luefter.userData.info = "BRRRRRRRR";
+		scene.add(luefter);
 	});
 }
 
@@ -239,16 +227,15 @@ function loadBett()
     var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Bett/bett.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    bett = new THREE.Mesh( geometry, material );
-        bett.rotation.y =  Math.PI;
-        bett.position.z = 5;
-        bett.position.x = 9;
-        bett.scale.x = bett.scale.y = bett.scale.z = 1;
-        bett.updateMatrix();
-        bett.name = "Bett";
-        bett.userData.info = "Einsteigen!";
-	    scene.add(bett);
-
+		bett = new THREE.Mesh( geometry, material );
+		bett.rotation.y =  Math.PI;
+		bett.position.z = 5;
+		bett.position.x = 9;
+		bett.scale.x = bett.scale.y = bett.scale.z = 1;
+		bett.updateMatrix();
+		bett.name = "Bett";
+		bett.userData.info = "Einsteigen!";
+		scene.add(bett);
 	});
 }
 
@@ -257,47 +244,45 @@ function loadDoor1()
 	loader = new THREE.ColladaLoader();
 	loader.options.convertUpAxis = true;
 	var path = "../Prototypes/Tuer/tuer1.dae";
-    loader.load(path, function(geometry) {
-        tuer1 = geometry.scene;
-        tuer1.position.z = 14.8;
-        tuer1.position.x = 4;
-        tuer1.position.y = 3.8;
-        tuer1.scale.y = 1.4;
-        tuer1.castShadow = true;
-        tuer1.updateMatrix();
-        tuer1.name = "Tuer1";
-        tuer1.userData.info = "geschlossen!";
-        scene.add(tuer1);
-
-    });
+	loader.load(path, function(geometry) {
+	    tuer1 = geometry.scene;
+	    tuer1.position.z = 15.3;
+	    tuer1.position.x = 4.8;
+	    tuer1.position.y = 3.8;
+	    tuer1.scale.y = 1.4;
+	    tuer1.castShadow = true;
+	    tuer1.updateMatrix();
+	    tuer1.name = "Tuer1";
+		tuer1.userData.info = "geschlossen!, öffne mit T";
+		scene.add(tuer1);
+	});
 }
 function loadDoor2() {
 
     var loader = new THREE.JSONLoader();
 	loader.load( "../Prototypes/Tuer/tuer2.json", function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    tuer2 = new THREE.Mesh( geometry, material );
-        tuer2.position.x = 8;
-        tuer2.position.z = 14.8;
-        tuer2.position.y = 3.8;
-        tuer2.castShadow = true;
-        tuer2.scale.y = 1.4;
-        tuer2.updateMatrix();
-        tuer2.name = "Tuer2";
-        tuer2.userData.info = "geschlossen!";
-        scene.add(tuer2);
-
+		tuer2 = new THREE.Mesh( geometry, material );
+		tuer2.position.x = 8;
+		tuer2.position.z = 14.9;
+		tuer2.position.y = 3.8;
+		tuer2.castShadow = true;
+		tuer2.scale.y = 1.4;
+		tuer2.updateMatrix();
+		tuer2.name = "Tuer2";
+		tuer2.userData.info = "geschlossen!<br/> öffne mit T";
+		scene.add(tuer2);
 	});
 }
 
-  function checkForPointerLock() {
+function checkForPointerLock() {
     return 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
-  }
+}
   
-  function initPointerLock() {
-    var element = document.body;
+function initPointerLock() {
+	var element = document.body;
     if (havePointerLock) {
-      var pointerlockchange = function (event) {
+    	var pointerlockchange = function (event) {
         if (document.pointerLockElement === element || 
             document.mozPointerLockElement === element || 
             document.webkitPointerLockElement === element) {
@@ -307,112 +292,142 @@ function loadDoor2() {
           controls.enabled = false;
         }
       };
+	var pointerlockerror = function (event) {
+   		element.innerHTML = 'PointerLock Error';
+  	};
 
-      var pointerlockerror = function (event) {
-        element.innerHTML = 'PointerLock Error';
-      };
+	document.addEventListener('pointerlockchange', pointerlockchange, false);
+	document.addEventListener('mozpointerlockchange', pointerlockchange, false);
+	document.addEventListener('webkitpointerlockchange', pointerlockchange, false);
+	
+	document.addEventListener('pointerlockerror', pointerlockerror, false);
+	document.addEventListener('mozpointerlockerror', pointerlockerror, false);
+	document.addEventListener('webkitpointerlockerror', pointerlockerror, false);
+	var requestPointerLock = function(event) {
+	    element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+	    element.requestPointerLock();
+  	};
 
-      document.addEventListener('pointerlockchange', pointerlockchange, false);
-      document.addEventListener('mozpointerlockchange', pointerlockchange, false);
-      document.addEventListener('webkitpointerlockchange', pointerlockchange, false);
-
-      document.addEventListener('pointerlockerror', pointerlockerror, false);
-      document.addEventListener('mozpointerlockerror', pointerlockerror, false);
-      document.addEventListener('webkitpointerlockerror', pointerlockerror, false);
-
-      var requestPointerLock = function(event) {
-        element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
-        element.requestPointerLock();
-      };
-
-      element.addEventListener('click', requestPointerLock, false);
-    } else {
-      element.innerHTML = 'Bad browser; No pointer lock';
-    }
+  	element.addEventListener('click', requestPointerLock, false);
+  	} else {
+		element.innerHTML = 'Bad browser; No pointer lock';
+	}
+}
+  
+function onKeyDown(e) {
+    switch (e.keyCode) {
+    	case 38: // up
+  		case 87: // w
+    		moveForward = true;
+    		break;
+  		case 37: // left
+  		case 65: // a
+			moveLeft = true; 
+			break;
+ 		case 81: // q
+			rotate(lampeT,Math.PI/90 ); 
+    		break;
+  		case 69: // e
+	 		rotate(lampeT,Math.PI/90 * -1  ); 
+    		break;
+  		case 40: // down
+  		case 83: // s
+    		moveBackward = true;
+    		break;
+  		case 39: // right
+  		case 68: // d
+    		moveRight = true;
+    		break;
+		case 32: // space
+		    if (canJump === true) velocity.y += 50;
+		    canJump = false;
+		    break;
+		case 84: // space
+	    	triggerDoor();
+	    	break;
+    	}
   }
   
-  function onKeyDown(e) {
-    switch (e.keyCode) {
-      case 38: // up
-      case 87: // w
-        moveForward = true;
-        break;
-      case 37: // left
-      case 65: // a
-        moveLeft = true; 
-        break;
-         case 81: // q
-   		rotate(lampeT,Math.PI/90 ); 
-        break;
-      case 69: // e
-		 rotate(lampeT,Math.PI/90 * -1  ); 
-        break;
-      case 40: // down
-      case 83: // s
-        moveBackward = true;
-        break;
-      case 39: // right
-      case 68: // d
-        moveRight = true;
-        break;
-      case 32: // space
-        if (canJump === true) velocity.y += 50;
-        canJump = false;
-        break;
-    }
-  }
+function triggerDoor() {
+	if (isOpenable == true) {
+		isOpenable = false;
+			if (tuer2.userData.info.indexOf("geschlossen")>-1) {
+				tuer2.userData.info = "offen!<br/> schließen mit T";
+			} else if(tuer2.userData.info.indexOf("offen")>-1) {
+				tuer2.userData.info = "geschlossen!<br/> öffne mit T";
+			}
+	} else {
+		
+	}
+}
 
-  function onKeyUp(e) {
-    switch(e.keyCode) {
-      case 38: // up
-      case 87: // w
-        moveForward = false;
-        break;
-      case 37: // left
-      case 65: // a
-        moveLeft = false;
-        break;
-      case 40: // down
-      case 83: // s
-        moveBackward = false;
-        break;
-      case 39: // right
-      case 68: // d
-        moveRight = false;
-        break;
-    }
-  }
+function animateDoor() {
+	if (isOpenable == false) {
+		if (tuer2.userData.info.indexOf("offen")>-1) {
+			if (tuer2.position.x > 4)
+				tuer2.position.x -= 0.1;
+			else
+				isOpenable = true;
+		} else {
+			if (tuer2.position.x < 8)
+				tuer2.position.x += 0.1;
+			else
+				isOpenable = true;
+		}
+		}
+}
 
-  function initControls() {
-    document.addEventListener('keydown', onKeyDown, false);
-    document.addEventListener('keyup', onKeyUp, false);
+function onKeyUp(e) {
+	switch(e.keyCode) {
+    	case 38: // up
+	  	case 87: // w
+	    	moveForward = false;
+	    	break;
+	  	case 37: // left
+	  	case 65: // a
+	    	moveLeft = false;
+	    	break;
+	  	case 40: // down
+	  	case 83: // s
+	    	moveBackward = false;
+	    	break;
+	  	case 39: // right
+	  	case 68: // d
+	        moveRight = false;
+	        break;
+	    }
+}
+
+function initControls() {
+	document.addEventListener('keydown', onKeyDown, false);
+	document.addEventListener('keyup', onKeyUp, false);
     raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
-  }
+}
 
-  function updateControls() {
-    if (controlsEnabled) {
-      var delta = clock.getDelta();
-      var walkingSpeed = 100.0;
+function updateControls() {
+	if (controlsEnabled) {
+		var delta = clock.getDelta();
+      	var walkingSpeed = 100.0;
 
-      velocity.x -= velocity.x * 10.0 * delta;
-      velocity.z -= velocity.z * 10.0 * delta;
-      velocity.y -= 9.8 * 30.0 * delta;
-
-      if (moveForward) velocity.z -= walkingSpeed * delta;
-      if (moveBackward) velocity.z += walkingSpeed * delta;
-
-      if (moveLeft) velocity.x -= walkingSpeed * delta;
-      if (moveRight) velocity.x += walkingSpeed * delta;
-
-
-      controls.getObject().translateX(velocity.x * delta);
-      controls.getObject().translateY(velocity.y * delta);
-      controls.getObject().translateZ(velocity.z * delta);
-
-      if (controls.getObject().position.y < 4) {
-        velocity.y = 0;
-        controls.getObject().position.y = 4;
-        canJump = true;
-      }
+	    velocity.x -= velocity.x * 10.0 * delta;
+	    velocity.z -= velocity.z * 10.0 * delta;
+	    velocity.y -= 9.8 * 30.0 * delta;
+	
+	    if (moveForward) velocity.z -= walkingSpeed * delta;
+	    if (moveBackward) velocity.z += walkingSpeed * delta;
+	
+	    if (moveLeft) velocity.x -= walkingSpeed * delta;
+	    if (moveRight) velocity.x += walkingSpeed * delta;
+	
+	
+	    controls.getObject().translateX(velocity.x * delta);
+	    controls.getObject().translateY(velocity.y * delta);
+	    controls.getObject().translateZ(velocity.z * delta);
+	
+	    if (controls.getObject().position.y < 4) {
+	    	velocity.y = 0;
+	        controls.getObject().position.y = 4;
+	        canJump = true;
+	    }
     }
   }
