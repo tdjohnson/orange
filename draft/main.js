@@ -1,4 +1,3 @@
-
 var clock;
 var scene, camera, renderer;
 var geometry, material, mesh;
@@ -11,7 +10,7 @@ var moveForward,
     canJump;
 var velocity = new THREE.Vector3();
 var loader;
-var klo, tuer1, tuer2, boden, bett, zelle, buch, lampe, luefter, seife;
+var klo, tuer1, tuer2, boden, bett, zelle, buch, luefter, seife;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
@@ -21,8 +20,7 @@ var collidableMeshList = [];
 //animate();
 
 function init() { 
-	initControls();
-    initPointerLock();
+	
 
     clock = new THREE.Clock();
 
@@ -34,8 +32,7 @@ function init() {
 	//camera.position.x = 5;
 	//camera.position.y = -2;
 	//camera.position.z = 40;
-	controls = new THREE.PointerLockControls(camera);
-	scene.add(controls.getObject());
+
 	
 	
 	//objects
@@ -60,6 +57,12 @@ function init() {
 	loadZelle();
 	loadLuefter();
 	loadSeife();
+
+
+	initControls();
+    initPointerLock();
+	controls = new THREE.PointerLockControls(camera);
+	scene.add(controls.getObject());
 	
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -261,8 +264,45 @@ function loadLuefter()
 }
 
 function loadLampe()
-{
- 	addTischLampe(10.3,0,10.9,0.1,0.1,0.1);
+{	
+	//position
+	var px = 10.3;
+	var py = 0;
+	var pz = 10.9;
+	//scale
+	var sx = 0.1;
+	var sy = 0.1;
+	var sz = 0.1;
+	//light position (locally)
+	var lx = 6.7;
+	var ly = 9.4;
+	var lz = -1.7;
+	
+	var light = new THREE.PointLight(0xffff99, 5, 10 );
+	light.shadowCameraVisible = true;
+	light.shadowDarkness = 0.95;
+	light.castShadow = true;
+	light.position.set(lx,ly,lz);
+	//var pointLightHelper = new THREE.PointLightHelper(light, 10);
+	//scene.add(pointLightHelper);
+	
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/TischLampe/TischLampeBottom.json', function ( geometry, materials ) {
+		var lampeB = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+	    lampeB.position.set(px,py,pz);
+		lampeB.scale.set(sx,sy,sz);
+		scene.add(lampeB);
+	});
+	
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/TischLampe/TischLampeTop.json', function ( geometry, materials ) {
+		lampe = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+		lampe.position.set(px,py,pz);
+    	lampe.scale.set(sx,sy,sz);
+    	lampe.userData.info = "Push key q|e to rotate";
+		lampe.add(light);
+		scene.add(lampe);
+	});
 }
 
 function loadBett()
@@ -379,10 +419,10 @@ function onKeyDown(e) {
 			moveLeft = true; 
 			break;
  		case 81: // q
-			rotate(lampeT,new THREE.Vector3(0,1,0),Math.PI/90 ); //object,axis,angle
+			rotate(lampe,new THREE.Vector3(0,1,0),Math.PI/90 ); //object,axis,angle
     		break;
   		case 69: // e
-	 		rotate(lampeT,new THREE.Vector3(0,1,0),Math.PI/90 * -1); //object,axis,angle
+	 		rotate(lampe,new THREE.Vector3(0,1,0),Math.PI/90 * -1); //object,axis,angle
     		break;
   		case 40: // down
   		case 83: // s
