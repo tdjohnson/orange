@@ -379,10 +379,10 @@ function onKeyDown(e) {
 			moveLeft = true; 
 			break;
  		case 81: // q
-			rotate(lampeT,Math.PI/90 ); 
+			rotate(lampeT,new THREE.Vector3(0,1,0),Math.PI/90 ); //object,axis,angle
     		break;
   		case 69: // e
-	 		rotate(lampeT,Math.PI/90 * -1  ); 
+	 		rotate(lampeT,new THREE.Vector3(0,1,0),Math.PI/90 * -1); //object,axis,angle
     		break;
   		case 40: // down
   		case 83: // s

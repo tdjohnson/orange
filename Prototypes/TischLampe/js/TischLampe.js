@@ -4,13 +4,14 @@
   var px,py,pz;
   var sx,sy,sz;
   var info = "Push key q|e to rotate";
-var axis = new THREE.Vector3(0,1,0);
 
-function rotate(object,angle) {
-var xAxis = new THREE.Vector3(0,1,0);
-object.rotateOnAxis( xAxis, angle);
- spotlight.position = object.position;
-}
+
+function rotate(object, axis, angle) { // rotation by quaternion
+    var quaternion = new THREE.Quaternion();
+    quaternion.setFromAxisAngle(axis, angle);
+    object.quaternion.multiply(quaternion);
+}  
+
 
 function addLightSource(){
 	
