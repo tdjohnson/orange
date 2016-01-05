@@ -18,6 +18,10 @@ var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
 var collidableMeshList = [];
+var animationLock = false; // needed to complete animations before selection next object
+
+
+var collided=false;
 
 function init() { 
 
@@ -28,17 +32,21 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
+
 	//objects
 	var light = new THREE.PointLight(0xffffff);
 	light.position.y = 3;
 	light.position.z = 4;
 	scene.add(light);
 	
-	var light2 = new THREE.HemisphereLight(0xffffff, 0.1);
-	light.position.x = 5;
-	light.position.y = 3;
-	light.position.z = 4;
-	//scene.add(light2);
+	var light2 = new THREE.HemisphereLight(0xffffff, 10);
+	light2.position.x = 5;
+	light2.position.y = 10;
+	light2.position.z = 24;
+	scene.add(light2);
+	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
+	scene.add(pointLightHelper);
+	
 	//mirror
 	
 	var WIDTH = window.innerWidth;
@@ -53,7 +61,8 @@ function init() {
 	loadToilet();
 	loadDoor1();
 	loadDoor2();
-	//loadFloor();
+	loadFloor();
+	loadWall();
 	loadBed();
 	loadBook();
 	loadLamp();
@@ -76,8 +85,9 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 
-	loadMirror(); //keep it here.. renderer needs to be loaded 
 
+	
+	loadMirror(); //keep it here.. renderer needs to be loaded first
 	document.body.appendChild(renderer.domElement);
 	animate();
 	$( "#dialog" ).dialog({
@@ -86,8 +96,10 @@ function init() {
 }
 	
 function proximityDetector() {
+			//detect objects hit by raycaster vector
 	try{
-		//detect objects hit by raycaster vector
+	if(!animationLock){ // wait for running animations
+
 		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection()); //bind raycaster to camera	
 		showraycasthelper();//Raycaster helper - displays raycaster as vector
 		var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
@@ -107,8 +119,11 @@ function proximityDetector() {
 		frustum.setFromMatrix(cam_matrix); //set frustum (camera view)
 	
 		if(!frustum.intersectsObject(lastObject)){ //if object left field of view
-			
+		
 			lastObject = new THREE.Object3D(); //reset lastObject to empty object
+		}
+		}else{
+			
 		}
 	}catch(err){
 	}
@@ -121,7 +136,7 @@ function showraycasthelper(){
 }
 
 function showinfo(intersect){
-	var message = intersect.object.name + ": " + intersect.object.userData.info;
+	var message = animationLock + " " + intersect.object.name + ": " + intersect.object.userData.info;
 	if(intersect.object.userData.rotatable == true){
 		console.log(message + "  Tip! " + intersect.object.name + " can be rotated by pressing q or e");
 	}else{
@@ -136,7 +151,7 @@ function showinfo(intersect){
 
   
 
-function collisionDetectionPositive() {
+function collisionDetection() {
 	var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
 	bbox.update();
 	if ((controls.getObject().position.x+0.3 >= bbox.box.min.x) &&
@@ -172,14 +187,13 @@ function collisionDetectionNegative() {
 function animate() {
     requestAnimationFrame(animate);
     updateControls();
-    verticalMirror.render();
+    mirrorMaterial.render();
     renderer.render(scene, camera);
     camera.updateProjectionMatrix();
  	proximityDetector();
  	animateDoor(lastObject);
  	animateDrop(lastObject);
  	
- 	//collisionDetectionPositive();
 }
 
 
@@ -230,7 +244,7 @@ function onKeyDown(e) {
     		
     		break;
   		case 37: // left
-  		case 89:
+  		case 89: //y
   			triggerDrop(lastObject);
   			break;
   		case 65: // a
@@ -297,27 +311,29 @@ function updateControls() {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
       	var walkingSpeed = 100.0;
+		
 
-	    velocity.x -= velocity.x * 10.0 * delta;
-	    velocity.z -= velocity.z * 10.0 * delta;
-	    velocity.y -= 9.8 * 30.0 * delta;
+
+	    if (collisionDetection()) {
+	    	velocity.x -= velocity.x * 10.0 * delta;
+		    velocity.z -= velocity.z * 10.0 * delta;
+		    velocity.y -= 9.8 * 30.0 * delta;
+		} else {
+			if (collided == false){
+				collided = true;
+				velocity.x = -velocity.x*2;
+		    	velocity.z = -velocity.z*2;
+			} else {
+				if (velocity.x == velocity.z == 0) {
+					collided = false;
+				}
+			}
+		}
+
+	   
 	
-	    if (moveForward) {
-		    if (collisionDetectionPositive())
-		    	velocity.z -= walkingSpeed * delta;
-		    else {
-		    	velocity.z = 0;
-		    	velocity.x = 0;
-		    }
-		}
-	    if (moveBackward) {
-			if (collisionDetectionNegative())
-			    velocity.z += walkingSpeed * delta;
-		    else {
-		    	velocity.z = 0;
-		    	velocity.x = 0;
-		    }
-		}
+	    if (moveForward)	velocity.z -= walkingSpeed * delta;
+	    if (moveBackward)  velocity.z += walkingSpeed * delta;
 	    if (moveLeft) velocity.x -= walkingSpeed * delta;
 	    if (moveRight) velocity.x += walkingSpeed * delta;
 
