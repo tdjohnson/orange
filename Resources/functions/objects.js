@@ -73,14 +73,29 @@ function loadBot()
 function loadFloor()
 {
     var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Boden/boden.json', function ( geometry, materials ) {
+	loader.load( '../Prototypes/Gang/gang.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 	    floor = new THREE.Mesh( geometry, material );
-	    floor.position.x = -6;
-        floor.position.z = -8;
-        floor.position.y = -0.3;
+	    floor.scale.x = floor.scale.z = 4;
+	    floor.position.x = 24;
+        floor.position.z = 21.3;
+        floor.position.y = 0;
 	    scene.add(floor);
 
+	});
+}
+
+function loadWall() {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Gang/wall.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    wall = new THREE.Mesh( geometry, material );
+	    wall.scale.x = wall.scale.z = 4;
+	    wall.scale.y = 3.15;
+	    wall.position.x = 0;
+	    wall.position.z = 21.4;
+	    wall.position.y = 4.7;
+	    scene.add(wall);
 	});
 }
 
