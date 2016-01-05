@@ -220,10 +220,10 @@ function onKeyDown(e) {
 			moveLeft = true; 
 			break;
  		case 81: // q
-			rotate(lastObject,new THREE.Vector3(0,1,0),Math.PI/90 ); //object,axis,angle
+			rotate(lastObject,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
     		break;
   		case 69: // e
-	 		rotate(lastObject,new THREE.Vector3(0,1,0),Math.PI/90 * -1); //object,axis,angle
+	 		rotate(lastObject,new THREE.Vector3(0,1,0),-5); //object,axis,degree
     		break;
   		case 40: // down
   		case 83: // s
