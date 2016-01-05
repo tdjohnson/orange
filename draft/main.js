@@ -10,7 +10,7 @@ var moveForward,
     canJump;
 var velocity = new THREE.Vector3();
 var loader;
-var klo, tuer1, tuer2, boden, bett, cell, buch, luefter, soap,spiegel, verticalMirror ;
+var toilet, door1, door2, floor, bed, cell, book, radiator, soap, mirror, verticalMirror ;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
@@ -58,17 +58,17 @@ function init() {
 			
 
 	
-	loadKlo();
+	loadToilet();
 	loadDoor1();
 	loadDoor2();
 	//loadFloor();
-	loadBett();
-	loadBuch();
-	loadLampe();
+	loadBed();
+	loadBook();
+	loadLamp();
 	loadCell();
-	loadLuefter();
+	loadRadiator();
 	loadSoap();
-	loadBecken();
+	loadSink();
 
 
 
@@ -86,7 +86,6 @@ function init() {
 	
 	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH , textureHeight: HEIGHT, color:0x229999 } );
 	loadMirror();
-	rotate(spiegel,new THREE.Vector3(0,1,0),90);
 
 	document.body.appendChild(renderer.domElement);
 	animate();
@@ -146,7 +145,7 @@ function showinfo(intersect){
   
 
 function collisionDetectionPositive() {
-	var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
+	var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
 	bbox.update();
 	if ((controls.getObject().position.x+0.3 >= bbox.box.min.x) &&
 		(controls.getObject().position.x+0.3 <= bbox.box.max.x) &&
@@ -162,7 +161,7 @@ function collisionDetectionPositive() {
 }
 
 function collisionDetectionNegative() {
-	var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
+	var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
 	bbox.update();
 	if ((controls.getObject().position.x-0.3 >= bbox.box.min.x) &&
 		(controls.getObject().position.x-0.3 <= bbox.box.max.x) &&
