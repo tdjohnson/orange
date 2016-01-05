@@ -158,22 +158,22 @@ function loadSoap()
 	});
 }
 
-function loadTisch()
+function loadTable()
 {
 
     var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Tisch/table.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    tisch = new THREE.Mesh( geometry, material );
+	    table = new THREE.Mesh( geometry, material );
         //tisch.rotation.y =  Math.PI *2;
-      	tisch.rotation.y =  Math.PI/180*90;
-        tisch.position.z = 13;
-        tisch.position.x = 10;
-        tisch.position.y = 0;
-        tisch.scale.x = tisch.scale.y = tisch.scale.z = 1;
-        tisch.updateMatrix();
-        tisch.name = "tisch";
-	    scene.add(tisch);
+      	table.rotation.y =  Math.PI/180*90;
+        table.position.z = 13;
+        table.position.x = 10;
+        table.position.y = 0;
+        table.scale.x = table.scale.y = table.scale.z = 1;
+        table.updateMatrix();
+        table.name = "tisch";
+	    scene.add(table);
 
 	});
 }

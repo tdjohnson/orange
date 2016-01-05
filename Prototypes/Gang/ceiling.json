@@ -1,5 +1,5 @@
 {
-    "name": "PlaneGeometry.1",
+    "name": "PlaneGeometry.2",
     "vertices": [-6,0,1.5,6,0,1.5,-6,-0,-1.5,6,-0,-1.5],
     "colors": [],
     "normals": [0,-1,0],
