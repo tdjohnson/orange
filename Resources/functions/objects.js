@@ -128,11 +128,12 @@ function loadCeilingLamp() {
 	loader.load( '../Prototypes/DeckenLampe/lampe.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 	    ceilingLamp = new THREE.Mesh( geometry, material );
-	    ceilingLamp.scale.x = ceilingLamp.scale.z = 4;
-	    ceilingLamp.scale.y = 3.15;
+	    ceilingLamp.scale.x = ceilingLamp.scale.z = ceilingLamp.scale.y = 0.5;
 	    ceilingLamp.position.x = 30;
-	    ceilingLamp.position.z = 27.3;
-	    ceilingLamp.position.y = 3;
+	    ceilingLamp.position.z = 22;
+	    ceilingLamp.position.y = 9;
+	    ceilingLamp.rotation.x = Math.PI;
+	    
 	    scene.add(ceilingLamp);
 	});
 }
