@@ -18,6 +18,7 @@ var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
 var collidableMeshList = [];
+var animationLock = false; // needed to complete animations before selection next object
 
 function init() { 
 
@@ -83,8 +84,10 @@ function init() {
 }
 	
 function proximityDetector() {
+			//detect objects hit by raycaster vector
 	try{
-		//detect objects hit by raycaster vector
+	if(!animationLock){ // wait for running animations
+
 		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection()); //bind raycaster to camera	
 		showraycasthelper();//Raycaster helper - displays raycaster as vector
 		var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
@@ -104,8 +107,11 @@ function proximityDetector() {
 		frustum.setFromMatrix(cam_matrix); //set frustum (camera view)
 	
 		if(!frustum.intersectsObject(lastObject)){ //if object left field of view
-			
+		
 			lastObject = new THREE.Object3D(); //reset lastObject to empty object
+		}
+		}else{
+			
 		}
 	}catch(err){
 	}
@@ -118,7 +124,7 @@ function showraycasthelper(){
 }
 
 function showinfo(intersect){
-	var message = intersect.object.name + ": " + intersect.object.userData.info;
+	var message = animationLock + " " + intersect.object.name + ": " + intersect.object.userData.info;
 	if(intersect.object.userData.rotatable == true){
 		console.log(message + "  Tip! " + intersect.object.name + " can be rotated by pressing q or e");
 	}else{
@@ -227,7 +233,7 @@ function onKeyDown(e) {
     		
     		break;
   		case 37: // left
-  		case 89:
+  		case 89: //y
   			triggerDrop(lastObject);
   			break;
   		case 65: // a

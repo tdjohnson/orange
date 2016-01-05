@@ -13,7 +13,9 @@ function triggerDrop(object) {
 		object.userData.isDropable = false;
 			if (object.userData.info.indexOf("Wirf")>-1) {
 				object.userData.info = "Heb mich auf";
+					
 			} else if(object.userData.info.indexOf("Heb")>-1) {
+	
 				object.userData.info = "Wirf mich runter mit Y!";
 			}
 	} else {
@@ -24,6 +26,7 @@ function triggerDrop(object) {
 function animateDrop(object) {
 	// TO DO: fix angle
 	if (object.userData.isDropable == false) {
+			animationLock = true; // lock raycaster //not nice...shame on you
 		if (object.userData.info.indexOf("Heb")>-1) {
 			if(object.position.z > 11.7){
 					object.position.z -= 0.05;
@@ -38,6 +41,8 @@ function animateDrop(object) {
 					
 					rotate(object, new THREE.Vector3(1,0,0),-8);
 					
+				}else{
+					animationLock = false; // unlock raycaster //not nice...shame on you
 				}
 			}
 		}
@@ -45,12 +50,16 @@ function animateDrop(object) {
 			object.userData.isDropable = true;
 	}
 	else {
-			
+		
 	}
+	
+	
+	
 }
 
 function triggerDoor(object) {
 	if (object.userData.isOpenable == true) {
+
 		object.userData.isOpenable = false;
 			if (object.userData.info.indexOf("geschlossen")>-1) {
 				object.userData.info = "offen!<br/> schließen mit T";
@@ -77,6 +86,3 @@ function animateDoor(object) {
 		}
 	}
 }
-
-
-

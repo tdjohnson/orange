@@ -101,6 +101,8 @@ function loadSoap()
 		soap.userData.info = "Wirf mich runter mit Y!";
 		soap.userData.rotatable = true;
 		soap.userData.isDropable = true;
+		
+		
 		scene.add(soap);
 		var bbox = new THREE.BoundingBoxHelper( soap, 0xffffff );
 		bbox.update();
