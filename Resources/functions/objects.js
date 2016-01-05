@@ -297,3 +297,28 @@ function loadMirror()
 	scene.add(mirrorPlane);
 	});
 }
+
+
+function loadOJSoap()
+{
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Seife/seife.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+		soap = new THREE.Mesh( geometry, material );
+		soap.position.y = 2.5;
+		soap.position.x = 0.85;
+		soap.position.z = 12.2;
+		soap.castShadow = true;
+		soap.scale.x = soap.scale.y = soap.scale.z = 0.1;
+		soap.name = "Seife";
+		soap.userData.info = "Wirf mich runter mit Y!";
+		soap.userData.rotatable = true;
+		soap.userData.isDropable = true;
+		
+		
+		scene.add(soap);
+		var bbox = new THREE.BoundingBoxHelper( soap, 0xffffff );
+		bbox.update();
+		//scene.add( bbox );
+	});
+}
