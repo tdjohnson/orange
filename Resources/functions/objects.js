@@ -196,11 +196,10 @@ function loadBett()
 
 function loadDoor1()
 {
-	loader = new THREE.ColladaLoader();
-	loader.options.convertUpAxis = true;
-	var path = "../Prototypes/Tuer/tuer1.dae";
-	loader.load(path, function(geometry) {
-	    tuer1 = geometry.scene;
+	loader = new THREE.JSONLoader();
+	loader.load( "../Prototypes/Tuer/tuer1.json", function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+		tuer1 = new THREE.Mesh( geometry, material );
 	    tuer1.position.z = 15.3;
 	    tuer1.position.x = 4.8;
 	    tuer1.position.y = 3.8;
@@ -208,7 +207,7 @@ function loadDoor1()
 	    tuer1.castShadow = true;
 	    tuer1.updateMatrix();
 	    tuer1.name = "Tuer1";
-		tuer1.userData.info = "geschlossen!, öffne mit T";
+		//tuer1.userData.info = "geschlossen!, öffne mit T";
 		scene.add(tuer1);
 		var bbox = new THREE.BoundingBoxHelper( tuer1, 0xffffff );
 		bbox.update();
