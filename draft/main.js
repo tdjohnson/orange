@@ -154,10 +154,10 @@ function showinfo(intersect){
 function collisionDetection() {
 	for (var i=0; i<collidableMeshList.length; i++) {
 		var bbox = collidableMeshList[i];
-		if ((controls.getObject().position.x+0.3 >= bbox.box.min.x) &&
-			(controls.getObject().position.x+0.3 <= bbox.box.max.x) &&
-			(controls.getObject().position.z+0.3 >= bbox.box.min.z) &&
-			(controls.getObject().position.z+0.3 <= bbox.box.max.z))
+		if ((controls.getObject().position.x+0.3 >= toilet.box.min.x) &&
+			(controls.getObject().position.x+0.3 <= toilet.box.max.x) &&
+			(controls.getObject().position.z+0.3 >= toilet.box.min.z) &&
+			(controls.getObject().position.z+0.3 <= toilet.box.max.z))
 			 {
 			 	//console.log(bbox.box.min.x+" "+bbox.box.max.x+" "+bbox.box.min.y+" "+bbox.box.max.y);
 				return false;
