@@ -164,6 +164,7 @@ function animate() {
     camera.updateProjectionMatrix();
  	proximityDetector();
  	animateDoor();
+ 	animateDrop(lastObject);
  	
  	//collisionDetectionPositive();
 }
@@ -216,6 +217,9 @@ function onKeyDown(e) {
     		
     		break;
   		case 37: // left
+  		case 89:
+  			triggerDrop(lastObject);
+  			break;
   		case 65: // a
 			moveLeft = true; 
 			break;
