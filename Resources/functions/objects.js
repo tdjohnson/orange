@@ -24,9 +24,6 @@ function loadToilet()
 		toilet.userData.info = "Sehr schön";
 		toilet.userData.rotatable = true;
 		scene.add(toilet);
-		var box = new THREE.BoundingBoxHelper(toilet, 0xffffff );
-		box.update();
-		collidableMeshList.push(box);
 	});
 }
 
@@ -46,7 +43,6 @@ function loadSink()
 		sink.userData.info = "Waschbecken";
 		sink.userData.rotatable = true;
 		scene.add(sink);
-		collidableMeshList.push(new THREE.BoundingBoxHelper(sink, 0xffffff ));
 	});
 }
 
@@ -127,9 +123,7 @@ function loadBook()
 		book.userData.info = "Lies Faust";
 		book.userData.rotatable = true;
 		scene.add(book);
-		var bbox = new THREE.BoundingBoxHelper( book, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
+
 	});
 }
 
@@ -151,9 +145,6 @@ function loadSoap()
 		
 		
 		scene.add(soap);
-		var bbox = new THREE.BoundingBoxHelper( soap, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
 	});
 }
 
@@ -216,7 +207,7 @@ function loadRadiator()
 		var box = new THREE.BoundingBoxHelper(radiator, 0xffffff );
 		box.update();
 		collidableMeshList.push(box);
-		scene.add( bbox );
+		scene.add( box );
 	});
 }
 
@@ -298,9 +289,6 @@ function loadDoor1()
 	    door1.name = "Tuer1";
 		//tuer1.userData.info = "geschlossen!, öffne mit T";
 		scene.add(door1);
-		var bbox = new THREE.BoundingBoxHelper( door1, 0xffffff );
-		bbox.update();
-		scene.add( bbox );
 	});
 }
 function loadDoor2() {
@@ -319,9 +307,6 @@ function loadDoor2() {
 		door2.userData.info = "geschlossen!<br/> öffne mit T";
 		door2.userData.isOpenable = true;
 		scene.add(door2);
-		var bbox = new THREE.BoundingBoxHelper( door2, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
 	});
 }
 
