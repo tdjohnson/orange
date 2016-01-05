@@ -28,10 +28,6 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-	
-
-	
-	
 	//objects
 	var light = new THREE.PointLight(0xffffff);
 	light.position.y = 3;
@@ -56,8 +52,6 @@ function init() {
 	var NEAR = 1;
 	var FAR = 500;
 			
-
-	
 	loadToilet();
 	loadDoor1();
 	loadDoor2();
@@ -69,9 +63,6 @@ function init() {
 	loadRadiator();
 	loadSoap();
 	loadSink();
-
-
-
 
 	initControls();
     initPointerLock();
@@ -265,6 +256,9 @@ function onKeyDown(e) {
 		case 84:
 	    	triggerDoor(lastObject);
 	    	break;
+	   	case 90:
+	   		zoom();
+	   		break;
     	}
   }
   
@@ -338,3 +332,11 @@ function updateControls() {
 	    }
     }
   }
+  
+
+function zoom(){
+	if(camera.zoom == 4)
+		camera.zoom = 1;
+	else
+		camera.zoom = 4;
+}
