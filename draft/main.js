@@ -10,7 +10,7 @@ var moveForward,
     canJump;
 var velocity = new THREE.Vector3();
 var loader;
-var klo, tuer1, tuer2, boden, bett, zelle, buch, luefter, seife,spiegel, verticalMirror ;
+var toilet, door1, door2, floor, bed, cell, book, radiator, soap, mirror, verticalMirror ;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
@@ -28,10 +28,6 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-	
-
-	
-	
 	//objects
 	var light = new THREE.PointLight(0xffffff);
 	light.position.y = 3;
@@ -56,23 +52,17 @@ function init() {
 	var NEAR = 1;
 	var FAR = 500;
 			
-
-	
-	loadKlo();
+	loadToilet();
 	loadDoor1();
 	loadDoor2();
 	//loadFloor();
-	loadBett();
-	loadBuch();
-	loadLampe();
-	loadZelle();
-	loadLuefter();
-	loadSeife();
-	loadBecken();
-	loadBot();
-
-
-
+	loadBed();
+	loadBook();
+	loadLamp();
+	loadCell();
+	loadRadiator();
+	loadSoap();
+	loadSink();
 
 	initControls();
     initPointerLock();
@@ -87,7 +77,6 @@ function init() {
 	
 	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH , textureHeight: HEIGHT, color:0x229999 } );
 	loadMirror();
-	rotate(spiegel,new THREE.Vector3(0,1,0),90);
 
 	document.body.appendChild(renderer.domElement);
 	animate();
@@ -147,7 +136,7 @@ function showinfo(intersect){
   
 
 function collisionDetectionPositive() {
-	var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
+	var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
 	bbox.update();
 	if ((controls.getObject().position.x+0.3 >= bbox.box.min.x) &&
 		(controls.getObject().position.x+0.3 <= bbox.box.max.x) &&
@@ -163,7 +152,7 @@ function collisionDetectionPositive() {
 }
 
 function collisionDetectionNegative() {
-	var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
+	var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
 	bbox.update();
 	if ((controls.getObject().position.x-0.3 >= bbox.box.min.x) &&
 		(controls.getObject().position.x-0.3 <= bbox.box.max.x) &&
@@ -186,7 +175,7 @@ function animate() {
     renderer.render(scene, camera);
     camera.updateProjectionMatrix();
  	proximityDetector();
- 	animateDoor();
+ 	animateDoor(lastObject);
  	animateDrop(lastObject);
  	
  	//collisionDetectionPositive();
@@ -264,40 +253,16 @@ function onKeyDown(e) {
 		    if (canJump === true) velocity.y += 50;
 		    canJump = false;
 		    break;
-		case 84: // space
-	    	triggerDoor();
+		case 84:
+	    	triggerDoor(lastObject);
 	    	break;
+	   	case 90:
+	   		zoom();
+	   		break;
     	}
   }
   
-function triggerDoor() {
-	if (isOpenable == true) {
-		isOpenable = false;
-			if (tuer2.userData.info.indexOf("geschlossen")>-1) {
-				tuer2.userData.info = "offen!<br/> schließen mit T";
-			} else if(tuer2.userData.info.indexOf("offen")>-1) {
-				tuer2.userData.info = "geschlossen!<br/> öffne mit T";
-			}
-	} else {
-		
-	}
-}
 
-function animateDoor() {
-	if (isOpenable == false) {
-		if (tuer2.userData.info.indexOf("offen")>-1) {
-			if (tuer2.position.x > 4)
-				tuer2.position.x -= 0.1;
-			else
-				isOpenable = true;
-		} else {
-			if (tuer2.position.x < 8)
-				tuer2.position.x += 0.1;
-			else
-				isOpenable = true;
-		}
-	}
-}
 
 function onKeyUp(e) {
 	switch(e.keyCode) {
@@ -367,3 +332,11 @@ function updateControls() {
 	    }
     }
   }
+  
+
+function zoom(){
+	if(camera.zoom == 4)
+		camera.zoom = 1;
+	else
+		camera.zoom = 4;
+}
