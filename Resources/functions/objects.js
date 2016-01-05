@@ -73,11 +73,12 @@ function loadBot()
 function loadFloor()
 {
     var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Boden/boden.json', function ( geometry, materials ) {
+	loader.load( '../Prototypes/Gang/gang.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 	    floor = new THREE.Mesh( geometry, material );
-	    floor.position.x = -6;
-        floor.position.z = -8;
+	    floor.scale.x = floor.scale.z = 4;
+	    floor.position.x = 18;
+        floor.position.z = 20;
         floor.position.y = -0.3;
 	    scene.add(floor);
 
@@ -120,6 +121,8 @@ function loadSoap()
 		soap.userData.info = "Wirf mich runter mit Y!";
 		soap.userData.rotatable = true;
 		soap.userData.isDropable = true;
+		
+		
 		scene.add(soap);
 		var bbox = new THREE.BoundingBoxHelper( soap, 0xffffff );
 		bbox.update();
