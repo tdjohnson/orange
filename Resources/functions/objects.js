@@ -38,7 +38,7 @@ function loadBecken()
 		var material = new THREE.MeshFaceMaterial( materials );
 		becken = new THREE.Mesh( geometry, material );
 		becken.rotation.y =  Math.PI*0.5;
-		becken.position.z = 10;
+		becken.position.z = 13;
 		becken.position.x = 1.2;
 		becken.position.y = 2.5;
 		becken.scale.x = becken.scale.y = becken.scale.x = 1.2;
@@ -238,12 +238,11 @@ function loadDoor2() {
 
 
 function loadMirror(){
-				spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,5), verticalMirror.material );
+				spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,2), verticalMirror.material );
 				spiegel.add( verticalMirror );
 				spiegel.position.x = 0.9;
-				spiegel.position.y = 3;
+				spiegel.position.y = 4;
 				spiegel.position.z = 13;
 				spiegel.name = "Spiegel";
-				spiegel.userData.rotatable  =true;
 				scene.add(spiegel);
 }
