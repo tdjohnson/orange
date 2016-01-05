@@ -20,8 +20,7 @@ var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of
 var collidableMeshList = [];
 var animationLock = false; // needed to complete animations before selection next object
 
-
-var collided=false;
+var collided = false;
 
 function init() { 
 
@@ -43,9 +42,9 @@ function init() {
 	light2.position.x = 5;
 	light2.position.y = 8;
 	light2.position.z = 24;
-	scene.add(light2);
+	//scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
-	scene.add(pointLightHelper);
+	//scene.add(pointLightHelper);
 	
 	//mirror
 	
@@ -57,14 +56,15 @@ function init() {
 	var ASPECT = WIDTH / HEIGHT;
 	var NEAR = 1;
 	var FAR = 500;
-			
+
+	loadBed();			
 	loadToilet();
 	loadDoor1();
 	loadDoor2();
 	loadFloor();
 	loadWall();
 	loadCeiling();
-	loadBed();
+
 	loadBook();
 	loadLamp();
 	loadCell();
@@ -153,32 +153,38 @@ function showinfo(intersect){
   
 
 function collisionDetection() {
+	var collision;
 	for (var i=0; i<collidableMeshList.length; i++) {
-		var bbox = collidableMeshList[i];
+		var bbox = new THREE.BoundingBoxHelper(collidableMeshList[i]);
+		bbox.update();
+		
 		if ((controls.getObject().position.x >= bbox.box.min.x) &&
 			(controls.getObject().position.x <= bbox.box.max.x) &&
 			(controls.getObject().position.z >= bbox.box.min.z) &&
-			(controls.getObject().position.z <= bbox.box.max.z))
-			 {
-			 	//console.log(bbox.box.min.x+" "+bbox.box.max.x+" "+bbox.box.min.y+" "+bbox.box.max.y);
-				return false;
+			(controls.getObject().position.z <= bbox.box.max.z)) {
+				console.log(i);
+			 	collision = false;
+			 	break;
 			} else {
 				//alert(controls.getObject().position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
-				return true;
+				collision = true;
 			}
+		
 	}
+	return collision;
 }
 
 
 function animate() {
     requestAnimationFrame(animate);
-    updateControls();
+    
     mirrorMaterial.render();
     renderer.render(scene, camera);
     camera.updateProjectionMatrix();
  	proximityDetector();
  	animateDoor(lastObject);
  	animateDrop(lastObject);
+ 	updateControls();
  	
 }
 

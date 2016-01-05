@@ -24,9 +24,7 @@ function loadToilet()
 		toilet.userData.info = "Sehr schön";
 		toilet.userData.rotatable = true;
 		scene.add(toilet);
-		var box = new THREE.BoundingBoxHelper(bed, 0xffffff );
-		box.update();
-		collidableMeshList.push(box);
+		collidableMeshList.push(toilet);
 	});
 }
 
@@ -56,7 +54,7 @@ function loadBot()
 		var material = new THREE.MeshFaceMaterial( materials );
 		bot = new THREE.Mesh( geometry, material );
 		bot.rotation.y =  Math.PI*0.5;
-		bot.position.z = 15;
+		bot.position.z = 18;
 		bot.position.x = 1.25;
 		bot.position.y = 2.5;
 		bot.scale.x = bot.scale.y = bot.scale.x = 1.2;
@@ -167,6 +165,7 @@ function loadTable()
         table.updateMatrix();
         table.name = "tisch";
 	    scene.add(table);
+	    collidableMeshList.push(table);
 
 	});
 }
@@ -180,13 +179,14 @@ function loadChair()
 	    chair = new THREE.Mesh( geometry, material );
         //tisch.rotation.y =  Math.PI *2;
       	chair.rotation.y =  Math.PI/180*90;
-        chair.position.z = 14;
-        chair.position.x = 2;
-        chair.position.y = 1;
+        chair.position.z = 11;
+        chair.position.x = 9;
+        chair.position.y = -0.5;
         chair.scale.x = chair.scale.y = chair.scale.z = 1;
         chair.updateMatrix();
         chair.name = "chair";
 	    scene.add(chair);
+	    collidableMeshList.push(chair);
 
 	});
 }
@@ -207,10 +207,6 @@ function loadRadiator()
 		radiator.name = "Luefter";
 		radiator.userData.info = "BRRRRRRRR";
 		scene.add(radiator);
-		var box = new THREE.BoundingBoxHelper(radiator, 0xffffff );
-		box.update();
-		collidableMeshList.push(box);
-		scene.add( box );
 	});
 }
 
@@ -271,9 +267,7 @@ function loadBed()
 		bed.name = "Bett";
 		bed.userData.info = "Einsteigen!";
 		scene.add(bed);
-		var box = new THREE.BoundingBoxHelper(bed, 0xffffff );
-		box.update();
-		collidableMeshList.push(box);
+		collidableMeshList.push(bed);
 	});
 }
 
@@ -292,6 +286,7 @@ function loadDoor1()
 	    door1.name = "Tuer1";
 		//tuer1.userData.info = "geschlossen!, öffne mit T";
 		scene.add(door1);
+		collidableMeshList.push(door1);
 	});
 }
 function loadDoor2() {
@@ -310,6 +305,7 @@ function loadDoor2() {
 		door2.userData.info = "geschlossen!<br/> öffne mit T";
 		door2.userData.isOpenable = true;
 		scene.add(door2);
+		collidableMeshList.push(door2);
 	});
 }
 
