@@ -65,6 +65,7 @@ function init() {
 	loadWall();
 	loadCeiling();
 	loadWallDoor();
+	loadCeilingLamp();
 	loadBed();
 	loadBook();
 	loadLamp();

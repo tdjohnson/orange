@@ -125,6 +125,21 @@ function loadWallDoor() {
 	});
 }
 
+function loadCeilingLamp() {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/DeckenLampe/lampe.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    ceilingLamp = new THREE.Mesh( geometry, material );
+	    ceilingLamp.scale.x = ceilingLamp.scale.z = 4;
+	    ceilingLamp.scale.y = 3.15;
+	    ceilingLamp.position.x = 30;
+	    ceilingLamp.position.z = 27.3;
+	    ceilingLamp.position.y = 3;
+	    scene.add(ceilingLamp);
+	});
+}
+
+
 function loadBook()
 {
 	var loader = new THREE.JSONLoader();
