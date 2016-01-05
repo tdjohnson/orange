@@ -68,11 +68,9 @@ function init() {
 	loadZelle();
 	loadLuefter();
 	loadSeife();
-<<<<<<< HEAD
-	
-=======
 	loadBecken();
->>>>>>> fe8742f5ac70d014cc9373b47f2ad945eab98e3f
+	loadMirror();
+
 
 
 	initControls();
