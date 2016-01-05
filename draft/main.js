@@ -39,7 +39,6 @@ function init() {
 	light.position.y = 3;
 	light.position.z = 4;
 	//scene.add(light2);
-
 	//mirror
 	
 	var WIDTH = window.innerWidth;
@@ -73,7 +72,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
-	
+
 	loadMirror(); //keep it here.. renderer needs to be loaded 
 
 	document.body.appendChild(renderer.domElement);
@@ -105,6 +104,7 @@ function proximityDetector() {
 		frustum.setFromMatrix(cam_matrix); //set frustum (camera view)
 	
 		if(!frustum.intersectsObject(lastObject)){ //if object left field of view
+			
 			lastObject = new THREE.Object3D(); //reset lastObject to empty object
 		}
 	}catch(err){
