@@ -90,10 +90,10 @@ function loadBook()
 	loader.load( '../Prototypes/Buch/buch_neu_comb.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 		book = new THREE.Mesh( geometry, material );
-		book.position.y = 0;
+		book.position.y = 2;
 		book.position.x = 10;
-		book.position.z = 12;
-		book.rotation.y =  Math.PI*1.5;
+		book.position.z = 11.2;
+		book.rotation.y =  Math.PI/180*90;
 		book.scale.x = book.scale.y = book.scale.z = 0.3;
 		book.name = "Buch";
 		book.userData.info = "Lies Faust";
@@ -127,6 +127,47 @@ function loadSoap()
 	});
 }
 
+function loadTisch()
+{
+
+    var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Tisch/table.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    tisch = new THREE.Mesh( geometry, material );
+        //tisch.rotation.y =  Math.PI *2;
+      	tisch.rotation.y =  Math.PI/180*90;
+        tisch.position.z = 13;
+        tisch.position.x = 10;
+        tisch.position.y = 0;
+        tisch.scale.x = tisch.scale.y = tisch.scale.z = 1;
+        tisch.updateMatrix();
+        tisch.name = "tisch";
+	    scene.add(tisch);
+
+	});
+}
+
+function loadChair()
+{
+
+    var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Stuhl/stuhl.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    chair = new THREE.Mesh( geometry, material );
+        //tisch.rotation.y =  Math.PI *2;
+      	chair.rotation.y =  Math.PI/180*90;
+        chair.position.z = 14;
+        chair.position.x = 2;
+        chair.position.y = 1;
+        chair.scale.x = chair.scale.y = chair.scale.z = 1;
+        chair.updateMatrix();
+        chair.name = "chair";
+	    scene.add(chair);
+
+	});
+}
+
+
 function loadRadiator()
 {
 	var loader = new THREE.JSONLoader();
@@ -152,7 +193,7 @@ function loadLamp()
 {	
 	//position
 	var px = 10.3;
-	var py = 0;
+	var py = 2;
 	var pz = 10.9;
 	//scale
 	var sx = sy = sz =  0.1;
