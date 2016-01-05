@@ -54,7 +54,7 @@ function init() {
 	loadToilet();
 	loadDoor1();
 	loadDoor2();
-	//loadFloor();
+	loadFloor();
 	loadBed();
 	loadBook();
 	loadLamp();
