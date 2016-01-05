@@ -11,10 +11,10 @@ function rotate(object, axis, degree) {
 function triggerDrop(object) {
 	if (object.userData.isDropable == true) {
 		object.userData.isDropable = false;
-			if (object.userData.info.indexOf("geschlossen")>-1) {
-				object.userData.info = "offen!<br/> schließen mit T";
-			} else if(object.userData.info.indexOf("offen")>-1) {
-				object.userData.info = "geschlossen!<br/> öffne mit T";
+			if (object.userData.info.indexOf("Wirf")>-1) {
+				object.userData.info = "Heb mich auf";
+			} else if(object.userData.info.indexOf("Heb")>-1) {
+				object.userData.info = "Wirf mich runter mit Y!";
 			}
 	} else {
 		
@@ -24,7 +24,7 @@ function triggerDrop(object) {
 function animateDrop(object) {
 	// TO DO: fix angle
 	if (object.userData.isDropable == false) {
-		if (object.userData.info.indexOf("offen")>-1) {
+		if (object.userData.info.indexOf("Heb")>-1) {
 			if (object.position.y > 0.1){
 				object.position.y -= 0.1;
 				if(object.position.z > 9){

@@ -101,7 +101,7 @@ function loadSeife()
 		seife.castShadow = true;
 		seife.scale.x = seife.scale.y = seife.scale.z = 0.25;
 		seife.name = "Seife";
-		seife.userData.info = "geschlossen!, öffne mit T";
+		seife.userData.info = "Wirf mich runter mit Y!";
 		seife.userData.rotatable = true;
 		seife.userData.isDropable = true;
 		scene.add(seife);
