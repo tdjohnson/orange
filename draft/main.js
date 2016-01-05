@@ -28,9 +28,7 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-	//camera.position.x = 5;
-	//camera.position.y = -2;
-	//camera.position.z = 40;
+	
 
 	
 	
@@ -61,6 +59,8 @@ function init() {
 	initControls();
     initPointerLock();
 	controls = new THREE.PointerLockControls(camera);
+	controls.getObject().position.x = 6;
+	controls.getObject().position.z = 8;
 	scene.add(controls.getObject());
 	
 	renderer = new THREE.WebGLRenderer({antialias:true});
