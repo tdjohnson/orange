@@ -10,7 +10,7 @@ var moveForward,
     canJump;
 var velocity = new THREE.Vector3();
 var loader;
-var toilet, door1, door2, floor, bed, cell, book, radiator, soap, mirror, verticalMirror, bot;
+var toilet, door1, door2, floor, bed, cell, book, radiator, soap, mirror, verticalMirror, bot, tisch, chair;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
@@ -31,6 +31,7 @@ function init() {
     scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
 
 	//objects
 	var light = new THREE.PointLight(0xffffff);
@@ -61,6 +62,7 @@ function init() {
 	loadDoor1();
 	loadDoor2();
 	loadFloor();
+	loadWall();
 	loadBed();
 	loadBook();
 	loadLamp();
@@ -69,6 +71,8 @@ function init() {
 	loadSoap();
 	loadSink();
 	loadBot();
+	loadTisch();
+	loadChair();
 
 	initControls();
     initPointerLock();
@@ -81,8 +85,9 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 
-	loadMirror(); //keep it here.. renderer needs to be loaded 
 
+	
+	loadMirror(); //keep it here.. renderer needs to be loaded first
 	document.body.appendChild(renderer.domElement);
 	animate();
 	$( "#dialog" ).dialog({
@@ -167,7 +172,7 @@ function collisionDetection() {
 function animate() {
     requestAnimationFrame(animate);
     updateControls();
-    verticalMirror.render();
+    mirrorMaterial.render();
     renderer.render(scene, camera);
     camera.updateProjectionMatrix();
  	proximityDetector();
