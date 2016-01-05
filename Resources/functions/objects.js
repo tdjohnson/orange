@@ -89,7 +89,7 @@ function loadBuch()
 	});
 }
 
-function loadSeife()
+function loadSoap()
 {
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Seife/seife.json', function ( geometry, materials ) {

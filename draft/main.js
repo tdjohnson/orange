@@ -10,7 +10,7 @@ var moveForward,
     canJump;
 var velocity = new THREE.Vector3();
 var loader;
-var klo, tuer1, tuer2, boden, bett, zelle, buch, luefter, seife,spiegel, verticalMirror ;
+var klo, tuer1, tuer2, boden, bett, zelle, buch, luefter, soap,spiegel, verticalMirror ;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
@@ -67,7 +67,7 @@ function init() {
 	loadLampe();
 	loadZelle();
 	loadLuefter();
-	loadSeife();
+	loadSoap();
 	loadBecken();
 
 
