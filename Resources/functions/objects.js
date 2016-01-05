@@ -24,6 +24,9 @@ function loadToilet()
 		toilet.userData.info = "Sehr schön";
 		toilet.userData.rotatable = true;
 		scene.add(toilet);
+		var box = new THREE.BoundingBoxHelper(bed, 0xffffff );
+		box.update();
+		collidableMeshList.push(box);
 	});
 }
 
