@@ -160,6 +160,47 @@ function loadSoap()
 	});
 }
 
+function loadTable()
+{
+
+    var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Tisch/table.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    table = new THREE.Mesh( geometry, material );
+        //tisch.rotation.y =  Math.PI *2;
+      	table.rotation.y =  Math.PI/180*90;
+        table.position.z = 13;
+        table.position.x = 10;
+        table.position.y = 0;
+        table.scale.x = table.scale.y = table.scale.z = 1;
+        table.updateMatrix();
+        table.name = "tisch";
+	    scene.add(table);
+
+	});
+}
+
+function loadChair()
+{
+
+    var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Stuhl/stuhl.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    chair = new THREE.Mesh( geometry, material );
+        //tisch.rotation.y =  Math.PI *2;
+      	chair.rotation.y =  Math.PI/180*90;
+        chair.position.z = 14;
+        chair.position.x = 2;
+        chair.position.y = 1;
+        chair.scale.x = chair.scale.y = chair.scale.z = 1;
+        chair.updateMatrix();
+        chair.name = "chair";
+	    scene.add(chair);
+
+	});
+}
+
+
 function loadRadiator()
 {
 	var loader = new THREE.JSONLoader();
