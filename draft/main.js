@@ -185,7 +185,7 @@ function animate() {
     renderer.render(scene, camera);
     camera.updateProjectionMatrix();
  	proximityDetector();
- 	animateDoor();
+ 	animateDoor(lastObject);
  	animateDrop(lastObject);
  	
  	//collisionDetectionPositive();
@@ -263,40 +263,13 @@ function onKeyDown(e) {
 		    if (canJump === true) velocity.y += 50;
 		    canJump = false;
 		    break;
-		case 84: // space
-	    	triggerDoor();
+		case 84:
+	    	triggerDoor(lastObject);
 	    	break;
     	}
   }
   
-function triggerDoor() {
-	if (isOpenable == true) {
-		isOpenable = false;
-			if (tuer2.userData.info.indexOf("geschlossen")>-1) {
-				tuer2.userData.info = "offen!<br/> schließen mit T";
-			} else if(tuer2.userData.info.indexOf("offen")>-1) {
-				tuer2.userData.info = "geschlossen!<br/> öffne mit T";
-			}
-	} else {
-		
-	}
-}
 
-function animateDoor() {
-	if (isOpenable == false) {
-		if (tuer2.userData.info.indexOf("offen")>-1) {
-			if (tuer2.position.x > 4)
-				tuer2.position.x -= 0.1;
-			else
-				isOpenable = true;
-		} else {
-			if (tuer2.position.x < 8)
-				tuer2.position.x += 0.1;
-			else
-				isOpenable = true;
-		}
-	}
-}
 
 function onKeyUp(e) {
 	switch(e.keyCode) {

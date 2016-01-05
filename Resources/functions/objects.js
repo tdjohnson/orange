@@ -229,6 +229,7 @@ function loadDoor2() {
 		tuer2.updateMatrix();
 		tuer2.name = "Tuer2";
 		tuer2.userData.info = "geschlossen!<br/> öffne mit T";
+		tuer2.userData.isOpenable = true;
 		scene.add(tuer2);
 		var bbox = new THREE.BoundingBoxHelper( tuer2, 0xffffff );
 		bbox.update();

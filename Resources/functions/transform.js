@@ -48,3 +48,34 @@ function animateDrop(object) {
 			
 	}
 }
+
+function triggerDoor(object) {
+	if (object.userData.isOpenable == true) {
+		object.userData.isOpenable = false;
+			if (object.userData.info.indexOf("geschlossen")>-1) {
+				object.userData.info = "offen!<br/> schließen mit T";
+			} else if(tuer2.userData.info.indexOf("offen")>-1) {
+				object.userData.info = "geschlossen!<br/> öffne mit T";
+			}
+	} else {
+		
+	}
+}
+
+function animateDoor(object) {
+	if (object.userData.isOpenable == false) {
+		if (object.userData.info.indexOf("offen")>-1) {
+			if (object.position.x > 5)
+				object.position.x -= 0.1;
+			else
+				object.userData.isOpenable = true;
+		} else {
+			if (object.position.x < 8)
+				object.position.x += 0.1;
+			else
+				object.userData.isOpenable = true;
+		}
+	}
+}
+
+
