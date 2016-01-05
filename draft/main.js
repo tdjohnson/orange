@@ -69,7 +69,7 @@ function init() {
 	loadLuefter();
 	loadSeife();
 	loadBecken();
-	loadMirror();
+
 
 
 
