@@ -1,12 +1,12 @@
-function loadZelle() {
+function loadCell() {
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Zelle/Zelle_hires.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    zelle = new THREE.Mesh( geometry, material );
-	    zelle.scale.x = zelle.scale.z = 3.5;
-	    zelle.scale.y = 3.5;
-	    zelle.rotation.y = Math.PI / -2;
-	    scene.add(zelle);
+	    cell = new THREE.Mesh( geometry, material );
+	    cell.scale.x = zelle.scale.z = 3.5;
+	    cell.scale.y = 3.5;
+	    cell.rotation.y = Math.PI / -2;
+	    scene.add(cell);
 	});
 }
 
@@ -94,17 +94,17 @@ function loadSoap()
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Seife/seife.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-		seife = new THREE.Mesh( geometry, material );
-		seife.position.y = 2.5;
-		seife.position.x = 0.85;
-		seife.position.z = 12.2;
-		seife.castShadow = true;
-		seife.scale.x = seife.scale.y = seife.scale.z = 0.1;
-		seife.name = "Seife";
-		seife.userData.info = "Wirf mich runter mit Y!";
-		seife.userData.rotatable = true;
-		seife.userData.isDropable = true;
-		scene.add(seife);
+		soap = new THREE.Mesh( geometry, material );
+		soap.position.y = 2.5;
+		soap.position.x = 0.85;
+		soap.position.z = 12.2;
+		soap.castShadow = true;
+		soap.scale.x = seife.scale.y = seife.scale.z = 0.1;
+		soap.name = "Seife";
+		soap.userData.info = "Wirf mich runter mit Y!";
+		soap.userData.rotatable = true;
+		soap.userData.isDropable = true;
+		scene.add(soap);
 		var bbox = new THREE.BoundingBoxHelper( seife, 0xffffff );
 		bbox.update();
 		//scene.add( bbox );
