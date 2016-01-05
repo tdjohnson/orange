@@ -24,9 +24,6 @@ function loadToilet()
 		toilet.userData.info = "Sehr schön";
 		toilet.userData.rotatable = true;
 		scene.add(toilet);
-		var box = new THREE.BoundingBoxHelper(toilet, 0xffffff );
-		box.update();
-		collidableMeshList.push(box);
 	});
 }
 
@@ -46,9 +43,6 @@ function loadSink()
 		sink.userData.info = "Waschbecken";
 		sink.userData.rotatable = true;
 		scene.add(sink);
-		var box = new THREE.BoundingBoxHelper(sink, 0xffffff );
-		box.update();
-		collidableMeshList.push(box);
 	});
 }
 
@@ -121,18 +115,16 @@ function loadBook()
 	loader.load( '../Prototypes/Buch/buch_neu_comb.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 		book = new THREE.Mesh( geometry, material );
-		book.position.y = 0;
+		book.position.y = 2;
 		book.position.x = 10;
-		book.position.z = 12;
-		book.rotation.y =  Math.PI*1.5;
+		book.position.z = 11.2;
+		book.rotation.y =  Math.PI/180*90;
 		book.scale.x = book.scale.y = book.scale.z = 0.3;
 		book.name = "Buch";
 		book.userData.info = "Lies Faust";
 		book.userData.rotatable = true;
 		scene.add(book);
-		var bbox = new THREE.BoundingBoxHelper( book, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
+
 	});
 }
 
@@ -154,9 +146,6 @@ function loadSoap()
 		
 		
 		scene.add(soap);
-		var bbox = new THREE.BoundingBoxHelper( soap, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
 	});
 }
 
@@ -219,7 +208,7 @@ function loadRadiator()
 		var box = new THREE.BoundingBoxHelper(radiator, 0xffffff );
 		box.update();
 		collidableMeshList.push(box);
-		scene.add( bbox );
+		scene.add( box );
 	});
 }
 
@@ -227,7 +216,7 @@ function loadLamp()
 {	
 	//position
 	var px = 10.3;
-	var py = 0;
+	var py = 2;
 	var pz = 10.9;
 	//scale
 	var sx = sy = sz =  0.1;
@@ -280,7 +269,7 @@ function loadBed()
 		bed.name = "Bett";
 		bed.userData.info = "Einsteigen!";
 		scene.add(bed);
-		var box = new THREE.BoundingBoxHelper(sink, 0xffffff );
+		var box = new THREE.BoundingBoxHelper(bed, 0xffffff );
 		box.update();
 		collidableMeshList.push(box);
 	});
@@ -301,9 +290,6 @@ function loadDoor1()
 	    door1.name = "Tuer1";
 		//tuer1.userData.info = "geschlossen!, öffne mit T";
 		scene.add(door1);
-		var bbox = new THREE.BoundingBoxHelper( door1, 0xffffff );
-		bbox.update();
-		scene.add( bbox );
 	});
 }
 function loadDoor2() {
@@ -322,31 +308,33 @@ function loadDoor2() {
 		door2.userData.info = "geschlossen!<br/> öffne mit T";
 		door2.userData.isOpenable = true;
 		scene.add(door2);
-		var bbox = new THREE.BoundingBoxHelper( door2, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
 	});
 }
 
 
-function loadMirror(){
+function loadMirror()
+{
+	//load third-party mirror (by author Slayvin )
+	mirrorMaterial = new THREE.Mirror( renderer, camera, { textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
+	
+	loader = new THREE.JSONLoader();	
+	loader.load( '../Prototypes/Spiegel/Spiegel.json', function ( geometry, materials ) {
+	var material = new THREE.MeshFaceMaterial( materials );
+	mirror= new THREE.Mesh( geometry, material );
+	mirror.position.x = 0.8;
+	mirror.position.y = 4;
+	mirror.position.z = 13;
+	mirror.castShadow = true;
+	mirror.scale.x = mirror.scale.y = mirror.scale.z = 1;
+	scene.add(mirror);
 
-			
-	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
-	spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,2), verticalMirror.material );
-	spiegel.add( verticalMirror );
-	spiegel.position.x = 0.9;
-	spiegel.position.y = 4;
-	spiegel.position.z = 13;
-	spiegel.rotation.y = Math.PI / 180 * 90;
-	scene.add(spiegel);
+	mirrorPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), mirrorMaterial.material );
+	mirrorPlane.add(mirrorMaterial);
+	mirrorPlane.position.x = mirror.position.x;
+	mirrorPlane.position.y = mirror.position.y;
+	mirrorPlane.position.z = mirror.position.z;
 
-				mirror = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,2), verticalMirror.material );
-				mirror.add( verticalMirror );
-				mirror.position.x = 0.9;
-				mirror.position.y = 4;
-				mirror.position.z = 13;
-				mirror.rotation.y = Math.PI / 180 * 90;
-				mirror.name = "Spiegel";
-				scene.add(mirror);
+	mirrorPlane.rotation.y = Math.PI / 180 * 90;
+	scene.add(mirrorPlane);
+	});
 }
