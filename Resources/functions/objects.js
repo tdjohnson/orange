@@ -24,10 +24,9 @@ function loadToilet()
 		toilet.userData.info = "Sehr schön";
 		toilet.userData.rotatable = true;
 		scene.add(toilet);
-		var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
-		bbox.update();
-		collidableMeshList.push(toilet);
-		scene.add( bbox );
+		var box = new THREE.BoundingBoxHelper(toilet, 0xffffff );
+		box.update();
+		collidableMeshList.push(box);
 	});
 }
 
@@ -47,7 +46,7 @@ function loadSink()
 		sink.userData.info = "Waschbecken";
 		sink.userData.rotatable = true;
 		scene.add(sink);
-		collidableMeshList.push(sink);
+		collidableMeshList.push(new THREE.BoundingBoxHelper(sink, 0xffffff ));
 	});
 }
 
@@ -145,8 +144,9 @@ function loadRadiator()
 		radiator.name = "Luefter";
 		radiator.userData.info = "BRRRRRRRR";
 		scene.add(radiator);
-		var bbox = new THREE.BoundingBoxHelper( radiator, 0xffffff );
-		bbox.update();
+		var box = new THREE.BoundingBoxHelper(radiator, 0xffffff );
+		box.update();
+		collidableMeshList.push(box);
 		scene.add( bbox );
 	});
 }
@@ -208,9 +208,9 @@ function loadBed()
 		bed.name = "Bett";
 		bed.userData.info = "Einsteigen!";
 		scene.add(bed);
-		var bbox = new THREE.BoundingBoxHelper( bed, 0xffffff );
-		bbox.update();
-		scene.add( bbox );
+		var box = new THREE.BoundingBoxHelper(bed, 0xffffff );
+		box.update();
+		collidableMeshList.push(box);
 	});
 }
 
