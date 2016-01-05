@@ -72,14 +72,15 @@ function loadSeife()
 	loader.load( '../Prototypes/Seife/seife.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 		seife = new THREE.Mesh( geometry, material );
-		seife.position.y = 2;
-		seife.position.x = 2;
-		seife.position.z = 10;
+		seife.position.y = 2.0;
+		seife.position.x = 2.0;
+		seife.position.z = 10.0;
 		seife.castShadow = true;
 		seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
 		seife.name = "Seife";
-		seife.userData.info = "Sehr sauber";
+		seife.userData.info = "geschlossen!, öffne mit T";
 		seife.userData.rotatable = true;
+		seife.userData.isDropable = true;
 		scene.add(seife);
 		var bbox = new THREE.BoundingBoxHelper( seife, 0xffffff );
 		bbox.update();
