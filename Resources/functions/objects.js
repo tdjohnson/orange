@@ -76,9 +76,9 @@ function loadFloor()
 		var material = new THREE.MeshFaceMaterial( materials );
 	    floor = new THREE.Mesh( geometry, material );
 	    floor.scale.x = floor.scale.z = 4;
-	    floor.position.x = 18;
-        floor.position.z = 20;
-        floor.position.y = -0.3;
+	    floor.position.x = 24;
+        floor.position.z = 21.3;
+        floor.position.y = 0;
 	    scene.add(floor);
 
 	});
