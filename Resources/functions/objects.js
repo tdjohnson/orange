@@ -243,6 +243,7 @@ function loadMirror(){
 				spiegel.position.x = 0.9;
 				spiegel.position.y = 4;
 				spiegel.position.z = 13;
+				spiegel.rotation.y = Math.PI / 180 * 90
 				spiegel.name = "Spiegel";
 				scene.add(spiegel);
 }
