@@ -67,7 +67,6 @@ function init() {
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
-	renderer.shadowMapEnabled = true;
 	
 	document.body.appendChild(renderer.domElement);
 	animate();
@@ -189,10 +188,6 @@ function loadKlo()
 		klo.castShadow = true;
 		klo.name = "Klo";
 		klo.userData.info = "Sehr schön";
-		
-		klo.castShadow = true;
-		klo.receiveShadow = true;
-		
 		scene.add(klo);
 		var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
 		bbox.update();
@@ -210,10 +205,6 @@ function loadFloor()
 	    boden.position.x = -6;
         boden.position.z = -8;
         boden.position.y = -0.3;
-        
-        boden.castShadow = true;
-		boden.receiveShadow = true;
-		
 	    scene.add(boden);
 
 	});
@@ -232,14 +223,7 @@ function loadBuch()
 		buch.scale.x = buch.scale.y = buch.scale.z = 0.3;
 		buch.name = "Buch";
 		buch.userData.info = "Lies Faust";
-<<<<<<< HEAD
-		
-		buch.castShadow = true;
-		buch.receiveShadow = true;
-		
-=======
 		buch.userData.rotatable = true;
->>>>>>> 10a1a01e77921b1cc29aa87c8cd1b1efd55530aa
 		scene.add(buch);
 		var bbox = new THREE.BoundingBoxHelper( buch, 0xffffff );
 		bbox.update();
@@ -260,14 +244,7 @@ function loadSeife()
 		seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
 		seife.name = "Seife";
 		seife.userData.info = "Sehr sauber";
-<<<<<<< HEAD
-		
-		seife.castShadow = true;
-		seife.receiveShadow = true;
-		
-=======
 		seife.userData.rotatable = true;
->>>>>>> 10a1a01e77921b1cc29aa87c8cd1b1efd55530aa
 		scene.add(seife);
 		var bbox = new THREE.BoundingBoxHelper( seife, 0xffffff );
 		bbox.update();
@@ -289,10 +266,6 @@ function loadLuefter()
 		luefter.scale.x = 1.2;
 		luefter.name = "Luefter";
 		luefter.userData.info = "BRRRRRRRR";
-		
-		luefter.castShadow = true;
-		luefter.receiveShadow = true;
-		
 		scene.add(luefter);
 		var bbox = new THREE.BoundingBoxHelper( luefter, 0xffffff );
 		bbox.update();
@@ -356,10 +329,6 @@ function loadBett()
 		bett.updateMatrix();
 		bett.name = "Bett";
 		bett.userData.info = "Einsteigen!";
-		
-		bett.castShadow = true;
-		bett.receiveShadow = true;
-		
 		scene.add(bett);
 		var bbox = new THREE.BoundingBoxHelper( bett, 0xffffff );
 		bbox.update();
@@ -382,10 +351,6 @@ function loadDoor1()
 	    tuer1.updateMatrix();
 	    tuer1.name = "Tuer1";
 		tuer1.userData.info = "geschlossen!, öffne mit T";
-		
-		tuer1.castShadow = true;
-		tuer1.receiveShadow = true;
-		
 		scene.add(tuer1);
 		var bbox = new THREE.BoundingBoxHelper( tuer1, 0xffffff );
 		bbox.update();
@@ -406,10 +371,6 @@ function loadDoor2() {
 		tuer2.updateMatrix();
 		tuer2.name = "Tuer2";
 		tuer2.userData.info = "geschlossen!<br/> öffne mit T";
-		
-		tuer2.castShadow = true;
-		tuer2.receiveShadow = true;
-		
 		scene.add(tuer2);
 		var bbox = new THREE.BoundingBoxHelper( tuer2, 0xffffff );
 		bbox.update();
@@ -486,7 +447,7 @@ function onKeyDown(e) {
 		    canJump = false;
 		    break;
 		case 84: // space
-	    	//triggerDoor();
+	    	triggerDoor();
 	    	break;
     	}
   }
