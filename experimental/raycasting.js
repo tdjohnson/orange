@@ -11,7 +11,7 @@
       canJump;
   var velocity = new THREE.Vector3();
   var loader;
-  var klo, tuer1, tuer2, boden, bett, zelle, buch, lampe, luefter, seife;
+  var klo, tuer1, tuer2, boden, bett, zelle, buch, lampe, luefter, seife, tisch, stuhl;
   var raycaster = new THREE.Raycaster();
   var arrow;
 
@@ -57,6 +57,7 @@
 	loadZelle();
 	loadLuefter();
 	loadSeife();
+	loadTisch();
 
     renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -208,6 +209,26 @@ function loadLampe()
  	addTischLampe(10.3,0,10.9,0.1,0.1,0.1);
 }
 
+
+function loadTisch()
+{
+
+    var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Tisch/table.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    tisch = new THREE.Mesh( geometry, material );
+        tisch.rotation.y =  Math.PI;
+        tisch.position.z = 9;
+        tisch.position.x = 9;
+        tisch.scale.x = tisch.scale.y = tisch.scale.z = 1;
+        tisch.updateMatrix();
+        tisch.name = "tisch";
+	    scene.add(tisch);
+
+	});
+}
+
+
 function loadBett()
 {
 
@@ -225,6 +246,8 @@ function loadBett()
 
 	});
 }
+
+
 
 function loadDoor1()
 {

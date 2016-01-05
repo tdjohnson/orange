@@ -10,7 +10,7 @@ var moveForward,
     canJump;
 var velocity = new THREE.Vector3();
 var loader;
-var toilet, door1, door2, floor, bed, cell, book, radiator, soap, mirror, mirrorMaterial, bot;
+var toilet, door1, door2, floor, bed, cell, book, radiator, soap, mirror, verticalMirror, bot, tisch, chair;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
@@ -72,6 +72,8 @@ function init() {
 	loadSoap();
 	loadSink();
 	loadBot();
+	loadTisch();
+	loadChair();
 
 	initControls();
     initPointerLock();
@@ -151,35 +153,20 @@ function showinfo(intersect){
   
 
 function collisionDetection() {
-	var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
-	bbox.update();
-	if ((controls.getObject().position.x+0.3 >= bbox.box.min.x) &&
-		(controls.getObject().position.x+0.3 <= bbox.box.max.x) &&
-		(controls.getObject().position.z+0.3 >= bbox.box.min.z) &&
-		(controls.getObject().position.z+0.3 <= bbox.box.max.z))
-		 {
-			//alert(controls.getObject().position.x+" "+bbox.box.min.x);
-			return false;
-		} else {
-			//alert(controls.getObject().position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
-			return true;
-		}
-}
-
-function collisionDetectionNegative() {
-	var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
-	bbox.update();
-	if ((controls.getObject().position.x-0.3 >= bbox.box.min.x) &&
-		(controls.getObject().position.x-0.3 <= bbox.box.max.x) &&
-		(controls.getObject().position.z-0.3 >= bbox.box.min.z) &&
-		(controls.getObject().position.z-0.3 <= bbox.box.max.z))
-		 {
-			//alert(controls.getObject().position.x+" "+bbox.box.min.x);
-			return false;
-		} else {
-			//alert(controls.getObject().position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
-			return true;
-		}
+	for (var i=0; i<collidableMeshList.length; i++) {
+		var bbox = collidableMeshList[i];
+		if ((controls.getObject().position.x+0.3 >= bbox.box.min.x) &&
+			(controls.getObject().position.x+0.3 <= bbox.box.max.x) &&
+			(controls.getObject().position.z+0.3 >= bbox.box.min.z) &&
+			(controls.getObject().position.z+0.3 <= bbox.box.max.z))
+			 {
+			 	//console.log(bbox.box.min.x+" "+bbox.box.max.x+" "+bbox.box.min.y+" "+bbox.box.max.y);
+				return false;
+			} else {
+				//alert(controls.getObject().position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
+				return true;
+			}
+	}
 }
 
 
