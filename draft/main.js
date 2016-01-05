@@ -65,7 +65,7 @@ function init() {
 	loadBett();
 	loadBuch();
 	loadLampe();
-	loadZelle();
+	loadCell();
 	loadLuefter();
 	loadSoap();
 	loadBecken();
