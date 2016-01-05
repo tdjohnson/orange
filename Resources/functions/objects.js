@@ -3,7 +3,7 @@ function loadCell() {
 	loader.load( '../Prototypes/Zelle/Zelle_hires.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 	    cell = new THREE.Mesh( geometry, material );
-	    cell.scale.x = zelle.scale.z = 3.5;
+	    cell.scale.x = cell.scale.z = 3.5;
 	    cell.scale.y = 3.5;
 	    cell.rotation.y = Math.PI / -2;
 	    scene.add(cell);
@@ -99,13 +99,13 @@ function loadSoap()
 		soap.position.x = 0.85;
 		soap.position.z = 12.2;
 		soap.castShadow = true;
-		soap.scale.x = seife.scale.y = seife.scale.z = 0.1;
+		soap.scale.x = soap.scale.y = soap.scale.z = 0.1;
 		soap.name = "Seife";
 		soap.userData.info = "Wirf mich runter mit Y!";
 		soap.userData.rotatable = true;
 		soap.userData.isDropable = true;
 		scene.add(soap);
-		var bbox = new THREE.BoundingBoxHelper( seife, 0xffffff );
+		var bbox = new THREE.BoundingBoxHelper( soap, 0xffffff );
 		bbox.update();
 		//scene.add( bbox );
 	});
