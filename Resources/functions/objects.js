@@ -109,6 +109,35 @@ function loadCeiling() {
 	});
 }
 
+function loadWallDoor() {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Gang/wallDoor.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    wallDoor = new THREE.Mesh( geometry, material );
+	    wallDoor.scale.x = wallDoor.scale.z = 4;
+	    wallDoor.scale.y = 3.15;
+	    wallDoor.position.x = 48;
+	    wallDoor.position.z = 27.3;
+	    wallDoor.position.y = 0;
+	    scene.add(wallDoor);
+	});
+}
+
+function loadCeilingLamp() {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/DeckenLampe/lampe.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    ceilingLamp = new THREE.Mesh( geometry, material );
+	    ceilingLamp.scale.x = ceilingLamp.scale.z = 4;
+	    ceilingLamp.scale.y = 3.15;
+	    ceilingLamp.position.x = 30;
+	    ceilingLamp.position.z = 27.3;
+	    ceilingLamp.position.y = 3;
+	    scene.add(ceilingLamp);
+	});
+}
+
+
 function loadBook()
 {
 	var loader = new THREE.JSONLoader();
