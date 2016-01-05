@@ -1,6 +1,6 @@
- function loadZelle() {
+function loadZelle() {
 	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Zelle/Zelle.json', function ( geometry, materials ) {
+	loader.load( '../Prototypes/Zelle/Zelle_hires.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 	    zelle = new THREE.Mesh( geometry, material );
 	    zelle.scale.x = zelle.scale.z = 3.5;
@@ -27,6 +27,29 @@ function loadKlo()
 		var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
 		bbox.update();
 		collidableMeshList.push(klo);
+		scene.add( bbox );
+	});
+}
+
+function loadBecken()
+{
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Becken/becken.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+		becken = new THREE.Mesh( geometry, material );
+		becken.rotation.y =  Math.PI*0.5;
+		becken.position.z = 10;
+		becken.position.x = 1.2;
+		becken.position.y = 2.5;
+		becken.scale.x = becken.scale.y = becken.scale.x = 1.2;
+		becken.castShadow = true;
+		becken.name = "Klo";
+		becken.userData.info = "Waschbücken";
+		becken.userData.rotatable = true;
+		scene.add(becken);
+		var bbox = new THREE.BoundingBoxHelper( becken, 0xffffff );
+		bbox.update();
+		collidableMeshList.push(becken);
 		scene.add( bbox );
 	});
 }
@@ -74,7 +97,7 @@ function loadSeife()
 		seife = new THREE.Mesh( geometry, material );
 		seife.position.y = 2;
 		seife.position.x = 2;
-		seife.position.z = 13;
+		seife.position.z = 10;
 		seife.castShadow = true;
 		seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
 		seife.name = "Seife";
@@ -215,15 +238,15 @@ function loadDoor2() {
 
 
 function loadMirror(){
-	
+	var verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: 100, textureHeight: 100, color:0x889999 } );
 
-				spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,5), verticalMirror.material );
+				var spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 3, 5 ), verticalMirror.material );
 				spiegel.add( verticalMirror );
-				spiegel.position.x = 0.9;
-				spiegel.position.y = 3;
-				spiegel.position.z = 13;
-				spiegel.name = "Spiegel";
-				spiegel.userData.rotatable  =true;
+				spiegel.position.x = 1;
+				spiegel.position.y = 1;
+				spiegel.position.z = 10;
+				spiegel.rotation.y =  Math.PI /90;
 				scene.add(spiegel);
-				
+				rotate(spiegel,new THREE.Vector3(0,1,0),90);
+	
 }
