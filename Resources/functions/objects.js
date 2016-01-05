@@ -256,24 +256,29 @@ function loadDoor2() {
 }
 
 
-function loadMirror(){
+function loadMirror()
+{
+	//load third-party mirror (by author Slayvin )
+	mirrorMaterial = new THREE.Mirror( renderer, camera, { textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
+	
+	loader = new THREE.JSONLoader();	
+	loader.load( '../Prototypes/Spiegel/Spiegel.json', function ( geometry, materials ) {
+	var material = new THREE.MeshFaceMaterial( materials );
+	mirror= new THREE.Mesh( geometry, material );
+	mirror.position.x = 0.8;
+	mirror.position.y = 4;
+	mirror.position.z = 13;
+	mirror.castShadow = true;
+	mirror.scale.x = mirror.scale.y = mirror.scale.z = 1;
+	scene.add(mirror);
 
-			
-	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
-	spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,2), verticalMirror.material );
-	spiegel.add( verticalMirror );
-	spiegel.position.x = 0.9;
-	spiegel.position.y = 4;
-	spiegel.position.z = 13;
-	spiegel.rotation.y = Math.PI / 180 * 90;
-	scene.add(spiegel);
+	mirrorPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), mirrorMaterial.material );
+	mirrorPlane.add(mirrorMaterial);
+	mirrorPlane.position.x = mirror.position.x;
+	mirrorPlane.position.y = mirror.position.y;
+	mirrorPlane.position.z = mirror.position.z;
 
-				mirror = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,2), verticalMirror.material );
-				mirror.add( verticalMirror );
-				mirror.position.x = 0.9;
-				mirror.position.y = 4;
-				mirror.position.z = 13;
-				mirror.rotation.y = Math.PI / 180 * 90;
-				mirror.name = "Spiegel";
-				scene.add(mirror);
+	mirrorPlane.rotation.y = Math.PI / 180 * 90;
+	scene.add(mirrorPlane);
+	});
 }
