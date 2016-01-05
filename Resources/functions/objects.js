@@ -51,6 +51,25 @@ function loadSink()
 	});
 }
 
+function loadBot()
+{
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Bot/bot_combined.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+		bot = new THREE.Mesh( geometry, material );
+		bot.rotation.y =  Math.PI*0.5;
+		bot.position.z = 15;
+		bot.position.x = 1.25;
+		bot.position.y = 2.5;
+		bot.scale.x = bot.scale.y = bot.scale.x = 1.2;
+		bot.castShadow = true;
+		bot.name = "JailBot";
+		bot.userData.info = "Rapiiiing!";
+		bot.userData.rotatable = true;
+		scene.add(bot);
+	});
+}
+
 function loadFloor()
 {
     var loader = new THREE.JSONLoader();
