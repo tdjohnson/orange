@@ -5,14 +5,6 @@
   var sx,sy,sz;
   var info = "Push key q|e to rotate";
 
-
-function rotate(object, axis, angle) { // rotation by quaternion
-    var quaternion = new THREE.Quaternion();
-    quaternion.setFromAxisAngle(axis, angle);
-    object.quaternion.multiply(quaternion);
-}  
-
-
 function addLightSource(){
 	
 	//local offset for adding lightsource to object
@@ -30,13 +22,11 @@ function addLightSource(){
 
 	var pointLightHelper = new THREE.PointLightHelper( spotlight , 1);
 	scene.add( pointLightHelper );
-	
 }
 
 function addObject(){
 	
 TLloader = new THREE.JSONLoader();
-
 
 TLloader.load( '../Prototypes/TischLampe/TischLampeBottom.json', function ( geometry, materials ) {
     lampeB= new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
@@ -44,8 +34,6 @@ TLloader.load( '../Prototypes/TischLampe/TischLampeBottom.json', function ( geom
 	lampeB.scale.set(sx,sy,sz);
 	scene.add(lampeB);
 });
-
-
 
 TLloader.load( '../Prototypes/TischLampe/TischLampeTop.json', function ( geometry, materials ) {
 	
@@ -61,6 +49,7 @@ TLloader.load( '../Prototypes/TischLampe/TischLampeTop.json', function ( geometr
 }
 
 function addTischLampe(ax,ay,az,bx,by,bz){
+	//position
 	px = ax;
 	py = ay;
 	pz = az;
@@ -72,7 +61,3 @@ function addTischLampe(ax,ay,az,bx,by,bz){
 	addObject();
 	addLightSource();
 }
-
-
-
-

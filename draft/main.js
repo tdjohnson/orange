@@ -1,4 +1,3 @@
-
 var clock;
 var scene, camera, renderer;
 var geometry, material, mesh;
@@ -11,18 +10,17 @@ var moveForward,
     canJump;
 var velocity = new THREE.Vector3();
 var loader;
-var klo, tuer1, tuer2, boden, bett, zelle, buch, lampe, luefter, seife;
+var klo, tuer1, tuer2, boden, bett, zelle, buch, luefter, seife;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
-var enablerc = true; //for pausing raycaster updates
-var lastObject = new THREE.Object3D();//for pausing raycaster updates
+var lastObject = new THREE.Object3D();//for pausing raycaster updates 
 var collidableMeshList = [];
+var frustum = new THREE.Frustum();
 //animate();
 
 function init() { 
-	initControls();
-    initPointerLock();
+	
 
     clock = new THREE.Clock();
 
@@ -34,8 +32,7 @@ function init() {
 	//camera.position.x = 5;
 	//camera.position.y = -2;
 	//camera.position.z = 40;
-	controls = new THREE.PointerLockControls(camera);
-	scene.add(controls.getObject());
+
 	
 	
 	//objects
@@ -60,6 +57,12 @@ function init() {
 	loadZelle();
 	loadLuefter();
 	loadSeife();
+
+
+	initControls();
+    initPointerLock();
+	controls = new THREE.PointerLockControls(camera);
+	scene.add(controls.getObject());
 	
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -76,25 +79,47 @@ function init() {
 function proximityDetector() {
 	raycaster.set(camera.getWorldPosition(),camera.getWorldDirection());	
 	showraycasthelper();//Raycaster helper - displays raycaster as vector
-	
 	var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
-	
 	if ( intersects.length > 0 ) { //if objects are intersected
 		if(intersects[0].object.name.length >= 1){ //if object has a name
-		//if(intersects[0].object.name != lastObject.name){ //do if object is new
-			if(intersects[0].distance <= 4){ //only show near objects
-				$( "#dialog" ).dialog("open"); //buggy... needed here so it can be closed later...
-				showinfo(intersects[0]); //show alert and log to console
-				lastObject = intersects[0].object; //remember last object
+			if(intersects[0].object.name != lastObject.name){ //do if object is new
+				if(intersects[0].distance <= 6){ //only show near objects
+					showinfo(intersects[0]); //show alert and log to console
+					lastObject = intersects[0].object; //remember last object
+				}	
 			}
-		//}
-		} else {
-			if ($( "#dialog" ).dialog("isOpen")) {
-			$( "#dialog" ).dialog("close");
-		   					}
-			}
+		}
 	}
 }
+
+function showraycasthelper(){
+	scene.remove (arrow);
+	arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
+	scene.add( arrow );
+}
+
+function showinfo(intersect){
+	var message = intersect.object.name + ": " + intersect.object.userData.info;
+	if(intersect.object.userData.rotatable == true){
+		console.log(message + "  Tip! " + intersect.object.name + " can be rotated by pressing q or e");
+	}else{
+		console.log(message);
+	}
+	//log distance to object
+	// console.log("distance to " +intersect.object.name + ": " + intersect.distance); 
+	//$("#dialog").html(message); //disabled dialogs for now... buggy
+	//$("#dialog").dialog( 'option', 'position', ['left',20] );
+}
+
+function inview(object){
+	//checks if given object is still in view by checking intersection with fristum.
+	//could be usefull with combination of raycaster, 
+	var cam_matrix = new THREE.Matrix4();
+	cam_matrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
+	frustum.setFromMatrix(cam_matrix);
+	return frustum.intersectsObject( object );
+}
+  
 
 function collisionDetectionPositive() {
 	var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
@@ -129,21 +154,6 @@ function collisionDetectionNegative() {
 }
 
 
-function showinfo(intersect){
-	var message = intersect.object.name + ": " + intersect.object.userData.info;
-	$("#dialog").html(message);
-	$("#dialog").dialog( 'option', 'position', ['left',20] );
-	console.log(message);
-	//log distance to object
-	// console.log("distance to " +intersect.object.name + ": " + intersect.distance); 
-}
-  
-function showraycasthelper(){
-	scene.remove (arrow);
-	arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
-	scene.add( arrow );
-}
-
 function animate() {
     requestAnimationFrame(animate);
     updateControls();
@@ -151,6 +161,7 @@ function animate() {
     camera.updateProjectionMatrix();
  	proximityDetector();
  	animateDoor();
+ 	
  	//collisionDetectionPositive();
 }
   
@@ -221,14 +232,18 @@ function loadBuch()
 		buch.scale.x = buch.scale.y = buch.scale.z = 0.3;
 		buch.name = "Buch";
 		buch.userData.info = "Lies Faust";
+<<<<<<< HEAD
 		
 		buch.castShadow = true;
 		buch.receiveShadow = true;
 		
+=======
+		buch.userData.rotatable = true;
+>>>>>>> 10a1a01e77921b1cc29aa87c8cd1b1efd55530aa
 		scene.add(buch);
 		var bbox = new THREE.BoundingBoxHelper( buch, 0xffffff );
 		bbox.update();
-		scene.add( bbox );
+		//scene.add( bbox );
 	});
 }
 
@@ -245,10 +260,14 @@ function loadSeife()
 		seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
 		seife.name = "Seife";
 		seife.userData.info = "Sehr sauber";
+<<<<<<< HEAD
 		
 		seife.castShadow = true;
 		seife.receiveShadow = true;
 		
+=======
+		seife.userData.rotatable = true;
+>>>>>>> 10a1a01e77921b1cc29aa87c8cd1b1efd55530aa
 		scene.add(seife);
 		var bbox = new THREE.BoundingBoxHelper( seife, 0xffffff );
 		bbox.update();
@@ -282,8 +301,45 @@ function loadLuefter()
 }
 
 function loadLampe()
-{
- 	addTischLampe(10.3,0,10.9,0.1,0.1,0.1);
+{	
+	//position
+	var px = 10.3;
+	var py = 0;
+	var pz = 10.9;
+	//scale
+	var sx = sy = sz =  0.1;
+	//light position (locally)
+	var lx = 6.7;
+	var ly = 9.4;
+	var lz = -1.7;
+	
+	var light = new THREE.PointLight(0xffff99, 5, 10 );
+	light.shadowCameraVisible = true;
+	light.shadowDarkness = 0.95;
+	light.castShadow = true;
+	light.position.set(lx,ly,lz);
+	//var pointLightHelper = new THREE.PointLightHelper(light, 10);
+	//scene.add(pointLightHelper);
+	
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/TischLampe/TischLampeBottom.json', function ( geometry, materials ) {
+		var lampeB = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+	    lampeB.position.set(px,py,pz);
+		lampeB.scale.set(sx,sy,sz);
+		scene.add(lampeB);
+	});
+	
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/TischLampe/TischLampeTop.json', function ( geometry, materials ) {
+		lampe = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+		lampe.position.set(px,py,pz);
+    	lampe.scale.set(sx,sy,sz);
+    	lampe.name = "Lampe";
+    	lampe.userData.info = "";
+    	lampe.userData.rotatable = true;
+		lampe.add(light);
+		scene.add(lampe);
+	});
 }
 
 function loadBett()
@@ -412,10 +468,10 @@ function onKeyDown(e) {
 			moveLeft = true; 
 			break;
  		case 81: // q
-			rotate(lampeT,Math.PI/90 ); 
+			rotate(lastObject,new THREE.Vector3(0,1,0),Math.PI/90 ); //object,axis,angle
     		break;
   		case 69: // e
-	 		rotate(lampeT,Math.PI/90 * -1  ); 
+	 		rotate(lastObject,new THREE.Vector3(0,1,0),Math.PI/90 * -1); //object,axis,angle
     		break;
   		case 40: // down
   		case 83: // s
