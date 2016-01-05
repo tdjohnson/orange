@@ -25,19 +25,26 @@ function animateDrop(object) {
 	// TO DO: fix angle
 	if (object.userData.isDropable == false) {
 		if (object.userData.info.indexOf("Heb")>-1) {
-			if (object.position.y > 0.1){
-				object.position.y -= 0.1;
-				if(object.position.z > 9){
-					object.position.z -= 0.1;
-				}
-				
-				rotate(object, new THREE.Vector3(1,0,0),-9);
-				
+			if(object.position.z > 11.7){
+					object.position.z -= 0.05;
 			}
-			else
-				object.userData.isDropable = true;
-		} else {
-			
+			else{
+				if (object.position.y > 0.1){
+					object.position.y -= 0.1;
+					
+					if(object.position.z > 11 && object.position.z < 11.7){
+						object.position.z -= 0.05;
+					}
+					
+					rotate(object, new THREE.Vector3(1,0,0),-9);
+					
+				}
+			}
 		}
+		else
+			object.userData.isDropable = true;
+	}
+	else {
+			
 	}
 }
