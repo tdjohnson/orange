@@ -39,7 +39,7 @@ function loadBecken()
 		becken = new THREE.Mesh( geometry, material );
 		becken.rotation.y =  Math.PI*0.5;
 		becken.position.z = 13;
-		becken.position.x = 1.2;
+		becken.position.x = 1.25;
 		becken.position.y = 2.5;
 		becken.scale.x = becken.scale.y = becken.scale.x = 1.2;
 		becken.castShadow = true;
