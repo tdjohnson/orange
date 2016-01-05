@@ -104,10 +104,9 @@ function loadCeiling() {
 	    ceiling = new THREE.Mesh( geometry, material );
 	    ceiling.scale.x = ceiling.scale.z = 4;
 	    ceiling.scale.y = 3.15;
-	    ceiling.position.x = 12;
+	    ceiling.position.x = 24;
 	    ceiling.position.z = 21.4;
 	    ceiling.position.y = 9;
-	    ceiling.rotation.x = Math.PI;
 	    scene.add(ceiling);
 	});
 }
