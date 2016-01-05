@@ -17,6 +17,7 @@ var arrow; //for raycasterhelper
 var lastObject = new THREE.Object3D();//for pausing raycaster updates 
 var collidableMeshList = [];
 var frustum = new THREE.Frustum();
+var cam_matrix;
 //animate();
 
 function init() { 
@@ -76,6 +77,7 @@ function init() {
 }
 	
 function proximityDetector() {
+	try{
 	raycaster.set(camera.getWorldPosition(),camera.getWorldDirection());	
 	showraycasthelper();//Raycaster helper - displays raycaster as vector
 	var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
@@ -88,6 +90,18 @@ function proximityDetector() {
 				}	
 			}
 		}
+	}
+
+	cam_matrix = new THREE.Matrix4();
+	cam_matrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
+	frustum.setFromMatrix(cam_matrix);
+
+	if(!frustum.intersectsObject(lastObject)){
+		lastObject = new THREE.Object3D();
+		console.log("object reset");
+	}
+	}catch(err){
+		
 	}
 }
 
@@ -110,14 +124,7 @@ function showinfo(intersect){
 	//$("#dialog").dialog( 'option', 'position', ['left',20] );
 }
 
-function inview(object){
-	//checks if given object is still in view by checking intersection with fristum.
-	//could be usefull with combination of raycaster, 
-	var cam_matrix = new THREE.Matrix4();
-	cam_matrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
-	frustum.setFromMatrix(cam_matrix);
-	return frustum.intersectsObject( object );
-}
+
   
 
 function collisionDetectionPositive() {
@@ -188,6 +195,7 @@ function loadKlo()
 		klo.castShadow = true;
 		klo.name = "Klo";
 		klo.userData.info = "Sehr schön";
+		klo.userData.rotatable = true;
 		scene.add(klo);
 		var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
 		bbox.update();
