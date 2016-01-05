@@ -14,14 +14,12 @@ var klo, tuer1, tuer2, boden, bett, zelle, buch, luefter, seife;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
-var lastObject = new THREE.Object3D();//for pausing raycaster updates 
+var lastObject = new THREE.Object3D();//for pausing raycaster updates
+var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
+var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
 var collidableMeshList = [];
-var frustum = new THREE.Frustum();
-var cam_matrix;
-//animate();
 
 function init() { 
-	
 
     clock = new THREE.Clock();
 
@@ -78,30 +76,29 @@ function init() {
 	
 function proximityDetector() {
 	try{
-	raycaster.set(camera.getWorldPosition(),camera.getWorldDirection());	
-	showraycasthelper();//Raycaster helper - displays raycaster as vector
-	var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
-	if ( intersects.length > 0 ) { //if objects are intersected
-		if(intersects[0].object.name.length >= 1){ //if object has a name
-			if(intersects[0].object.name != lastObject.name){ //do if object is new
-				if(intersects[0].distance <= 6){ //only show near objects
-					showinfo(intersects[0]); //show alert and log to console
-					lastObject = intersects[0].object; //remember last object
-				}	
+		//detect objects hit by raycaster vector
+		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection()); //bind raycaster to camera	
+		showraycasthelper();//Raycaster helper - displays raycaster as vector
+		var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
+		if ( intersects.length > 0 ) { //if objects are intersected
+			if(intersects[0].object.name.length >= 1){ //if object has a name
+				if(intersects[0].object.name != lastObject.name){ //do if object is new
+					if(intersects[0].distance <= 6){ //only show near objects
+						showinfo(intersects[0]); //show alert and log to console
+						lastObject = intersects[0].object; //remember last object
+					}	
+				}
 			}
 		}
-	}
-
-	cam_matrix = new THREE.Matrix4();
-	cam_matrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
-	frustum.setFromMatrix(cam_matrix);
-
-	if(!frustum.intersectsObject(lastObject)){
-		lastObject = new THREE.Object3D();
-		console.log("object reset");
-	}
+	
+		//detect if object previously hit by raycaster has left the field of view
+		cam_matrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse ); //calculate matrix for camera
+		frustum.setFromMatrix(cam_matrix); //set frustum (camera view)
+	
+		if(!frustum.intersectsObject(lastObject)){ //if object left field of view
+			lastObject = new THREE.Object3D(); //reset lastObject to empty object
+		}
 	}catch(err){
-		
 	}
 }
 
