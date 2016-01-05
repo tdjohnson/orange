@@ -39,6 +39,11 @@ function init() {
 	light.position.y = 3;
 	light.position.z = 4;
 	//scene.add(light2);
+<<<<<<< HEAD
+
+	
+	loadKlo();
+=======
 	
 	
 	//mirror
@@ -53,6 +58,7 @@ function init() {
 	var FAR = 500;
 			
 	loadToilet();
+>>>>>>> 28f065e31467a63376e0295b56cb839d4d460452
 	loadDoor1();
 	loadDoor2();
 	//loadFloor();
@@ -75,8 +81,14 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 	
+<<<<<<< HEAD
+
+	loadMirror(); //keep it here.. renderer needs to be loaded 
+	
+=======
 	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH , textureHeight: HEIGHT, color:0x229999 } );
 	loadMirror();
+>>>>>>> 28f065e31467a63376e0295b56cb839d4d460452
 
 	document.body.appendChild(renderer.domElement);
 	animate();
