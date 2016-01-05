@@ -1,0 +1,40 @@
+{
+    "faces": [43,0,1,3,2,0,0,1,2,3,0,0,0,0],
+    "normals": [1,0,0],
+    "colors": [],
+    "materials": [{
+        "mapDiffuse": "wall.png",
+        "colorDiffuse": [0.117851,0.117851,0.117851],
+        "wireframe": false,
+        "DbgIndex": 0,
+        "visible": true,
+        "opacity": 1,
+        "doubleSided": true,
+        "depthTest": true,
+        "shading": "lambert",
+        "transparent": false,
+        "mapDiffuseAnisotropy": 1,
+        "colorEmissive": [0,0,0],
+        "blending": "NormalBlending",
+        "depthWrite": true,
+        "mapDiffuseRepeat": [1,1],
+        "mapDiffuseWrap": ["RepeatWrapping","RepeatWrapping"],
+        "vertexColors": false,
+        "DbgColor": 15658734,
+        "DbgName": "Material.001"
+    }],
+    "vertices": [-0,1.5,1.5,0,-1.5,1.5,-0,1.5,-1.5,0,-1.5,-1.5],
+    "metadata": {
+        "faces": 1,
+        "normals": 1,
+        "materials": 1,
+        "vertices": 4,
+        "version": 3,
+        "type": "Geometry",
+        "generator": "io_three",
+        "colors": 0,
+        "uvs": 1
+    },
+    "uvs": [[0.0001,0.9999,0.0001,0.0001,0.9999,0.0001,0.9999,0.9999]],
+    "name": "PlaneGeometry.4"
+}

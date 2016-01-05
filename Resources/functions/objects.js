@@ -85,6 +85,20 @@ function loadFloor()
 	});
 }
 
+function loadWall() {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Gang/wall.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    wall = new THREE.Mesh( geometry, material );
+	    wall.scale.x = wall.scale.z = 4;
+	    wall.scale.y = 3.15;
+	    wall.position.x = 0;
+	    wall.position.z = 21.4;
+	    wall.position.y = 4.7;
+	    scene.add(wall);
+	});
+}
+
 function loadBook()
 {
 	var loader = new THREE.JSONLoader();
