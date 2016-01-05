@@ -1,55 +1,55 @@
-function loadZelle() {
+function loadCell() {
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Zelle/Zelle_hires.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    zelle = new THREE.Mesh( geometry, material );
-	    zelle.scale.x = zelle.scale.z = 3.5;
-	    zelle.scale.y = 3.5;
-	    zelle.rotation.y = Math.PI / -2;
-	    scene.add(zelle);
+	    cell = new THREE.Mesh( geometry, material );
+	    cell.scale.x = cell.scale.z = 3.5;
+	    cell.scale.y = 3.5;
+	    cell.rotation.y = Math.PI / -2;
+	    scene.add(cell);
 	});
 }
 
-function loadKlo()
+function loadToilet()
 {
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Klo/klo.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-		klo = new THREE.Mesh( geometry, material );
-		klo.rotation.y =  Math.PI*0.5;
-		klo.position.z = 5;
-		klo.position.x = 2.5;
-		klo.castShadow = true;
-		klo.name = "Klo";
-		klo.userData.info = "Sehr schön";
-		klo.userData.rotatable = true;
-		scene.add(klo);
-		var bbox = new THREE.BoundingBoxHelper( klo, 0xffffff );
+		toilet = new THREE.Mesh( geometry, material );
+		toilet.rotation.y =  Math.PI*0.5;
+		toilet.position.z = 5;
+		toilet.position.x = 2.5;
+		toilet.castShadow = true;
+		toilet.name = "Klo";
+		toilet.userData.info = "Sehr schön";
+		toilet.userData.rotatable = true;
+		scene.add(toilet);
+		var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
 		bbox.update();
-		collidableMeshList.push(klo);
+		collidableMeshList.push(toilet);
 		scene.add( bbox );
 	});
 }
 
-function loadBecken()
+function loadSink()
 {
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Becken/becken.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-		becken = new THREE.Mesh( geometry, material );
-		becken.rotation.y =  Math.PI*0.5;
-		becken.position.z = 13;
-		becken.position.x = 1.2;
-		becken.position.y = 2.5;
-		becken.scale.x = becken.scale.y = becken.scale.x = 1.2;
-		becken.castShadow = true;
-		becken.name = "Klo";
-		becken.userData.info = "Waschbücken";
-		becken.userData.rotatable = true;
-		scene.add(becken);
-		var bbox = new THREE.BoundingBoxHelper( becken, 0xffffff );
+		sink = new THREE.Mesh( geometry, material );
+		sink.rotation.y =  Math.PI*0.5;
+		sink.position.z = 13;
+		sink.position.x = 1.25;
+		sink.position.y = 2.5;
+		sink.scale.x = sink.scale.y = sink.scale.x = 1.2;
+		sink.castShadow = true;
+		sink.name = "Waschbecken";
+		sink.userData.info = "Waschbecken";
+		sink.userData.rotatable = true;
+		scene.add(sink);
+		var bbox = new THREE.BoundingBoxHelper( sink, 0xffffff );
 		bbox.update();
-		collidableMeshList.push(becken);
+		collidableMeshList.push(sink);
 		scene.add( bbox );
 	});
 }
@@ -59,79 +59,80 @@ function loadFloor()
     var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Boden/boden.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    boden = new THREE.Mesh( geometry, material );
-	    boden.position.x = -6;
-        boden.position.z = -8;
-        boden.position.y = -0.3;
-	    scene.add(boden);
+	    floor = new THREE.Mesh( geometry, material );
+	    floor.position.x = -6;
+        floor.position.z = -8;
+        floor.position.y = -0.3;
+	    scene.add(floor);
 
 	});
 }
 
-function loadBuch()
+function loadBook()
 {
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Buch/buch_neu_comb.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-		buch = new THREE.Mesh( geometry, material );
-		buch.position.y = 0;
-		buch.position.x = 10;
-		buch.position.z = 12;
-		buch.rotation.y =  Math.PI*1.5;
-		buch.scale.x = buch.scale.y = buch.scale.z = 0.3;
-		buch.name = "Buch";
-		buch.userData.info = "Lies Faust";
-		buch.userData.rotatable = true;
-		scene.add(buch);
-		var bbox = new THREE.BoundingBoxHelper( buch, 0xffffff );
+		book = new THREE.Mesh( geometry, material );
+		book.position.y = 0;
+		book.position.x = 10;
+		book.position.z = 12;
+		book.rotation.y =  Math.PI*1.5;
+		book.scale.x = book.scale.y = book.scale.z = 0.3;
+		book.name = "Buch";
+		book.userData.info = "Lies Faust";
+		book.userData.rotatable = true;
+		scene.add(book);
+		var bbox = new THREE.BoundingBoxHelper( book, 0xffffff );
 		bbox.update();
 		//scene.add( bbox );
 	});
 }
 
-function loadSeife()
+function loadSoap()
 {
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Seife/seife.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-		seife = new THREE.Mesh( geometry, material );
-		seife.position.y = 2;
-		seife.position.x = 2;
-		seife.position.z = 10;
-		seife.castShadow = true;
-		seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
-		seife.name = "Seife";
-		seife.userData.info = "Sehr sauber";
-		seife.userData.rotatable = true;
-		scene.add(seife);
-		var bbox = new THREE.BoundingBoxHelper( seife, 0xffffff );
+		soap = new THREE.Mesh( geometry, material );
+		soap.position.y = 2.5;
+		soap.position.x = 0.85;
+		soap.position.z = 12.2;
+		soap.castShadow = true;
+		soap.scale.x = soap.scale.y = soap.scale.z = 0.1;
+		soap.name = "Seife";
+		soap.userData.info = "Wirf mich runter mit Y!";
+		soap.userData.rotatable = true;
+		soap.userData.isDropable = true;
+		scene.add(soap);
+		var bbox = new THREE.BoundingBoxHelper( soap, 0xffffff );
 		bbox.update();
 		//scene.add( bbox );
 	});
 }
 
-function loadLuefter()
+function loadRadiator()
 {
 	var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Luefter/luefter.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-		luefter = new THREE.Mesh( geometry, material );
-		luefter.position.y = 6;
-		luefter.position.x = 1;
-		luefter.position.z = 9.9;
-		luefter.rotation.y =  Math.PI*0.5;
-		luefter.scale.y = luefter.scale.z = 0.7;
-		luefter.scale.x = 1.2;
-		luefter.name = "Luefter";
-		luefter.userData.info = "BRRRRRRRR";
-		scene.add(luefter);
-		var bbox = new THREE.BoundingBoxHelper( luefter, 0xffffff );
+		radiator = new THREE.Mesh( geometry, material );
+		radiator.position.y = 6;
+		radiator.position.x = 1;
+		radiator.position.z = 9.9;
+		radiator.rotation.y =  Math.PI*0.5;
+		radiator.scale.y = radiator.scale.z = 0.7;
+		radiator.scale.x = 1.2;
+		radiator.name = "Luefter";
+		radiator.userData.info = "BRRRRRRRR";
+		scene.add(radiator);
+		var bbox = new THREE.BoundingBoxHelper( radiator, 0xffffff );
 		bbox.update();
 		scene.add( bbox );
 	});
 }
 
-function loadLampe()
+function loadLamp()
 {	
 	//position
 	var px = 10.3;
@@ -173,22 +174,22 @@ function loadLampe()
 	});
 }
 
-function loadBett()
+function loadBed()
 {
 
     var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Bett/bett.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-		bett = new THREE.Mesh( geometry, material );
-		bett.rotation.y =  Math.PI;
-		bett.position.z = 5;
-		bett.position.x = 9;
-		bett.scale.x = bett.scale.y = bett.scale.z = 1;
-		bett.updateMatrix();
-		bett.name = "Bett";
-		bett.userData.info = "Einsteigen!";
-		scene.add(bett);
-		var bbox = new THREE.BoundingBoxHelper( bett, 0xffffff );
+		bed = new THREE.Mesh( geometry, material );
+		bed.rotation.y =  Math.PI;
+		bed.position.z = 5;
+		bed.position.x = 9;
+		bed.scale.x = bed.scale.y = bed.scale.z = 1;
+		bed.updateMatrix();
+		bed.name = "Bett";
+		bed.userData.info = "Einsteigen!";
+		scene.add(bed);
+		var bbox = new THREE.BoundingBoxHelper( bed, 0xffffff );
 		bbox.update();
 		scene.add( bbox );
 	});
@@ -196,21 +197,20 @@ function loadBett()
 
 function loadDoor1()
 {
-	loader = new THREE.ColladaLoader();
-	loader.options.convertUpAxis = true;
-	var path = "../Prototypes/Tuer/tuer1.dae";
-	loader.load(path, function(geometry) {
-	    tuer1 = geometry.scene;
-	    tuer1.position.z = 15.3;
-	    tuer1.position.x = 4.8;
-	    tuer1.position.y = 3.8;
-	    tuer1.scale.y = 1.4;
-	    tuer1.castShadow = true;
-	    tuer1.updateMatrix();
-	    tuer1.name = "Tuer1";
-		tuer1.userData.info = "geschlossen!, öffne mit T";
-		scene.add(tuer1);
-		var bbox = new THREE.BoundingBoxHelper( tuer1, 0xffffff );
+	loader = new THREE.JSONLoader();
+	loader.load( "../Prototypes/Tuer/tuer1.json", function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+		door1 = new THREE.Mesh( geometry, material );
+	    door1.position.z = 15.3;
+	    door1.position.x = 4.8;
+	    door1.position.y = 3.8;
+	    door1.scale.y = 1.4;
+	    door1.castShadow = true;
+	    door1.updateMatrix();
+	    door1.name = "Tuer1";
+		//tuer1.userData.info = "geschlossen!, öffne mit T";
+		scene.add(door1);
+		var bbox = new THREE.BoundingBoxHelper( door1, 0xffffff );
 		bbox.update();
 		scene.add( bbox );
 	});
@@ -220,17 +220,18 @@ function loadDoor2() {
     var loader = new THREE.JSONLoader();
 	loader.load( "../Prototypes/Tuer/tuer2.json", function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-		tuer2 = new THREE.Mesh( geometry, material );
-		tuer2.position.x = 8;
-		tuer2.position.z = 14.9;
-		tuer2.position.y = 3.8;
-		tuer2.castShadow = true;
-		tuer2.scale.y = 1.4;
-		tuer2.updateMatrix();
-		tuer2.name = "Tuer2";
-		tuer2.userData.info = "geschlossen!<br/> öffne mit T";
-		scene.add(tuer2);
-		var bbox = new THREE.BoundingBoxHelper( tuer2, 0xffffff );
+		door2 = new THREE.Mesh( geometry, material );
+		door2.position.x = 8;
+		door2.position.z = 14.9;
+		door2.position.y = 3.8;
+		door2.castShadow = true;
+		door2.scale.y = 1.4;
+		door2.updateMatrix();
+		door2.name = "Tuer2";
+		door2.userData.info = "geschlossen!<br/> öffne mit T";
+		door2.userData.isOpenable = true;
+		scene.add(door2);
+		var bbox = new THREE.BoundingBoxHelper( door2, 0xffffff );
 		bbox.update();
 		//scene.add( bbox );
 	});
@@ -238,6 +239,7 @@ function loadDoor2() {
 
 
 function loadMirror(){
+
 			
 	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
 	spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,2), verticalMirror.material );
@@ -247,4 +249,14 @@ function loadMirror(){
 	spiegel.position.z = 13;
 	spiegel.rotation.y = Math.PI / 180 * 90;
 	scene.add(spiegel);
+
+				mirror = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,2), verticalMirror.material );
+				mirror.add( verticalMirror );
+				mirror.position.x = 0.9;
+				mirror.position.y = 4;
+				mirror.position.z = 13;
+				mirror.rotation.y = Math.PI / 180 * 90;
+				mirror.name = "Spiegel";
+				scene.add(mirror);
+
 }
