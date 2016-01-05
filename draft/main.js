@@ -54,6 +54,7 @@ function init() {
 	loadZelle();
 	loadLuefter();
 	loadSeife();
+	loadBecken();
 
 
 	initControls();
