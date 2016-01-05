@@ -39,9 +39,9 @@ function init() {
 	light.position.z = 4;
 	scene.add(light);
 	
-	var light2 = new THREE.HemisphereLight(0xffffff, 10);
+	var light2 = new THREE.AmbientLight(0xffffff);
 	light2.position.x = 5;
-	light2.position.y = 10;
+	light2.position.y = 8;
 	light2.position.z = 24;
 	scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
@@ -63,6 +63,7 @@ function init() {
 	loadDoor2();
 	loadFloor();
 	loadWall();
+	loadCeiling();
 	loadBed();
 	loadBook();
 	loadLamp();

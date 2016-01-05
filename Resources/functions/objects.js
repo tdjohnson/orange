@@ -99,6 +99,21 @@ function loadWall() {
 	});
 }
 
+function loadCeiling() {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Gang/ceiling.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    ceiling = new THREE.Mesh( geometry, material );
+	    ceiling.scale.x = ceiling.scale.z = 4;
+	    ceiling.scale.y = 3.15;
+	    ceiling.position.x = 12;
+	    ceiling.position.z = 21.4;
+	    ceiling.position.y = 9;
+	    ceiling.rotation.x = Math.PI;
+	    scene.add(ceiling);
+	});
+}
+
 function loadBook()
 {
 	var loader = new THREE.JSONLoader();
