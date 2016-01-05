@@ -10,7 +10,7 @@ var moveForward,
     canJump;
 var velocity = new THREE.Vector3();
 var loader;
-var klo, tuer1, tuer2, boden, bett, zelle, buch, luefter, seife;
+var klo, tuer1, tuer2, boden, bett, zelle, buch, luefter, seife,spiegel, verticalMirror ;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
@@ -44,6 +44,20 @@ function init() {
 	light.position.z = 4;
 	//scene.add(light2);
 	
+	
+	//mirror
+	
+	var WIDTH = window.innerWidth;
+	var HEIGHT = window.innerHeight;
+
+	// camera
+	var VIEW_ANGLE = 45;
+	var ASPECT = WIDTH / HEIGHT;
+	var NEAR = 1;
+	var FAR = 500;
+			
+
+	
 	loadKlo();
 	loadDoor1();
 	loadDoor2();
@@ -57,6 +71,8 @@ function init() {
 	loadBecken();
 
 
+
+
 	initControls();
     initPointerLock();
 	controls = new THREE.PointerLockControls(camera);
@@ -68,6 +84,10 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 	
+	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH , textureHeight: HEIGHT, color:0x229999 } );
+	loadMirror();
+	rotate(spiegel,new THREE.Vector3(0,1,0),90);
+
 	document.body.appendChild(renderer.domElement);
 	animate();
 	$( "#dialog" ).dialog({
@@ -161,6 +181,7 @@ function collisionDetectionNegative() {
 function animate() {
     requestAnimationFrame(animate);
     updateControls();
+    verticalMirror.render();
     renderer.render(scene, camera);
     camera.updateProjectionMatrix();
  	proximityDetector();
