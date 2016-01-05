@@ -41,6 +41,7 @@ function loadBecken()
 		becken.position.z = 10;
 		becken.position.x = 1.2;
 		becken.position.y = 2.5;
+		becken.scale.x = becken.scale.y = becken.scale.x = 1.2;
 		becken.castShadow = true;
 		becken.name = "Klo";
 		becken.userData.info = "Waschbücken";
