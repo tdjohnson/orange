@@ -160,6 +160,7 @@ function animate() {
     camera.updateProjectionMatrix();
  	proximityDetector();
  	animateDoor();
+ 	animateDrop(lastObject);
  	
  	//collisionDetectionPositive();
 }
@@ -233,7 +234,7 @@ function loadBuch()
 
 function loadSeife()
 {
-	var loader = new THREE.JSONLoader();
+	loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Seife/seife.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
 		seife = new THREE.Mesh( geometry, material );
@@ -244,7 +245,10 @@ function loadSeife()
 		seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
 		seife.name = "Seife";
 		seife.userData.info = "Sehr sauber";
+		seife.userData.info = "geschlossen!<br/> öffne mit T";
 		seife.userData.rotatable = true;
+		seife.userData.isOpenable = true;
+		
 		scene.add(seife);
 		var bbox = new THREE.BoundingBoxHelper( seife, 0xffffff );
 		bbox.update();
@@ -434,6 +438,9 @@ function onKeyDown(e) {
   		case 69: // e
 	 		rotate(lastObject,new THREE.Vector3(0,1,0),Math.PI/90 * -1); //object,axis,angle
     		break;
+    	case 89:
+    		triggerDrop(lastObject);	//droppable Object
+    		break;
   		case 40: // down
   		case 83: // s
     		moveBackward = true;
@@ -446,8 +453,8 @@ function onKeyDown(e) {
 		    if (canJump === true) velocity.y += 50;
 		    canJump = false;
 		    break;
-		case 84: // space
-	    	//triggerDoor();
+		case 84: 
+	    	triggerDoor();
 	    	break;
     	}
   }
