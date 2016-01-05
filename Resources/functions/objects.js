@@ -74,7 +74,7 @@ function loadSeife()
 		seife = new THREE.Mesh( geometry, material );
 		seife.position.y = 2;
 		seife.position.x = 2;
-		seife.position.z = 10;
+		seife.position.z = 13;
 		seife.castShadow = true;
 		seife.scale.x = seife.scale.y = seife.scale.z = 0.3;
 		seife.name = "Seife";
@@ -215,15 +215,15 @@ function loadDoor2() {
 
 
 function loadMirror(){
-	var verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: 100, textureHeight: 100, color:0x889999 } );
-
-				var spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 3, 5 ), verticalMirror.material );
-				spiegel.add( verticalMirror );
-				spiegel.position.x = 1;
-				spiegel.position.y = 1;
-				spiegel.position.z = 10;
-				spiegel.rotation.y =  Math.PI /90;
-				scene.add(spiegel);
-				rotate(spiegel,new THREE.Vector3(0,1,0),90);
 	
+
+				spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,5), verticalMirror.material );
+				spiegel.add( verticalMirror );
+				spiegel.position.x = 0.9;
+				spiegel.position.y = 3;
+				spiegel.position.z = 13;
+				spiegel.name = "Spiegel";
+				spiegel.userData.rotatable  =true;
+				scene.add(spiegel);
+				
 }
