@@ -69,6 +69,7 @@ function init() {
 	loadLuefter();
 	loadSeife();
 	loadBecken();
+	loadBot();
 
 
 

@@ -31,6 +31,28 @@ function loadKlo()
 	});
 }
 
+
+function loadBot()
+{
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Bot/bot_combined.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+		bot = new THREE.Mesh( geometry, material );
+		bot.rotation.y =  Math.PI*0.5;
+		bot.position.z = 15;
+		bot.position.x = 4;
+		bot.castShadow = true;
+		bot.name = "Bot";
+		bot.userData.info = "Raping!";
+		bot.userData.rotatable = true;
+		scene.add(bot);
+		var bbox = new THREE.BoundingBoxHelper( bot, 0xffffff );
+		bbox.update();
+		collidableMeshList.push(bot);
+		scene.add( bbox );
+	});
+}
+
 function loadBecken()
 {
 	var loader = new THREE.JSONLoader();
