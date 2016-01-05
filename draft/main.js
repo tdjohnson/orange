@@ -43,19 +43,6 @@ function init() {
 	light.position.y = 3;
 	light.position.z = 4;
 	//scene.add(light2);
-	
-	
-	//mirror
-	
-	var WIDTH = window.innerWidth;
-	var HEIGHT = window.innerHeight;
-
-	// camera
-	var VIEW_ANGLE = 45;
-	var ASPECT = WIDTH / HEIGHT;
-	var NEAR = 1;
-	var FAR = 500;
-			
 
 	
 	loadKlo();
@@ -84,9 +71,9 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 	
-	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH , textureHeight: HEIGHT, color:0x229999 } );
-	loadMirror();
-	rotate(spiegel,new THREE.Vector3(0,1,0),90);
+
+	loadMirror(); //keep it here.. renderer needs to be loaded 
+	
 
 	document.body.appendChild(renderer.domElement);
 	animate();
