@@ -38,11 +38,14 @@ function init() {
 	light.position.z = 4;
 	scene.add(light);
 	
-	var light2 = new THREE.HemisphereLight(0xffffff, 0.1);
-	light.position.x = 5;
-	light.position.y = 3;
-	light.position.z = 4;
-	//scene.add(light2);
+	var light2 = new THREE.HemisphereLight(0xffffff, 10);
+	light2.position.x = 5;
+	light2.position.y = 10;
+	light2.position.z = 24;
+	scene.add(light2);
+	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
+	scene.add(pointLightHelper);
+	
 	//mirror
 	
 	var WIDTH = window.innerWidth;
