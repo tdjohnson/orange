@@ -19,6 +19,9 @@ var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of la
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
 var collidableMeshList = [];
 
+
+var collided=false;
+
 function init() { 
 
     clock = new THREE.Clock();
@@ -134,7 +137,7 @@ function showinfo(intersect){
 
   
 
-function collisionDetectionPositive() {
+function collisionDetection() {
 	var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
 	bbox.update();
 	if ((controls.getObject().position.x+0.3 >= bbox.box.min.x) &&
@@ -177,7 +180,6 @@ function animate() {
  	animateDoor(lastObject);
  	animateDrop(lastObject);
  	
- 	//collisionDetectionPositive();
 }
 
 
@@ -295,27 +297,29 @@ function updateControls() {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
       	var walkingSpeed = 100.0;
+		
 
-	    velocity.x -= velocity.x * 10.0 * delta;
-	    velocity.z -= velocity.z * 10.0 * delta;
-	    velocity.y -= 9.8 * 30.0 * delta;
+
+	    if (collisionDetection()) {
+	    	velocity.x -= velocity.x * 10.0 * delta;
+		    velocity.z -= velocity.z * 10.0 * delta;
+		    velocity.y -= 9.8 * 30.0 * delta;
+		} else {
+			if (collided == false){
+				collided = true;
+				velocity.x = -velocity.x*2;
+		    	velocity.z = -velocity.z*2;
+			} else {
+				if (velocity.x == velocity.z == 0) {
+					collided = false;
+				}
+			}
+		}
+
+	   
 	
-	    if (moveForward) {
-		    if (collisionDetectionPositive())
-		    	velocity.z -= walkingSpeed * delta;
-		    else {
-		    	velocity.z = 0;
-		    	velocity.x = 0;
-		    }
-		}
-	    if (moveBackward) {
-			if (collisionDetectionNegative())
-			    velocity.z += walkingSpeed * delta;
-		    else {
-		    	velocity.z = 0;
-		    	velocity.x = 0;
-		    }
-		}
+	    if (moveForward)	velocity.z -= walkingSpeed * delta;
+	    if (moveBackward)  velocity.z += walkingSpeed * delta;
 	    if (moveLeft) velocity.x -= walkingSpeed * delta;
 	    if (moveRight) velocity.x += walkingSpeed * delta;
 
