@@ -54,7 +54,7 @@ function triggerDoor(object) {
 		object.userData.isOpenable = false;
 			if (object.userData.info.indexOf("geschlossen")>-1) {
 				object.userData.info = "offen!<br/> schließen mit T";
-			} else if(tuer2.userData.info.indexOf("offen")>-1) {
+			} else if(object.userData.info.indexOf("offen")>-1) {
 				object.userData.info = "geschlossen!<br/> öffne mit T";
 			}
 	} else {
