@@ -39,8 +39,7 @@ function init() {
 	light.position.y = 3;
 	light.position.z = 4;
 	//scene.add(light2);
-	
-	
+
 	//mirror
 	
 	var WIDTH = window.innerWidth;
@@ -75,8 +74,7 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 	
-	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: WIDTH , textureHeight: HEIGHT, color:0x229999 } );
-	loadMirror();
+	loadMirror(); //keep it here.. renderer needs to be loaded 
 
 	document.body.appendChild(renderer.domElement);
 	animate();

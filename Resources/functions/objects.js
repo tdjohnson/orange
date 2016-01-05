@@ -236,6 +236,17 @@ function loadDoor2() {
 
 
 function loadMirror(){
+
+			
+	verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
+	spiegel = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,2), verticalMirror.material );
+	spiegel.add( verticalMirror );
+	spiegel.position.x = 0.9;
+	spiegel.position.y = 4;
+	spiegel.position.z = 13;
+	spiegel.rotation.y = Math.PI / 180 * 90;
+	scene.add(spiegel);
+
 				mirror = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2,2), verticalMirror.material );
 				mirror.add( verticalMirror );
 				mirror.position.x = 0.9;
