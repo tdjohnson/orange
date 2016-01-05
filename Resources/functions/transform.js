@@ -36,7 +36,7 @@ function animateDrop(object) {
 						object.position.z -= 0.05;
 					}
 					
-					rotate(object, new THREE.Vector3(1,0,0),-9);
+					rotate(object, new THREE.Vector3(1,0,0),-8);
 					
 				}
 			}
