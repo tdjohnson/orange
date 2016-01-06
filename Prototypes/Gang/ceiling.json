@@ -1,0 +1,40 @@
+{
+    "name": "PlaneGeometry.5",
+    "vertices": [-6,0,1.5,6,0,1.5,-6,-0,-1.5,6,-0,-1.5],
+    "colors": [],
+    "normals": [0,-1,0],
+    "faces": [43,0,2,3,1,0,0,1,2,3,0,0,0,0],
+    "metadata": {
+        "type": "Geometry",
+        "colors": 0,
+        "faces": 1,
+        "materials": 1,
+        "uvs": 1,
+        "generator": "io_three",
+        "version": 3,
+        "vertices": 4,
+        "normals": 1
+    },
+    "uvs": [[0.182125,0.9999,0.182125,0.0001,0.817875,0.0001,0.817875,0.9999]],
+    "materials": [{
+        "blending": "NormalBlending",
+        "mapDiffuseAnisotropy": 1,
+        "depthWrite": true,
+        "mapDiffuseWrap": ["RepeatWrapping","RepeatWrapping"],
+        "DbgIndex": 0,
+        "DbgName": "Material.001",
+        "colorEmissive": [0,0,0],
+        "shading": "lambert",
+        "vertexColors": false,
+        "wireframe": false,
+        "depthTest": true,
+        "doubleSided": true,
+        "mapDiffuseRepeat": [1,1],
+        "opacity": 1,
+        "colorDiffuse": [0.075701,0.075701,0.075701],
+        "transparent": false,
+        "visible": true,
+        "DbgColor": 15658734,
+        "mapDiffuse": "ceiling.jpg"
+    }]
+}
