@@ -24,10 +24,7 @@ function loadToilet()
 		toilet.userData.info = "Sehr schön";
 		toilet.userData.rotatable = true;
 		scene.add(toilet);
-		var bbox = new THREE.BoundingBoxHelper( toilet, 0xffffff );
-		bbox.update();
 		collidableMeshList.push(toilet);
-		scene.add( bbox );
 	});
 }
 
@@ -47,7 +44,6 @@ function loadSink()
 		sink.userData.info = "Waschbecken";
 		sink.userData.rotatable = true;
 		scene.add(sink);
-		collidableMeshList.push(sink);
 	});
 }
 
@@ -58,7 +54,7 @@ function loadBot()
 		var material = new THREE.MeshFaceMaterial( materials );
 		bot = new THREE.Mesh( geometry, material );
 		bot.rotation.y =  Math.PI*0.5;
-		bot.position.z = 15;
+		bot.position.z = 18;
 		bot.position.x = 1.25;
 		bot.position.y = 2.5;
 		bot.scale.x = bot.scale.y = bot.scale.x = 1.2;
@@ -99,6 +95,50 @@ function loadWall() {
 	});
 }
 
+function loadCeiling() {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Gang/ceiling.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    ceiling = new THREE.Mesh( geometry, material );
+	    ceiling.scale.x = ceiling.scale.z = 4;
+	    ceiling.scale.y = 3.15;
+	    ceiling.position.x = 24;
+	    ceiling.position.z = 21.4;
+	    ceiling.position.y = 9;
+	    scene.add(ceiling);
+	});
+}
+
+function loadWallDoor() {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Gang/wallDoor.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    wallDoor = new THREE.Mesh( geometry, material );
+	    wallDoor.scale.x = wallDoor.scale.z = 4;
+	    wallDoor.scale.y = 3.15;
+	    wallDoor.position.x = 48;
+	    wallDoor.position.z = 27.3;
+	    wallDoor.position.y = 0;
+	    scene.add(wallDoor);
+	});
+}
+
+function loadCeilingLamp() {
+	var loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/DeckenLampe/lampe.json', function ( geometry, materials ) {
+		var material = new THREE.MeshFaceMaterial( materials );
+	    ceilingLamp = new THREE.Mesh( geometry, material );
+	    ceilingLamp.scale.x = ceilingLamp.scale.z = ceilingLamp.scale.y = 0.5;
+	    ceilingLamp.position.x = 30;
+	    ceilingLamp.position.z = 22;
+	    ceilingLamp.position.y = 9;
+	    ceilingLamp.rotation.x = Math.PI;
+	    
+	    scene.add(ceilingLamp);
+	});
+}
+
+
 function loadBook()
 {
 	var loader = new THREE.JSONLoader();
@@ -114,9 +154,7 @@ function loadBook()
 		book.userData.info = "Lies Faust";
 		book.userData.rotatable = true;
 		scene.add(book);
-		var bbox = new THREE.BoundingBoxHelper( book, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
+
 	});
 }
 
@@ -138,28 +176,26 @@ function loadSoap()
 		
 		
 		scene.add(soap);
-		var bbox = new THREE.BoundingBoxHelper( soap, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
 	});
 }
 
-function loadTisch()
+function loadTable()
 {
 
     var loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Tisch/table.json', function ( geometry, materials ) {
 		var material = new THREE.MeshFaceMaterial( materials );
-	    tisch = new THREE.Mesh( geometry, material );
+	    table = new THREE.Mesh( geometry, material );
         //tisch.rotation.y =  Math.PI *2;
-      	tisch.rotation.y =  Math.PI/180*90;
-        tisch.position.z = 13;
-        tisch.position.x = 10;
-        tisch.position.y = 0;
-        tisch.scale.x = tisch.scale.y = tisch.scale.z = 1;
-        tisch.updateMatrix();
-        tisch.name = "tisch";
-	    scene.add(tisch);
+      	table.rotation.y =  Math.PI/180*90;
+        table.position.z = 13;
+        table.position.x = 10;
+        table.position.y = 0;
+        table.scale.x = table.scale.y = table.scale.z = 1;
+        table.updateMatrix();
+        table.name = "tisch";
+	    scene.add(table);
+	    collidableMeshList.push(table);
 
 	});
 }
@@ -173,13 +209,14 @@ function loadChair()
 	    chair = new THREE.Mesh( geometry, material );
         //tisch.rotation.y =  Math.PI *2;
       	chair.rotation.y =  Math.PI/180*90;
-        chair.position.z = 14;
-        chair.position.x = 2;
-        chair.position.y = 1;
+        chair.position.z = 11;
+        chair.position.x = 9;
+        chair.position.y = -0.5;
         chair.scale.x = chair.scale.y = chair.scale.z = 1;
         chair.updateMatrix();
         chair.name = "chair";
 	    scene.add(chair);
+	    collidableMeshList.push(chair);
 
 	});
 }
@@ -200,9 +237,6 @@ function loadRadiator()
 		radiator.name = "Luefter";
 		radiator.userData.info = "BRRRRRRRR";
 		scene.add(radiator);
-		var bbox = new THREE.BoundingBoxHelper( radiator, 0xffffff );
-		bbox.update();
-		scene.add( bbox );
 	});
 }
 
@@ -263,9 +297,7 @@ function loadBed()
 		bed.name = "Bett";
 		bed.userData.info = "Einsteigen!";
 		scene.add(bed);
-		var bbox = new THREE.BoundingBoxHelper( bed, 0xffffff );
-		bbox.update();
-		scene.add( bbox );
+		collidableMeshList.push(bed);
 	});
 }
 
@@ -284,9 +316,7 @@ function loadDoor1()
 	    door1.name = "Tuer1";
 		//tuer1.userData.info = "geschlossen!, öffne mit T";
 		scene.add(door1);
-		var bbox = new THREE.BoundingBoxHelper( door1, 0xffffff );
-		bbox.update();
-		scene.add( bbox );
+		collidableMeshList.push(door1);
 	});
 }
 function loadDoor2() {
@@ -305,9 +335,7 @@ function loadDoor2() {
 		door2.userData.info = "geschlossen!<br/> öffne mit T";
 		door2.userData.isOpenable = true;
 		scene.add(door2);
-		var bbox = new THREE.BoundingBoxHelper( door2, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
+		collidableMeshList.push(door2);
 	});
 }
 
@@ -336,30 +364,5 @@ function loadMirror()
 
 	mirrorPlane.rotation.y = Math.PI / 180 * 90;
 	scene.add(mirrorPlane);
-	});
-}
-
-
-function loadOJSoap()
-{
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Seife/seife.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		soap = new THREE.Mesh( geometry, material );
-		soap.position.y = 2.5;
-		soap.position.x = 0.85;
-		soap.position.z = 12.2;
-		soap.castShadow = true;
-		soap.scale.x = soap.scale.y = soap.scale.z = 0.1;
-		soap.name = "Seife";
-		soap.userData.info = "Wirf mich runter mit Y!";
-		soap.userData.rotatable = true;
-		soap.userData.isDropable = true;
-		
-		
-		scene.add(soap);
-		var bbox = new THREE.BoundingBoxHelper( soap, 0xffffff );
-		bbox.update();
-		//scene.add( bbox );
 	});
 }
