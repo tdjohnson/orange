@@ -9,7 +9,7 @@ var moveForward,
     moveRight,
     canJump;
 var velocity = new THREE.Vector3();
-var loader;
+var loader = new THREE.JSONLoader();
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
