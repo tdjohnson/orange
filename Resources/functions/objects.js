@@ -1,204 +1,221 @@
-function loadCell() {
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Zelle/Zelle_hires.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-	    cell = new THREE.Mesh( geometry, material );
-	    cell.scale.x = cell.scale.z = 3.5;
-	    cell.scale.y = 3.5;
-	    cell.rotation.y = Math.PI / -2;
-	    scene.add(cell);
-	});
-}
+var loader = new THREE.JSONLoader();
 
-function loadToilet()
+
+function Hallway()
 {
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Klo/klo.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		toilet = new THREE.Mesh( geometry, material );
-		toilet.rotation.y =  Math.PI*0.5;
-		toilet.position.z = 5;
-		toilet.position.x = 2.5;
-		toilet.castShadow = true;
-		toilet.name = "Klo";
-		toilet.userData.info = "Sehr schön";
-		toilet.userData.rotatable = true;
-		scene.add(toilet);
-		collidableMeshList.push(toilet);
-	});
-}
-
-function loadSink()
-{
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Becken/becken.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		sink = new THREE.Mesh( geometry, material );
-		sink.rotation.y =  Math.PI*0.5;
-		sink.position.z = 13;
-		sink.position.x = 1.25;
-		sink.position.y = 2.5;
-		sink.scale.x = sink.scale.y = sink.scale.x = 1.2;
-		sink.castShadow = true;
-		sink.name = "Waschbecken";
-		sink.userData.info = "Waschbecken";
-		sink.userData.rotatable = true;
-		scene.add(sink);
-	});
-}
-
-function loadBot()
-{
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Bot/bot_combined.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		bot = new THREE.Mesh( geometry, material );
-		bot.rotation.y =  Math.PI*0.5;
-		bot.position.z = 18;
-		bot.position.x = 1.25;
-		bot.position.y = 2.5;
-		bot.scale.x = bot.scale.y = bot.scale.x = 1.2;
-		bot.castShadow = true;
-		bot.name = "JailBot";
-		bot.userData.info = "Rapiiiing!";
-		bot.userData.rotatable = true;
-		scene.add(bot);
-	});
-}
-
-function loadFloor()
-{
-    var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Gang/gang.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-	    floor = new THREE.Mesh( geometry, material );
-	    floor.scale.x = floor.scale.z = 4;
-	    floor.position.x = 24;
-        floor.position.z = 21.3;
-        floor.position.y = 0;
-	    scene.add(floor);
-
-	});
-}
-
-function loadWall() {
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Gang/wall.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-	    wall = new THREE.Mesh( geometry, material );
-	    wall.scale.x = wall.scale.z = 4;
-	    wall.scale.y = 3.15;
-	    wall.position.x = 0;
-	    wall.position.z = 21.4;
-	    wall.position.y = 4.7;
-	    scene.add(wall);
-	});
-}
-
-function loadCeiling() {
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Gang/ceiling.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-	    ceiling = new THREE.Mesh( geometry, material );
-	    ceiling.scale.x = ceiling.scale.z = 4;
-	    ceiling.scale.y = 3.15;
-	    ceiling.position.x = 24;
-	    ceiling.position.z = 21.4;
-	    ceiling.position.y = 9;
-	    scene.add(ceiling);
-	});
-}
-
-function loadWallDoor() {
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Gang/wallDoor.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-	    wallDoor = new THREE.Mesh( geometry, material );
-	    wallDoor.scale.x = wallDoor.scale.z = 4;
-	    wallDoor.scale.y = 3.15;
-	    wallDoor.position.x = 48;
-	    wallDoor.position.z = 27.3;
-	    wallDoor.position.y = 0;
-	    scene.add(wallDoor);
-	});
-}
-
-function loadCeilingLamp() {
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/DeckenLampe/lampe.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-	    ceilingLamp = new THREE.Mesh( geometry, material );
-	    ceilingLamp.scale.x = ceilingLamp.scale.z = ceilingLamp.scale.y = 0.5;
-	    ceilingLamp.position.x = 30;
-	    ceilingLamp.position.z = 22;
-	    ceilingLamp.position.y = 9;
-	    ceilingLamp.rotation.x = Math.PI;
-	    
-	    scene.add(ceilingLamp);
-	});
-}
-
-
-function loadBook()
-{
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Buch/buch_neu_comb.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		book = new THREE.Mesh( geometry, material );
-		book.position.y = 2;
-		book.position.x = 10;
-		book.position.z = 11.2;
-		book.rotation.y =  Math.PI/180*90;
-		book.scale.x = book.scale.y = book.scale.z = 0.3;
-		book.name = "Buch";
-		book.userData.info = "Lies Faust";
-		book.userData.rotatable = true;
-		scene.add(book);
-
-	});
-}
-
-function loadSoap()
-{
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Seife/seife.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		soap = new THREE.Mesh( geometry, material );
-		soap.position.y = 2.5;
-		soap.position.x = 0.85;
-		soap.position.z = 12.2;
-		soap.castShadow = true;
-		soap.scale.x = soap.scale.y = soap.scale.z = 0.1;
-		soap.name = "Seife";
-		soap.userData.info = "Wirf mich runter mit Y!";
-		soap.userData.rotatable = true;
-		soap.userData.isDropable = true;
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
 		
-		
-		scene.add(soap);
-	});
-}
+	var wall = new Wall();
+	wall.position.set(0,4.7,21.4);
+	this.add(wall);
+	
+	var ceiling = new Ceiling();
+	ceiling.position.set(24,9,21.4);
+	this.add(ceiling);
+	
+	var floor = new Floor();
+	floor.position.set(24,0,21.3);
+	this.add(floor);
 
-function loadTable()
+        
+    var wallDoor = new WallDoor();
+	wallDoor.position.set(48,0,27.3);
+	this.add(wallDoor);
+
+
+	var ceilingLamp = new CeilingLamp();
+	ceilingLamp.position.set(30,9,22);
+	ceilingLamp.rotation.x = Math.PI;
+	this.add(ceilingLamp);
+
+        
+	var bot = new JailBot();
+	bot.position.set(1.25,2.5,18);
+	bot.rotation.y =  Math.PI*0.5;
+	this.add(bot);
+	
+	
+	this.add(object);
+}
+Hallway.prototype = new THREE.Object3D();
+Hallway.prototype.constructor = Hallway;
+
+function PrisonCell()
 {
-
-    var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Tisch/table.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-	    table = new THREE.Mesh( geometry, material );
-        //tisch.rotation.y =  Math.PI *2;
-      	table.rotation.y =  Math.PI/180*90;
-        table.position.z = 13;
-        table.position.x = 10;
-        table.position.y = 0;
-        table.scale.x = table.scale.y = table.scale.z = 1;
-        table.updateMatrix();
-        table.name = "tisch";
-	    scene.add(table);
-	    collidableMeshList.push(table);
-
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Zelle/Zelle_hires.json', 
+	
+	function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 	});
+
+	object.name = 'PrisonCell_' + this.id;
+	object.castShadow = true;
+	object.scale.x =  object.scale.y = object.scale.z = 3.5;
+	object.rotation.y = Math.PI / -2;
+
+	
+	var soap = new Soap();
+	soap.position.set(0.85,2.5,12.2);
+	this.add(soap);
+	
+	var toilet = new Toilet();
+	toilet.position.set(2.5,0,5);
+	toilet.rotation.y =  Math.PI*0.5;
+	this.add(toilet);
+	
+	var sink = new Sink();
+	sink.position.set(1.25,2.5,13);
+	sink.rotation.y = Math.PI*0.5;
+	this.add(sink);
+	
+	
+	var book = new Book();
+	book.position.set(10,2,11.2);
+	book.rotation.y =  Math.PI/180*90;
+	this.add(book);
+	
+	var table = new Table();
+	table.position.set(10,0,13);
+	table.rotation.y =  Math.PI/180*90;
+	this.add(table);
+	
+	var radiator = new Radiator();
+	radiator.position.set(1,6,9.9);
+	radiator.rotation.y =  Math.PI/180*90;
+	this.add(radiator);
+	
+	var tablelamp = new TableLamp();
+	tablelamp.position.set(10.3,2,10.9);
+	this.add(tablelamp);
+	
+	var bed = new Bed();
+	bed.position.set(9,0,5);
+	bed.rotation.y =  Math.PI;
+	this.add(bed);
+	
+	var door1 = new Door1();
+	door1.position.set(4.8,3.8,15.3);
+	this.add(door1);
+	
+	var door2 = new Door2();
+	door2.position.set(8,3.8,14.9);
+	this.add(door2);
+	
+	var mirror = new Mirror();
+	mirror.position.set(0.8,4,13);
+	mirror.rotation.y =  Math.PI/180*90;
+	this.add(mirror);
+
+	this.add(object);
 }
+PrisonCell.prototype = new THREE.Object3D();
+PrisonCell.prototype.constructor = PrisonCell;
+
+
+function Soap()
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Seife/seife.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+	object.name = 'soap_' + this.id;
+	object.castShadow = true;
+	object.scale.x = object.scale.y = object.scale.z = 0.1;
+	object.userData.info = "Wirf mich runter mit Y!";
+	object.userData.rotatable = true;
+	object.userData.isDropable = true;
+	
+	this.add(object);
+}
+Soap.prototype = new THREE.Object3D();
+Soap.prototype.constructor = Soap;
+
+
+function Toilet()
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Klo/klo.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+
+		object.castShadow = true;
+		object.name = "Klo";
+		object.userData.info = "Sehr schön";
+		object.userData.rotatable = true;
+		collidableMeshList.push(object);
+		this.add(object);
+}
+Toilet.prototype = new THREE.Object3D();
+Toilet.prototype.constructor = Toilet;
+
+
+function Sink()
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Becken/becken.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+		object.scale.x = object.scale.y = object.scale.x = 1.2;
+		objectcastShadow = true;
+		object.name = "Waschbecken";
+		object.userData.info = "Waschbecken";
+		object.userData.rotatable = true;
+		this.add(object);
+}
+Sink.prototype = new THREE.Object3D();
+Sink.prototype.constructor = Sink;
+
+
+function Book()
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Buch/buch_neu_comb.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+		object.scale.x = object.scale.y = object.scale.z = 0.3;
+		object.name = "Buch";
+		object.userData.info = "Lies Faust";
+		object.userData.rotatable = true;
+		this.add(object);
+}
+Book.prototype = new THREE.Object3D();
+Book.prototype.constructor = Book;
+
+
+function Table()
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Tisch/table.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+        object.scale.x = object.scale.y = object.scale.z = 1;
+        object.updateMatrix();
+        object.name = "tisch";
+	    collidableMeshList.push(object);
+		this.add(object);
+}
+Table.prototype = new THREE.Object3D();
+Table.prototype.constructor = Table;
 
 function loadChair()
 {
@@ -222,147 +239,241 @@ function loadChair()
 }
 
 
-function loadRadiator()
+function Radiator()
 {
-	var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Luefter/luefter.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		radiator = new THREE.Mesh( geometry, material );
-		radiator.position.y = 6;
-		radiator.position.x = 1;
-		radiator.position.z = 9.9;
-		radiator.rotation.y =  Math.PI*0.5;
-		radiator.scale.y = radiator.scale.z = 0.7;
-		radiator.scale.x = 1.2;
-		radiator.name = "Luefter";
-		radiator.userData.info = "BRRRRRRRR";
-		scene.add(radiator);
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Luefter/luefter.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 	});
+		object.scale.x = 1.2;
+		object.scale.y = object.scale.z = 0.7;
+		object.name = "Luefter";
+		object.userData.info = "BRRRRRRRR";
+		this.add(object);
 }
+Radiator.prototype = new THREE.Object3D();
+Radiator.prototype.constructor = Radiator;
 
-function loadLamp()
+function TableLamp()
 {	
-	//position
-	var px = 10.3;
-	var py = 2;
-	var pz = 10.9;
-	//scale
-	var sx = sy = sz =  0.1;
-	//light position (locally)
-	var lx = 6.7;
-	var ly = 9.4;
-	var lz = -1.7;
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/TischLampe/TischLampeBottom.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+	loader.load('../Prototypes/TischLampe/TischLampeTop.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
 	
 	var light = new THREE.PointLight(0xffff99, 5, 10 );
 	light.shadowCameraVisible = true;
 	light.shadowDarkness = 0.95;
 	light.castShadow = true;
-	light.position.set(lx,ly,lz);
+	light.position.set(6.7,9.4,-1.7);
 	//var pointLightHelper = new THREE.PointLightHelper(light, 10);
 	//scene.add(pointLightHelper);
+
+	object.scale.x = object.scale.y = object.scale.z = 0.1;
+    object.name = "Table Lamp";
+    object.userData.info = "";
+    object.userData.rotatable = true;
+	object.add(light);
+
+	this.add(object);
+}
+TableLamp.prototype = new THREE.Object3D();
+TableLamp.prototype.constructor = TableLamp;
+
+function Bed()
+{
+   	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Bett/bett.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+		object.scale.x = object.scale.y = object.scale.z = 1;
+		object.updateMatrix();
+		object.name = "Bett";
+		object.userData.info = "Einsteigen!";
+		collidableMeshList.push(object);
+	this.add(object);
+}
+Bed.prototype = new THREE.Object3D();
+Bed.prototype.constructor = Bed;
+
+function Door1()
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Tuer/tuer1.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+	    object.scale.y = 1.4;
+	    object.castShadow = true;
+	    object.updateMatrix();
+	    object.name = "Tuer1";
+		//object.userData.info = "geschlossen!, öffne mit T";
+		collidableMeshList.push(object);
+		this.add(object);
+}
+Door1.prototype = new THREE.Object3D();
+Door1.prototype.constructor = Door1;
+
+function Door2() {
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Tuer/tuer2.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+		object.castShadow = true;
+		object.scale.y = 1.4;
+		object.updateMatrix();
+		object.name = "Tuer2";
+		object.userData.info = "geschlossen!<br/> öffne mit T";
+		object.userData.isOpenable = true;
+		collidableMeshList.push(object);
+		this.add(object);
+}
+Door2.prototype = new THREE.Object3D();
+Door2.prototype.constructor = Door2;
+
+
+
+
+function Mirror()
+{	
+	THREE.Object3D.call( this );
+	var object= new THREE.Object3D();
+	var mirrorFrame = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Spiegel/SpiegelRahmen.json',function ( geometry, materials ) {
+		mirrorFrame.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+	mirrorFrame.rotation.y = Math.PI*0.5; 
+	mirrorFrame.castShadow = true;
+	mirrorFrame.scale.x = mirrorFrame.scale.y = mirrorFrame.scale.z = 1;
 	
-	loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/TischLampe/TischLampeBottom.json', function ( geometry, materials ) {
-		var lampeB = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
-	    lampeB.position.set(px,py,pz);
-		lampeB.scale.set(sx,sy,sz);
-		scene.add(lampeB);
-	});
-	
-	loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/TischLampe/TischLampeTop.json', function ( geometry, materials ) {
-		lampe = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
-		lampe.position.set(px,py,pz);
-    	lampe.scale.set(sx,sy,sz);
-    	lampe.name = "Lampe";
-    	lampe.userData.info = "";
-    	lampe.userData.rotatable = true;
-		lampe.add(light);
-		scene.add(lampe);
-	});
-}
-
-function loadBed()
-{
-
-    var loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Bett/bett.json', function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		bed = new THREE.Mesh( geometry, material );
-		bed.rotation.y =  Math.PI;
-		bed.position.z = 5;
-		bed.position.x = 9;
-		bed.scale.x = bed.scale.y = bed.scale.z = 1;
-		bed.updateMatrix();
-		bed.name = "Bett";
-		bed.userData.info = "Einsteigen!";
-		scene.add(bed);
-		collidableMeshList.push(bed);
-	});
-}
-
-function loadDoor1()
-{
-	loader = new THREE.JSONLoader();
-	loader.load( "../Prototypes/Tuer/tuer1.json", function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		door1 = new THREE.Mesh( geometry, material );
-	    door1.position.z = 15.3;
-	    door1.position.x = 4.8;
-	    door1.position.y = 3.8;
-	    door1.scale.y = 1.4;
-	    door1.castShadow = true;
-	    door1.updateMatrix();
-	    door1.name = "Tuer1";
-		//tuer1.userData.info = "geschlossen!, öffne mit T";
-		scene.add(door1);
-		collidableMeshList.push(door1);
-	});
-}
-function loadDoor2() {
-
-    var loader = new THREE.JSONLoader();
-	loader.load( "../Prototypes/Tuer/tuer2.json", function ( geometry, materials ) {
-		var material = new THREE.MeshFaceMaterial( materials );
-		door2 = new THREE.Mesh( geometry, material );
-		door2.position.x = 8;
-		door2.position.z = 14.9;
-		door2.position.y = 3.8;
-		door2.castShadow = true;
-		door2.scale.y = 1.4;
-		door2.updateMatrix();
-		door2.name = "Tuer2";
-		door2.userData.info = "geschlossen!<br/> öffne mit T";
-		door2.userData.isOpenable = true;
-		scene.add(door2);
-		collidableMeshList.push(door2);
-	});
-}
-
-
-function loadMirror()
-{
 	//load third-party mirror (by author Slayvin )
 	mirrorMaterial = new THREE.Mirror( renderer, camera, { textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
-	
-	loader = new THREE.JSONLoader();	
-	loader.load( '../Prototypes/Spiegel/Spiegel.json', function ( geometry, materials ) {
-	var material = new THREE.MeshFaceMaterial( materials );
-	mirror= new THREE.Mesh( geometry, material );
-	mirror.position.x = 0.8;
-	mirror.position.y = 4;
-	mirror.position.z = 13;
-	mirror.castShadow = true;
-	mirror.scale.x = mirror.scale.y = mirror.scale.z = 1;
-	scene.add(mirror);
-
-	mirrorPlane = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), mirrorMaterial.material );
-	mirrorPlane.add(mirrorMaterial);
-	mirrorPlane.position.x = mirror.position.x;
-	mirrorPlane.position.y = mirror.position.y;
-	mirrorPlane.position.z = mirror.position.z;
-
-	mirrorPlane.rotation.y = Math.PI / 180 * 90;
-	scene.add(mirrorPlane);
-	});
+	object = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), mirrorMaterial.material );
+	object.add(mirrorMaterial);
+	object.add(mirrorFrame);
+	this.add(object);
 }
+Mirror.prototype = new THREE.Object3D();
+Mirror.prototype.constructor = Mirror;
+
+
+
+
+
+
+
+
+function Wall() {
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Gang/wall.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+	   object.scale.x = object.scale.z = 4;
+	   object.scale.y = 3.15;
+
+	this.add(object);
+}
+Wall.prototype = new THREE.Object3D();
+Wall.prototype.constructor = Wall;
+
+
+
+
+function Ceiling() {
+		var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Gang/ceiling.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+	    object.scale.x = object.scale.z = 4;
+	    object.scale.y = 3.15;
+
+	this.add(object);
+}
+Ceiling.prototype = new THREE.Object3D();
+Ceiling.prototype.constructor = Ceiling;
+
+
+
+function Floor()
+{
+   	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Gang/gang.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+	    object.scale.x = object.scale.z = 4;
+
+	this.add(object);
+}
+Floor.prototype = new THREE.Object3D();
+Floor.prototype.constructor = Floor;
+
+function WallDoor() 
+{
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Gang/wallDoor.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+	    object.scale.x = object.scale.z = 4;
+	    object.scale.y = 3.15;
+
+	this.add(object);
+}
+WallDoor.prototype = new THREE.Object3D();
+WallDoor.prototype.constructor = WallDoor;
+
+function CeilingLamp() {
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/DeckenLampe/lampe.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+	
+	    object.scale.x = object.scale.z = object.scale.y = 0.5;
+
+	    
+	this.add(object);
+}
+CeilingLamp.prototype = new THREE.Object3D();
+CeilingLamp.prototype.constructor = CeilingLamp;
+
+function JailBot()
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Bot/bot_combined.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+	
+		object.scale.x = object.scale.y = object.scale.x = 1.2;
+		object.castShadow = true;
+		object.name = "JailBot";
+		object.userData.info = "Rapiiiing!";
+		object.userData.rotatable = true;
+		this.add(object);
+}
+JailBot.prototype = new THREE.Object3D();
+JailBot.prototype.constructor = JailBot;

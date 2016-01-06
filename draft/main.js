@@ -10,10 +10,10 @@ var moveForward,
     canJump;
 var velocity = new THREE.Vector3();
 var loader;
-var toilet, door1, door2, floor, bed, cell, book, radiator, soap, mirror, verticalMirror, bot, table, chair;
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
+var mirrorMaterial;
 var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
@@ -45,39 +45,8 @@ function init() {
 	//scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
-	
-	//mirror
-	
-	var WIDTH = window.innerWidth;
-	var HEIGHT = window.innerHeight;
 
-	// camera
-	var VIEW_ANGLE = 45;
-	var ASPECT = WIDTH / HEIGHT;
-	var NEAR = 1;
-	var FAR = 500;
-
-	loadBed();			
-	loadToilet();
-	loadDoor1();
-	loadDoor2();
-	loadFloor();
-	loadWall();
-	loadCeiling();
-
-	loadWallDoor();
-	loadCeilingLamp();
-
-	loadBook();
-	loadLamp();
-	loadCell();
-	loadRadiator();
-	loadSoap();
-	loadSink();
-	loadBot();
-	loadTable();
 	loadChair();
-
 	initControls();
     initPointerLock();
 	controls = new THREE.PointerLockControls(camera);
@@ -89,9 +58,30 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 
-
+	//add prison hallway
+	var hallway = new Hallway();
+	hallway.position.set(0,0,0);
+		
+	scene.add(hallway);
+		
+	//add 4 cells to the left side
+	for (i = 0; i < 4; i++) { 
+		var pcell = new PrisonCell();
+		pcell.position.set(i*11.9,0,0);
+		scene.add(pcell);
+	}
 	
-	loadMirror(); //keep it here.. renderer needs to be loaded first
+	//add 4 cells to the right side
+	for (j = 1; j < 5; j++) { 
+		var pcell = new PrisonCell();
+		pcell.rotation.y =  Math.PI;
+		pcell.position.set(j*11.9,0,41);
+		scene.add(pcell);
+	}
+
+
+
+
 	document.body.appendChild(renderer.domElement);
 	animate();
 	$( "#dialog" ).dialog({
@@ -106,13 +96,13 @@ function proximityDetector() {
 
 		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection()); //bind raycaster to camera	
 		showraycasthelper();//Raycaster helper - displays raycaster as vector
-		var intersects = raycaster.intersectObjects( scene.children ); //get all object intersecting with raycast vector
+		var intersects = raycaster.intersectObjects( scene.children, true); //get all object intersecting with raycast vector
 		if ( intersects.length > 0 ) { //if objects are intersected
-			if(intersects[0].object.name.length >= 1){ //if object has a name
-				if(intersects[0].object.name != lastObject.name){ //do if object is new
+			if(intersects[0].object.parent.name.length >= 1){ //if object has a name
+				if(intersects[0].object.parent.id != lastObject.id){ //do if object is new
 					if(intersects[0].distance <= 6){ //only show near objects
 						showinfo(intersects[0]); //show alert and log to console
-						lastObject = intersects[0].object; //remember last object
+						lastObject = intersects[0].object.parent; //remember last object
 					}	
 				}
 			}
@@ -140,9 +130,9 @@ function showraycasthelper(){
 }
 
 function showinfo(intersect){
-	var message = animationLock + " " + intersect.object.name + ": " + intersect.object.userData.info;
-	if(intersect.object.userData.rotatable == true){
-		console.log(message + "  Tip! " + intersect.object.name + " can be rotated by pressing q or e");
+	var message = animationLock + " " + intersect.object.parent.name + ": " + intersect.object.parent.userData.info;
+	if(intersect.object.parent.userData.rotatable == true){
+		console.log(message + "  Tip! " + intersect.object.parent.name + " can be rotated by pressing q or e");
 	}else{
 		console.log(message);
 	}
