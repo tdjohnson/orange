@@ -74,7 +74,7 @@ function triggerDoor(object) {
 function animateDoor(object) {
 	if (object.userData.isOpenable == false) {
 		if (object.userData.info.indexOf("offen")>-1) {
-			if (object.position.x > 5)
+			if (object.position.x < 5)
 				object.position.x -= 0.1;
 			else
 				object.userData.isOpenable = true;
