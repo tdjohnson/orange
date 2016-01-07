@@ -182,6 +182,7 @@ function Bed()
 		object.name = "Bett";
 		object.userData.info = "Einsteigen!";
 		object.castShadow = true;
+		object.receiveShadow = true;
 		collidableMeshList.push(object);
 	this.add(object);
 }

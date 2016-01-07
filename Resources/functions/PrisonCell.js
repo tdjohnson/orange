@@ -11,6 +11,7 @@ function PrisonCell()
 
 	object.name = 'PrisonCell_' + this.id;
 	object.castShadow = true;
+	object.receiveShadow = true;
 	object.scale.x =  object.scale.y = object.scale.z = 3.5;
 	object.rotation.y = Math.PI / -2;
 

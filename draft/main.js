@@ -18,13 +18,38 @@ var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
 var collidableMeshList = [];
-
+var loadDone = false;
 var animationLock = false; // needed to complete animations before selection next object
 
 var collided = false;
 
 function init() { 
-
+	
+	renderer = new THREE.WebGLRenderer({antialias:true});
+	renderer.domElement.id = "scene";
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor(0xb2e1f2);
+	renderer.shadowMap.enabled = true;
+	document.body.appendChild(renderer.domElement);
+	
+	document.getElementById("scene").style.display = "none";
+	THREE.DefaultLoadingManager.onLoad = function () {
+		console.log("finished loading");
+    	loadDone = true;
+    	try {
+    		document.getElementById("txt").innerHTML = "Loading done, klick to start!";
+    		document.getElementById("scene").style.display = "inline";
+    	} catch (e) {
+    		alert(e);
+    	}
+    	
+	};
+	
+	THREE.DefaultLoadingManager.onProgress = function ( item, loaded, total ) {
+    	console.log( item, loaded, total );
+    	
+	};
+	
     clock = new THREE.Clock();
 
     scene = new THREE.Scene();
@@ -39,11 +64,9 @@ function init() {
 	light.position.z = 4;
 	scene.add(light);
 	
-	var light2 = new THREE.AmbientLight(0xffffff);
-	light2.position.x = 5;
-	light2.position.y = 8;
-	light2.position.z = 24;
-	//scene.add(light2);
+	var light2 = new THREE.AmbientLight(0x404040);
+
+	scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
 
@@ -55,10 +78,7 @@ function init() {
 	controls.getObject().position.z = 8;
 	scene.add(controls.getObject());
 	
-	renderer = new THREE.WebGLRenderer({antialias:true});
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.setClearColor(0xb2e1f2);
-	renderer.shadowMapEnabled = true;
+	
 	
 	
 	//add prison hallway
@@ -85,13 +105,13 @@ function init() {
 
 
 
-	document.body.appendChild(renderer.domElement);
+	
 	animate();
 	$( "#dialog" ).dialog({
 		  autoOpen: false
 		});
 }
-	
+
 function proximityDetector() {
 			//detect objects hit by raycaster vector
 	try{
@@ -172,16 +192,17 @@ function collisionDetection() {
 
 
 function animate() {
-    requestAnimationFrame(animate);
-    
-    mirrorMaterial.render();
-    renderer.render(scene, camera);
-    camera.updateProjectionMatrix();
- 	proximityDetector();
- 	animateDoors();
- 	animateDrop(lastObject);
- 	updateControls();
- 	
+	
+	    requestAnimationFrame(animate); 
+	if (loadDone) {
+	    mirrorMaterial.render();
+	    renderer.render(scene, camera);
+	    camera.updateProjectionMatrix();
+	 	proximityDetector();
+	 	animateDoors();
+	 	animateDrop(lastObject);
+	 	updateControls();
+ 	}
 }
 
 
