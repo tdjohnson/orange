@@ -329,21 +329,40 @@ function CeilingLamp() {
 CeilingLamp.prototype = new THREE.Object3D();
 CeilingLamp.prototype.constructor = CeilingLamp;
 
-function JailBot()
+function JailBotBody()
 {
 	THREE.Object3D.call( this );
 	var object = new THREE.Object3D();
 	loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Bot/bot_combined.json',function ( geometry, materials ) {
+	loader.load( '../Prototypes/Bot/bot_body.json',function ( geometry, materials ) {
 		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 	});
 	
-		object.scale.x = object.scale.y = object.scale.x = 1.2;
+		object.scale.x = object.scale.y = object.scale.z = 1.2;
 		object.castShadow = true;
-		object.name = "JailBot";
+		object.name = "JailBotBody";
 		object.userData.info = "Rapiiiing!";
 		object.userData.rotatable = true;
 		this.add(object);
 }
-JailBot.prototype = new THREE.Object3D();
-JailBot.prototype.constructor = JailBot;
+JailBotBody.prototype = new THREE.Object3D();
+JailBotBody.prototype.constructor = JailBotBody;
+
+function JailBotArms()
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load( '../Prototypes/Bot/bot_arms.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+	
+		object.scale.x = object.scale.y = object.scale.z = 1.2;
+		object.castShadow = true;
+		object.name = "JailBotArms";
+		object.userData.info = "Rapiiiing!";
+		object.userData.rotatable = true;
+		this.add(object);
+}
+JailBotArms.prototype = new THREE.Object3D();
+JailBotArms.prototype.constructor = JailBotArms;

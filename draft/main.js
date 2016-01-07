@@ -19,6 +19,7 @@ var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of la
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
 var collidableMeshList = [];
 var animationLock = false; // needed to complete animations before selection next object
+var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit;
 
 var collided = false;
 
@@ -30,7 +31,7 @@ function init() {
     scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
+	patrolStatus = 0;
 
 	//objects
 	var light = new THREE.PointLight(0xffffff);
@@ -58,6 +59,20 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 
+	botBody = new JailBotBody();
+	botBody.position.set(1.25,2.5,22);
+	botBody.rotation.y =  Math.PI*0.5;
+	scene.add(botBody);
+
+	botArms = new JailBotArms();
+	botArms.position.set(1.25,2.5,22);
+	botArms.rotation.y =  Math.PI*0.5;
+	scene.add(botArms);
+	
+	botArmStatus = 0;
+	botHit = 0;
+	botAggressive = 0;
+
 	//add prison hallway
 	var hallway = new Hallway();
 	hallway.position.set(0,0,0);
@@ -78,6 +93,8 @@ function init() {
 		pcell.position.set(j*11.9,0,41);
 		scene.add(pcell);
 	}
+	
+
 
 
 
@@ -177,6 +194,12 @@ function animate() {
  	proximityDetector();
  	animateDoor(lastObject);
  	animateDrop(lastObject);
+ 	patrolRobot();
+ 	
+ 	if(botAggressive == 1)
+ 	{
+ 		robotAttack();
+ 	}
  	updateControls();
  	
 }
@@ -234,6 +257,12 @@ function onKeyDown(e) {
   			break;
   		case 65: // a
 			moveLeft = true; 
+			break;
+		case 66: //b
+			botAggressive = 1;
+			break;
+		case 79: //o
+			botAggressive = 0;
 			break;
  		case 81: // q
 			rotate(lastObject,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
