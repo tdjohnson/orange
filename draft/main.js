@@ -22,6 +22,8 @@ var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of
 var collidableMeshList = [];
 var loadDone = false;
 var animationLock = false; // needed to complete animations before selection next object
+var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit;
+
 
 var collided = false;
 
@@ -61,6 +63,7 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
+	patrolStatus = 0;
 
 	//objects
 	var light = new THREE.PointLight(0xffffff);
@@ -69,6 +72,9 @@ function init() {
 	//scene.add(light);
 	
 	var light2 = new THREE.AmbientLight(0x404040);
+
+
+
 
 	scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
@@ -84,7 +90,36 @@ function init() {
 	
 	
 	
+
+
+
+
+
+	botBody = new JailBotBody();
+	botBody.position.set(1.25,2.5,22);
+	botBody.rotation.y =  Math.PI*0.5;
+	scene.add(botBody);
+
+	botArms = new JailBotArms();
+	botArms.position.set(1.25,2.5,22);
+	botArms.rotation.y =  Math.PI*0.5;
+	scene.add(botArms);
 	
+	botArmStatus = 0;
+	botHit = 0;
+	botAggressive = 0;
+
+
+
+
+
+
+
+	
+
+
+
+
 	//add prison hallway
 	var hallway = new Hallway();
 	hallway.position.set(0,0,0);
@@ -107,12 +142,18 @@ function init() {
 	}
 
 
+
 	
+
+
+
+
 	animate();
 	$( "#dialog" ).dialog({
 		  autoOpen: false
 		});
 }
+
 
 function proximityDetector() {
 			//detect objects hit by raycaster vector
@@ -208,9 +249,23 @@ function animate() {
 	    camera.updateProjectionMatrix();
 	 	proximityDetector();
 	 	animateDoors();
+
 	 	animateDrop(lastObject);
+		 	patrolRobot();
+ 	
+		if(botAggressive == 1)
+		{
+			robotAttack();
+		}
 	 	updateControls();
+
+
+
+
+
  	}
+
+
 }
 
 
@@ -268,6 +323,12 @@ function onKeyDown(e) {
   		case 65: // a
 			moveLeft = true; 
 			break;
+		case 66: //b
+			botAggressive = 1;
+			break;
+		case 79: //o
+			botAggressive = 0;
+			break;
  		case 81: // q
 			rotate(lastObject,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
     		break;
@@ -287,8 +348,7 @@ function onKeyDown(e) {
 		    canJump = false;
 		    break;
 		case 84:
-	    	triggerDoor(lastObject);
-	    	
+	    	triggerDoor(lastObject);	    	
 	    	break;
 	   	case 90:
 	   		zoom();

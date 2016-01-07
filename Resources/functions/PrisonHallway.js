@@ -26,13 +26,6 @@ function Hallway()
 	ceilingLamp.position.set(10,9,22);
 	ceilingLamp.rotation.x = Math.PI;
 	this.add(ceilingLamp);
-
-        
-	var bot = new JailBot();
-	bot.position.set(1.25,2.5,18);
-	bot.rotation.y =  Math.PI*0.5;
-	this.add(bot);
-	
 	
 	this.add(object);
 }
