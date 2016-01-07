@@ -14,6 +14,8 @@ var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
 var mirrorMaterial;
+var mirror_cameras = new Array();
+var mirror_materials= new Array();
 var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
@@ -22,6 +24,7 @@ var loadDone = false;
 var animationLock = false; // needed to complete animations before selection next object
 
 var collided = false;
+
 
 function init() { 
 	
@@ -70,7 +73,7 @@ function init() {
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
 
-	loadChair();
+	
 	initControls();
     initPointerLock();
 	controls = new THREE.PointerLockControls(camera);
@@ -88,14 +91,14 @@ function init() {
 	scene.add(hallway);
 		
 	//add 4 cells to the left side
-	for (i = 0; i < 4; i++) { 
+	for (i = 0; i < 1; i++) { 
 		var pcell = new PrisonCell();
 		pcell.position.set(i*11.9,0,0);
 		scene.add(pcell);
 	}
 	
 	//add 4 cells to the right side
-	for (j = 1; j < 5; j++) { 
+	for (j = 1; j < 2; j++) { 
 		var pcell = new PrisonCell();
 		pcell.rotation.y =  Math.PI;
 		pcell.position.set(j*11.9,0,41);
@@ -195,7 +198,13 @@ function animate() {
 	
 	    requestAnimationFrame(animate); 
 	if (loadDone) {
-	    mirrorMaterial.render();
+
+
+    	for (j = 0; j < mirror_cameras.length ; j++) { 
+    		mirror_cameras[j].updateProjectionMatrix();
+	    	renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
+		}
+
 	    renderer.render(scene, camera);
 	    camera.updateProjectionMatrix();
 	 	proximityDetector();

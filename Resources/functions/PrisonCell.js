@@ -14,7 +14,7 @@ function PrisonCell()
 	object.receiveShadow = true;
 	object.scale.x =  object.scale.y = object.scale.z = 3.5;
 	object.rotation.y = Math.PI / -2;
-
+    this.add(object);
 	
 	var soap = new Soap();
 	soap.position.set(0.85,2.5,12.2);
@@ -67,7 +67,7 @@ function PrisonCell()
 	mirror.rotation.y =  Math.PI/180*90;
 	this.add(mirror);
 
-	this.add(object);
+
 }
 PrisonCell.prototype = new THREE.Object3D();
 PrisonCell.prototype.constructor = PrisonCell;

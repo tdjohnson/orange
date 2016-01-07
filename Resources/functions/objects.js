@@ -243,11 +243,27 @@ function Mirror()
 	mirrorFrame.castShadow = true;
 	mirrorFrame.scale.x = mirrorFrame.scale.y = mirrorFrame.scale.z = 1;
 	
+	var mmaterial = new THREE.WebGLRenderTarget( 200, 200, { format: THREE.RGBFormat } );
+	mirror_materials.push(mmaterial);
+	var mcam= new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 5.2,50);
+	mcam.position.z = -5;
+	mcam.rotation.y = Math.PI;
+	mcam.updateProjectionMatrix();
+	this.add(mcam);
+	scene.add( new THREE.CameraHelper( mcam) );
+	mirror_cameras.push(mcam); // update cameras
 	//load third-party mirror (by author Slayvin )
-	mirrorMaterial = new THREE.Mirror( renderer, camera, { textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
-	object = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), mirrorMaterial.material );
-	object.add(mirrorMaterial);
+	//mirrorMaterial = new THREE.Mirror( renderer, mirrorCamera, { textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
+	//	var mirrorMesh = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), mirrorMaterial.material );
+
+
+	var planeMaterial = new THREE.MeshBasicMaterial( { map: mmaterial } );
+	var plane = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), planeMaterial );
+	object.add(plane);
+
 	object.add(mirrorFrame);
+
+
 	this.add(object);
 }
 Mirror.prototype = new THREE.Object3D();
