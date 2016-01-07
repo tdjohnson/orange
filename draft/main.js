@@ -18,36 +18,67 @@ var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
 var collidableMeshList = [];
+var loadDone = false;
 var animationLock = false; // needed to complete animations before selection next object
 var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit;
+
 
 var collided = false;
 
 function init() { 
+	
+	renderer = new THREE.WebGLRenderer({antialias:true});
+	renderer.domElement.id = "scene";
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor(0xb2e1f2);
+	renderer.shadowMap.enabled = true;
 
+	document.body.appendChild(renderer.domElement);
+	
+	
+	THREE.DefaultLoadingManager.onLoad = function () {
+		console.log("finished loading");
+    	loadDone = true;
+    	try {
+    		document.getElementById("txt").innerHTML = "Loading done, klick to start!";
+    		document.getElementById("scene").style.display = "inline";
+    	} catch (e) {
+    		alert(e);
+    	}
+    	
+	};
+	
+	THREE.DefaultLoadingManager.onProgress = function ( item, loaded, total ) {
+    	document.getElementById("txt").innerHTML = "Loading: "+ item+", "+ loaded+", "+ total;
+    	
+	};
+	
     clock = new THREE.Clock();
 
     scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
 	patrolStatus = 0;
 
 	//objects
 	var light = new THREE.PointLight(0xffffff);
 	light.position.y = 3;
 	light.position.z = 4;
-	scene.add(light);
+	//scene.add(light);
 	
-	var light2 = new THREE.AmbientLight(0xffffff);
-	light2.position.x = 5;
-	light2.position.y = 8;
-	light2.position.z = 24;
-	//scene.add(light2);
+	var light2 = new THREE.AmbientLight(0x404040);
+
+
+
+
+	scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
 
 	loadChair();
+
 	initControls();
     initPointerLock();
 	controls = new THREE.PointerLockControls(camera);
@@ -55,9 +86,12 @@ function init() {
 	controls.getObject().position.z = 8;
 	scene.add(controls.getObject());
 	
-	renderer = new THREE.WebGLRenderer({antialias:true});
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.setClearColor(0xb2e1f2);
+	
+	
+
+
+
+
 
 	botBody = new JailBotBody();
 	botBody.position.set(1.25,2.5,22);
@@ -72,6 +106,17 @@ function init() {
 	botArmStatus = 0;
 	botHit = 0;
 	botAggressive = 0;
+
+
+
+
+
+
+
+	
+
+
+
 
 	//add prison hallway
 	var hallway = new Hallway();
@@ -93,19 +138,21 @@ function init() {
 		pcell.position.set(j*11.9,0,41);
 		scene.add(pcell);
 	}
+
+
+
 	
 
 
 
 
-
-	document.body.appendChild(renderer.domElement);
 	animate();
 	$( "#dialog" ).dialog({
 		  autoOpen: false
 		});
 }
-	
+
+
 function proximityDetector() {
 			//detect objects hit by raycaster vector
 	try{
@@ -186,22 +233,32 @@ function collisionDetection() {
 
 
 function animate() {
-    requestAnimationFrame(animate);
-    
-    mirrorMaterial.render();
-    renderer.render(scene, camera);
-    camera.updateProjectionMatrix();
- 	proximityDetector();
- 	animateDoor(lastObject);
- 	animateDrop(lastObject);
- 	patrolRobot();
+	
+	    requestAnimationFrame(animate); 
+	if (loadDone) {
+
+	    mirrorMaterial.render();
+	    renderer.render(scene, camera);
+	    camera.updateProjectionMatrix();
+	 	proximityDetector();
+	 	animateDoors();
+
+	 	animateDrop(lastObject);
+		 	patrolRobot();
  	
- 	if(botAggressive == 1)
- 	{
- 		robotAttack();
+		if(botAggressive == 1)
+		{
+			robotAttack();
+		}
+	 	updateControls();
+
+
+
+
+
  	}
- 	updateControls();
- 	
+
+
 }
 
 
@@ -216,8 +273,9 @@ function initPointerLock() {
         if (document.pointerLockElement === element || 
             document.mozPointerLockElement === element || 
             document.webkitPointerLockElement === element) {
-          controlsEnabled = true;
-          controls.enabled = true;
+            	  document.getElementById("txt").style.display = "none";
+		          controlsEnabled = true;
+		          controls.enabled = true;
         } else {
           controls.enabled = false;
         }
@@ -283,7 +341,7 @@ function onKeyDown(e) {
 		    canJump = false;
 		    break;
 		case 84:
-	    	triggerDoor(lastObject);
+	    	triggerDoor(lastObject);	    	
 	    	break;
 	   	case 90:
 	   		zoom();
@@ -335,8 +393,8 @@ function updateControls() {
 		} else {
 			if (collided == false){
 				collided = true;
-				velocity.x = -velocity.x*2;
-		    	velocity.z = -velocity.z*2;
+				velocity.x = -velocity.x*1.3;
+		    	velocity.z = -velocity.z*1.3;
 			} else {
 				if (velocity.x == velocity.z == 0) {
 					collided = false;
