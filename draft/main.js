@@ -92,14 +92,14 @@ function init() {
 	scene.add(hallway);
 		
 	//add 4 cells to the left side
-	for (i = 0; i < 1; i++) { 
+	for (i = 0; i < 4; i++) { 
 		var pcell = new PrisonCell();
 		pcell.position.set(i*11.9,0,0);
 		scene.add(pcell);
 	}
 	
 	//add 4 cells to the right side
-	for (j = 1; j < 2; j++) { 
+	for (j = 1; j < 5; j++) { 
 		var pcell = new PrisonCell();
 		pcell.rotation.y =  Math.PI;
 		pcell.position.set(j*11.9,0,41);

@@ -25,9 +25,9 @@ function PrisonCell()
 	object.receiveShadow = true;
 	object.scale.x =  object.scale.y = object.scale.z = 3.5;
 	object.rotation.y = Math.PI / -2;
-<<<<<<< HEAD
+
     this.add(object);
-=======
+
 	
 	var wallCell1 = new WallCell1();
 	wallCell1.position.set(0,0,0.6);
@@ -48,7 +48,6 @@ function PrisonCell()
 	ceilingCell.position.set(11,6,16);
 	this.add(ceilingCell);
 
->>>>>>> f44b36f82e1fba6d2b78911dd9f0e1af94b67b75
 	
 	var soap = new Soap();
 	soap.position.set(0.85,2.5,12.2);

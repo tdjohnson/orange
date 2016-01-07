@@ -255,7 +255,7 @@ function Mirror()
 	mcam.rotation.y = Math.PI;
 	mcam.updateProjectionMatrix();
 	this.add(mcam);
-	scene.add( new THREE.CameraHelper( mcam) );
+	//scene.add( new THREE.CameraHelper( mcam) );
 	mirror_cameras.push(mcam); // update cameras
 	//load third-party mirror (by author Slayvin )
 	//mirrorMaterial = new THREE.Mirror( renderer, mirrorCamera, { textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
