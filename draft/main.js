@@ -241,8 +241,9 @@ function animate() {
 
 
     	for (j = 0; j < mirror_cameras.length ; j++) { 
-    		mirror_cameras[j].updateProjectionMatrix();
-	    	renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
+    		//performance problems
+    		//mirror_cameras[j].updateProjectionMatrix();
+	    	//renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
 		}
 
 	    renderer.render(scene, camera);
