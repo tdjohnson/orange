@@ -42,7 +42,7 @@ function init() {
 	light2.position.x = 5;
 	light2.position.y = 8;
 	light2.position.z = 24;
-	scene.add(light2);
+	//scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
 
