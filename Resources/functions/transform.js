@@ -75,6 +75,7 @@ function triggerDoor(object) {
 }
 
 function animateDoors() {
+	
 	if (door != null) {
 		var rotFact = 1;
 		if (door.userData.isOpenable == false) {
@@ -85,7 +86,7 @@ function animateDoors() {
 				}
 					
 				if (door.position.x > door.userData.startPosition-3) {
-					console.log(door.position.x+" "+door.userData.startPosition+3);
+					//console.log(door.position.x+" "+door.userData.startPosition+3);
 					door.position.x -= 0.1*rotFact;
 				} else {
 					door.userData.isOpenable = true;
@@ -94,7 +95,7 @@ function animateDoors() {
 				}
 			} else {
 				if (door.position.x < door.userData.startPosition) {
-					console.log(door.position.x+" "+door.userData.startPosition);
+					//console.log(door.position.x+" "+door.userData.startPosition);
 					door.position.x += 0.1*rotFact;
 				} else {
 					door.userData.isOpenable = true;

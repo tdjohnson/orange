@@ -58,7 +58,9 @@ function init() {
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
-
+	renderer.shadowMapEnabled = true;
+	
+	
 	//add prison hallway
 	var hallway = new Hallway();
 	hallway.position.set(0,0,0);
@@ -308,8 +310,8 @@ function updateControls() {
 		} else {
 			if (collided == false){
 				collided = true;
-				velocity.x = -velocity.x*2;
-		    	velocity.z = -velocity.z*2;
+				velocity.x = -velocity.x*1.3;
+		    	velocity.z = -velocity.z*1.3;
 			} else {
 				if (velocity.x == velocity.z == 0) {
 					collided = false;

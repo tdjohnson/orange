@@ -150,7 +150,7 @@ function TableLamp()
 	});
 	
 	var light = new THREE.PointLight(0xffff99, 5, 10 );
-	light.shadowCameraVisible = true;
+	//light.shadowCameraVisible = true;
 	light.shadowDarkness = 0.95;
 	light.castShadow = true;
 	light.position.set(6.7,9.4,-1.7);
@@ -181,6 +181,7 @@ function Bed()
 		object.updateMatrix();
 		object.name = "Bett";
 		object.userData.info = "Einsteigen!";
+		object.castShadow = true;
 		collidableMeshList.push(object);
 	this.add(object);
 }
