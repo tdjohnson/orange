@@ -31,6 +31,7 @@ function Toilet()
 
 
 		object.castShadow = true;
+		object.receiveShadow = true;
 		object.name = "Klo";
 		object.userData.info = "Sehr schön";
 		object.userData.rotatable = true;
@@ -92,6 +93,8 @@ function Table()
         object.scale.x = object.scale.y = object.scale.z = 1;
         object.updateMatrix();
         object.name = "tisch";
+        object.castShadow = true;
+        //object.recieveShadow = true;
 	    collidableMeshList.push(object);
 		this.add(object);
 }
@@ -198,7 +201,8 @@ function Door1()
 		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 	});
 	    object.scale.y = 1.4;
-	    object.castShadow = true;
+	   	object.castShadow = true;
+		object.receiveShadow = true;
 	    object.updateMatrix();
 	    object.name = "Tuer1";
 		//object.userData.info = "geschlossen!, öffne mit T";
@@ -217,6 +221,7 @@ function Door2() {
 	});
 
 		object.castShadow = true;
+		object.receiveShadow = true;
 		object.scale.y = 1.4;
 		object.updateMatrix();
 		object.name = "Tuer2";
@@ -287,7 +292,7 @@ Wall.prototype.constructor = Wall;
 
 
 function Ceiling() {
-		var object = new THREE.Object3D();
+	var object = new THREE.Object3D();
 	loader = new THREE.JSONLoader();
 	loader.load('../Prototypes/Gang/ceiling.json',function ( geometry, materials ) {
 		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
@@ -309,7 +314,9 @@ function Floor()
 	loader.load('../Prototypes/Gang/gang.json',function ( geometry, materials ) {
 		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 	});
-
+		
+		object.castShadow = true;
+		object.receiveShadow = true;
 	    object.scale.x = object.scale.z = 4;
 
 	this.add(object);
@@ -319,6 +326,7 @@ Floor.prototype.constructor = Floor;
 
 function WallDoor() 
 {
+	THREE.Object3D.call( this );
 	var object = new THREE.Object3D();
 	loader = new THREE.JSONLoader();
 	loader.load('../Prototypes/Gang/wallDoor.json',function ( geometry, materials ) {
@@ -327,13 +335,90 @@ function WallDoor()
 
 	    object.scale.x = object.scale.z = 4;
 	    object.scale.y = 3.15;
+	    
 
 	this.add(object);
 }
 WallDoor.prototype = new THREE.Object3D();
 WallDoor.prototype.constructor = WallDoor;
 
+function WallCell1() 
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Zelle/wand2.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+	object.scale.x = object.scale.y = 3.3;
+	object.scale.z = 2;
+	collidableMeshList.push(object);
+   
+	this.add(object);
+}
+WallCell1.prototype = new THREE.Object3D();
+WallCell1.prototype.constructor = WallCell1;
+
+function WallCell2() 
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Zelle/wand.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+	object.scale.x = object.scale.y = 3.3;
+	object.scale.z = 2;
+	collidableMeshList.push(object);
+   
+	this.add(object);
+}
+WallCell2.prototype = new THREE.Object3D();
+WallCell2.prototype.constructor = WallCell2;
+
+function WallCellWindow() 
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Zelle/wandFenster.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+	object.scale.x = object.scale.y = 3.3;
+	object.scale.z = 3.3;
+	collidableMeshList.push(object);
+   
+	this.add(object);
+}
+WallCellWindow.prototype = new THREE.Object3D();
+WallCellWindow.prototype.constructor = WallCellWindow;
+
+
+
+function CeilingCell() 
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Zelle/dach.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+	
+	object.scale.x = object.scale.z = 3.5;
+    //object.scale.y = 3.15;
+    object.rotation.y = Math.PI/2;
+	this.add(object);
+}
+CeilingCell.prototype = new THREE.Object3D();
+CeilingCell.prototype.constructor = CeilingCell;
+
+
+
 function CeilingLamp() {
+	THREE.Object3D.call( this );
 	var object = new THREE.Object3D();
 	loader = new THREE.JSONLoader();
 	loader.load('../Prototypes/DeckenLampe/lampe.json',function ( geometry, materials ) {
@@ -341,6 +426,14 @@ function CeilingLamp() {
 	});
 	
 	    object.scale.x = object.scale.z = object.scale.y = 0.5;
+	    var light = new THREE.DirectionalLight(0xffffff, 1);
+		//light.shadowCameraVisible = true;
+		light.shadowDarkness = 0.95;
+		light.castShadow = true;
+		light.position.set(object.position.x, object.position.y, object.position.z);
+		var directionalLightHelper = new THREE.DirectionalLightHelper(light, 10);
+		scene.add(directionalLightHelper);
+		object.add(light);
 
 	    
 	this.add(object);

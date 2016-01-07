@@ -119,8 +119,15 @@ THREE.ColladaLoader.prototype = {
 		function parseAsset( xml ) {
 
 			return {
+				unit: parseAssetUnit( getElementsByTagName( xml, 'unit' )[ 0 ] ),
 				upAxis: parseAssetUpAxis( getElementsByTagName( xml, 'up_axis' )[ 0 ] )
 			};
+
+		}
+
+		function parseAssetUnit( xml ) {
+
+			return xml !== undefined ? parseFloat( xml.getAttribute( 'meter' ) ) : 1;
 
 		}
 
@@ -488,14 +495,23 @@ THREE.ColladaLoader.prototype = {
 			function getTexture( sid ) {
 
 				var sampler = effect.profile.samplers[ sid ];
-				var surface = effect.profile.surfaces[ sampler.source ];
 
-				var texture = new THREE.Texture( getImage( surface.init_from ) );
-				texture.wrapS = THREE.RepeatWrapping;
-				texture.wrapT = THREE.RepeatWrapping;
-				texture.needsUpdate = true;
+				if ( sampler !== undefined ) {
 
-				return texture;
+					var surface = effect.profile.surfaces[ sampler.source ];
+
+					var texture = new THREE.Texture( getImage( surface.init_from ) );
+					texture.wrapS = THREE.RepeatWrapping;
+					texture.wrapT = THREE.RepeatWrapping;
+					texture.needsUpdate = true;
+
+					return texture;
+
+				}
+
+				console.error( 'ColladaLoder: Undefined sampler', sid );
+
+				return null;
 
 			}
 
@@ -1036,19 +1052,6 @@ THREE.ColladaLoader.prototype = {
 			function pushVector( i ) {
 
 				var index = indices[ i + offset ] * sourceStride;
-
-				/*
-				if ( asset.upAxis === 'Z_UP' ) {
-
-					array.push( sourceArray[ index + 0 ], sourceArray[ index + 2 ], - sourceArray[ index + 1 ] );
-
-				} else {
-
-					array.push( sourceArray[ index + 0 ], sourceArray[ index + 1 ], sourceArray[ index + 2 ] );
-
-				}
-				*/
-
 				array.push( sourceArray[ index + 0 ], sourceArray[ index + 1 ], sourceArray[ index + 2 ] );
 
 			}
@@ -1450,6 +1453,14 @@ THREE.ColladaLoader.prototype = {
 		// console.log( library );
 
 		var scene = parseScene( getElementsByTagName( collada, 'scene' )[ 0 ] );
+
+		if ( asset.upAxis === 'Z_UP' ) {
+
+			scene.rotation.x = - Math.PI / 2;
+
+		}
+
+		scene.scale.multiplyScalar( asset.unit );
 
 		console.timeEnd( 'ColladaLoader' );
 

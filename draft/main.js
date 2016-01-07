@@ -33,9 +33,10 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 	renderer.shadowMap.enabled = true;
+
 	document.body.appendChild(renderer.domElement);
 	
-	document.getElementById("scene").style.display = "none";
+	
 	THREE.DefaultLoadingManager.onLoad = function () {
 		console.log("finished loading");
     	loadDone = true;
@@ -49,7 +50,7 @@ function init() {
 	};
 	
 	THREE.DefaultLoadingManager.onProgress = function ( item, loaded, total ) {
-    	console.log( item, loaded, total );
+    	document.getElementById("txt").innerHTML = "Loading: "+ item+", "+ loaded+", "+ total;
     	
 	};
 	
@@ -65,7 +66,7 @@ function init() {
 	var light = new THREE.PointLight(0xffffff);
 	light.position.y = 3;
 	light.position.z = 4;
-	scene.add(light);
+	//scene.add(light);
 	
 	var light2 = new THREE.AmbientLight(0x404040);
 
@@ -73,7 +74,7 @@ function init() {
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
 
-	
+
 	initControls();
     initPointerLock();
 	controls = new THREE.PointerLockControls(camera);
@@ -104,8 +105,6 @@ function init() {
 		pcell.position.set(j*11.9,0,41);
 		scene.add(pcell);
 	}
-
-
 
 
 	
@@ -226,8 +225,9 @@ function initPointerLock() {
         if (document.pointerLockElement === element || 
             document.mozPointerLockElement === element || 
             document.webkitPointerLockElement === element) {
-          controlsEnabled = true;
-          controls.enabled = true;
+            	  document.getElementById("txt").style.display = "none";
+		          controlsEnabled = true;
+		          controls.enabled = true;
         } else {
           controls.enabled = false;
         }

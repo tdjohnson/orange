@@ -1,0 +1,37 @@
+{
+    "uvs": [[0.078334,0.121052,0.437023,0.121052,0.437023,0.479741,0.078334,0.479741]],
+    "materials": [{
+        "depthWrite": true,
+        "DbgName": "Boden",
+        "colorEmissive": [0,0,0],
+        "colorAmbient": [0.64,0.64,0.64],
+        "mapDiffuseWrap": ["RepeatWrapping","RepeatWrapping"],
+        "mapDiffuseAnisotropy": 1,
+        "DbgColor": 15658734,
+        "shading": "lambert",
+        "opacity": 1,
+        "transparent": false,
+        "colorDiffuse": [0.64,0.64,0.64],
+        "DbgIndex": 0,
+        "wireframe": false,
+        "depthTest": true,
+        "mapDiffuse": "bodenNeu.png",
+        "mapDiffuseRepeat": [3,2],
+        "blending": "NormalBlending",
+        "visible": true
+    }],
+    "faces": [43,0,1,2,3,0,0,1,2,3,0,0,0,0],
+    "metadata": {
+        "generator": "io_three",
+        "faces": 1,
+        "vertices": 4,
+        "uvs": 1,
+        "materials": 1,
+        "type": "Geometry",
+        "version": 3,
+        "normals": 1
+    },
+    "vertices": [0,-0,-0.002797,4.4,-0,-0.002797,4.4,-0,-3.4028,0,-0,-3.4028],
+    "name": "Plane.000Geometry.1",
+    "normals": [0,1,0]
+}
