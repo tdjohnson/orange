@@ -18,6 +18,7 @@ var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
 var collidableMeshList = [];
+
 var animationLock = false; // needed to complete animations before selection next object
 
 var collided = false;
@@ -175,7 +176,7 @@ function animate() {
     renderer.render(scene, camera);
     camera.updateProjectionMatrix();
  	proximityDetector();
- 	animateDoor(lastObject);
+ 	animateDoors();
  	animateDrop(lastObject);
  	updateControls();
  	
@@ -255,6 +256,7 @@ function onKeyDown(e) {
 		    break;
 		case 84:
 	    	triggerDoor(lastObject);
+	    	
 	    	break;
 	   	case 90:
 	   		zoom();

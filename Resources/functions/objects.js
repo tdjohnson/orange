@@ -219,6 +219,7 @@ function Door2() {
 		object.updateMatrix();
 		object.name = "Tuer2";
 		object.userData.info = "geschlossen!<br/> öffne mit T";
+		object.userData.startPosition = object.position.x;
 		object.userData.isOpenable = true;
 		collidableMeshList.push(object);
 		this.add(object);
