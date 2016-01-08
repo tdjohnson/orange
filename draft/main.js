@@ -62,6 +62,42 @@ function init() {
     scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    var material = new THREE.LineBasicMaterial({ color: 0xAAFFAA });
+
+	// crosshair size
+	var x = 0.01, y = 0.02;
+	
+	var geometry = new THREE.Geometry();
+	var geometry2 = new THREE.Geometry();
+	
+	// crosshair
+	geometry.vertices.push(new THREE.Vector3(0.01, y, 0));
+	geometry.vertices.push(new THREE.Vector3(0, 0.01, 0));
+	geometry.vertices.push(new THREE.Vector3(-0.01, y, 0));    
+	geometry.vertices.push(new THREE.Vector3(0, 0.01, 0));
+	
+
+	
+	var crosshair = new THREE.LineSegments( geometry, material );
+	
+	// place it in the center
+	var crosshairPercentX = 50;
+	var crosshairPercentY = 50;
+	var crosshairPositionX = (crosshairPercentX / 100) * 2 - 1;
+	var crosshairPositionY = (crosshairPercentY / 100) * 2 - 1;
+	
+	crosshair.position.x = crosshairPositionX * camera.aspect;
+	crosshair.position.y = crosshairPositionY;
+
+	
+	crosshair.position.z = -0.3;
+	camera.add( crosshair );
+    
+    
+    
+    
+    
 
 	patrolStatus = 0;
 
