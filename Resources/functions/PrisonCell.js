@@ -30,7 +30,7 @@ function PrisonCell()
 
 	
 	var wallCell1 = new WallCell1();
-	wallCell1.position.set(0,0,0.6);
+	wallCell1.position.set(0.3,0,0.6);
 	wallCell1.rotation.y = Math.PI*-0.5;
 	this.add(wallCell1);
 	
@@ -40,12 +40,38 @@ function PrisonCell()
 	this.add(wallCell2);
 	
 	var wallCellWindow = new WallCellWindow();
-	wallCellWindow.position.set(0,0,0.6);
+	wallCellWindow.position.set(0.1,0,0.6);
 	wallCellWindow.rotation.y = Math.PI*-0.5;
 	this.add(wallCellWindow);
 	
+	var wallCellDoor = new WallCellDoor();
+	wallCellDoor.position.set(0,0,6.4);
+	wallCellDoor.scale.z = 3.7;
+	wallCellDoor.scale.y = 3.4;
+	wallCellDoor.scale.x = 2;
+	wallCellDoor.rotation.y = Math.PI*-0.5;;
+	this.add(wallCellDoor);
+	
+	var wallCellDoorCol1 = new WallCellDoorCol1();
+	wallCellDoorCol1.position.set(0,0,6.4);
+	wallCellDoorCol1.scale.z = 3.7;
+	wallCellDoorCol1.scale.y = 3.4;
+	wallCellDoorCol1.scale.x = 2;
+	wallCellDoorCol1.rotation.y = Math.PI*-0.5;
+	wallCellDoorCol1.visible = false;
+	this.add(wallCellDoorCol1);
+	
+	var wallCellDoorCol2 = new WallCellDoorCol2();
+	wallCellDoorCol2.position.set(0,0,6.4);
+	wallCellDoorCol2.scale.z = 3.7;
+	wallCellDoorCol2.scale.y = 3.4;
+	wallCellDoorCol2.scale.x = 2;
+	wallCellDoorCol2.rotation.y = Math.PI*-0.5;;
+	wallCellDoorCol2.visible = false;
+	this.add(wallCellDoorCol2);
+	
 	var ceilingCell = new CeilingCell();
-	ceilingCell.position.set(11,6,16);
+	ceilingCell.position.set(11.5,5.5,16);
 	this.add(ceilingCell);
 
 	
@@ -92,7 +118,7 @@ function PrisonCell()
 	this.add(door1);
 	
 	var door2 = new Door2();
-	door2.position.set(8,3.8,14.9);
+	door2.position.set(8.5,3.8,14.9);
 	this.add(door2);
 	
 	var mirror = new Mirror();

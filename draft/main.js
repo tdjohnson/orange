@@ -83,6 +83,7 @@ function init() {
 
 	initControls();
     initPointerLock();
+    camera.position.z = 1;
 	controls = new THREE.PointerLockControls(camera);
 	controls.getObject().position.x = 6;
 	controls.getObject().position.z = 8;
@@ -95,7 +96,7 @@ function init() {
 
 
 
-	botBody = new JailBotBody();
+	/*botBody = new JailBotBody();
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
 	scene.add(botBody);
@@ -107,17 +108,7 @@ function init() {
 	
 	botArmStatus = 0;
 	botHit = 0;
-	botAggressive = 0;
-
-
-
-
-
-
-
-	
-
-
+	botAggressive = 0;*/
 
 
 	//add prison hallway
@@ -129,7 +120,7 @@ function init() {
 	//add 4 cells to the left side
 	for (i = 0; i < 4; i++) { 
 		var pcell = new PrisonCell();
-		pcell.position.set(i*11.9,0,0);
+		pcell.position.set(i*11.5,0,0);
 		scene.add(pcell);
 	}
 	
@@ -137,15 +128,9 @@ function init() {
 	for (j = 1; j < 5; j++) { 
 		var pcell = new PrisonCell();
 		pcell.rotation.y =  Math.PI;
-		pcell.position.set(j*11.9,0,41);
+		pcell.position.set(j*11.5,0,41);
 		scene.add(pcell);
 	}
-
-
-
-	
-
-
 
 
 	animate();
@@ -252,12 +237,12 @@ function animate() {
 	 	animateDoors();
 
 	 	animateDrop(lastObject);
-		 	patrolRobot();
+		//patrolRobot();
  	
-		if(botAggressive == 1)
-		{
-			robotAttack();
-		}
+		//if(botAggressive == 1)
+		//{
+		//	robotAttack();
+		//}
 	 	updateControls();
 
 

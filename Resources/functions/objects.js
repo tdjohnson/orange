@@ -397,6 +397,54 @@ WallCellWindow.prototype = new THREE.Object3D();
 WallCellWindow.prototype.constructor = WallCellWindow;
 
 
+function WallCellDoor() 
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Zelle/wandFront.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+
+   
+	this.add(object);
+}
+WallCellDoor.prototype = new THREE.Object3D();
+WallCellDoor.prototype.constructor = WallCellDoor;
+
+function WallCellDoorCol1() 
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Zelle/wandFrontCol1.json',function ( geometry, materials ) {
+
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+		
+	});
+	collidableMeshList.push(object);
+   
+	this.add(object);
+}
+WallCellDoorCol1.prototype = new THREE.Object3D();
+WallCellDoorCol1.prototype.constructor = WallCellDoorCol1;
+
+function WallCellDoorCol2() 
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Zelle/wandFrontCol2.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});
+	collidableMeshList.push(object);
+   
+	this.add(object);
+}
+WallCellDoorCol2.prototype = new THREE.Object3D();
+WallCellDoorCol2.prototype.constructor = WallCellDoorCol2;
+
+
 
 function CeilingCell() 
 {
@@ -407,7 +455,7 @@ function CeilingCell()
 		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 	});
 	
-	object.scale.x = object.scale.z = 3.5;
+	object.scale.x = object.scale.z = 3.35;
     //object.scale.y = 3.15;
     object.rotation.y = Math.PI/2;
 	this.add(object);
@@ -427,7 +475,7 @@ function CeilingLamp() {
 	
 	    object.scale.x = object.scale.z = object.scale.y = 0.5;
 	    var light = new THREE.DirectionalLight(0xffffff, 1);
-		//light.shadowCameraVisible = true;
+		light.shadowCameraVisible = true;
 		light.shadowDarkness = 0.95;
 		light.castShadow = true;
 		light.position.set(object.position.x, object.position.y, object.position.z);
