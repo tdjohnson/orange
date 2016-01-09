@@ -105,16 +105,11 @@ function init() {
 	
 	var light2 = new THREE.AmbientLight(0x404040);
 
-<<<<<<< HEAD
-
-
 
 	//scene.add(light2);
 	//var pointLightHelper = new THREE.PointLightHelper(light2, 1);
-=======
 	scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
->>>>>>> 4bed1a65294c8eadb7580cf503ff9ff4055c373c
 	//scene.add(pointLightHelper);
 
 
