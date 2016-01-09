@@ -122,7 +122,7 @@ function init() {
 	scene.add(controls.getObject());
 	
 
-	/*botBody = new JailBotBody();
+	botBody = new JailBotBody();
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
 	scene.add(botBody);
@@ -134,7 +134,7 @@ function init() {
 	
 	botArmStatus = 0;
 	botHit = 0;
-	botAggressive = 0;*/
+	botAggressive = 0;
 
 
 	//add prison hallway
@@ -205,12 +205,12 @@ function animate() {
 	 	animateDoors();
 
 	 	animateDrop(lastObject);
-		//patrolRobot();
+		patrolRobot();
  	
-		//if(botAggressive == 1)
-		//{
-		//	robotAttack();
-		//}
+		if(botAggressive == 1)
+		{
+			robotAttack();
+		}
 	 	updateControls();
 
  	}
