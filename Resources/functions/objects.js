@@ -246,20 +246,18 @@ function Mirror()
 	});
 	mirrorFrame.rotation.y = Math.PI*0.5; 
 	mirrorFrame.castShadow = true;
-	mirrorFrame.scale.x = mirrorFrame.scale.y = mirrorFrame.scale.z = 1;
+	mirrorFrame.scale.x = mirrorFrame.scale.y = mirrorFrame.scale.z = 1.1;
 	
-	var mmaterial = new THREE.WebGLRenderTarget( 200, 200, { format: THREE.RGBFormat } );
+	var mmaterial = new THREE.WebGLRenderTarget( 500, 500, { format: THREE.RGBFormat } );
 	mirror_materials.push(mmaterial);
-	var mcam= new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 5.2,50);
-	mcam.position.z = -5;
-	mcam.rotation.y = Math.PI;
+	var mcam= new THREE.PerspectiveCamera(45, 1, 2.6,50);
+	mcam.up = new THREE.Vector3(0,0,1);
+	mcam.applyMatrix(new THREE.Matrix4().makeScale(1, 1, -1)); //flip view to create "mirrored" image
+	mcam.position.z = -2.5; //set camera origin behind, (front plane set accordingly)
 	mcam.updateProjectionMatrix();
 	this.add(mcam);
-	//scene.add( new THREE.CameraHelper( mcam) );
+
 	mirror_cameras.push(mcam); // update cameras
-	//load third-party mirror (by author Slayvin )
-	//mirrorMaterial = new THREE.Mirror( renderer, mirrorCamera, { textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
-	//	var mirrorMesh = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), mirrorMaterial.material );
 
 
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: mmaterial } );

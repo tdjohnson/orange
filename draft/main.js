@@ -105,9 +105,6 @@ function init() {
 	
 	var light2 = new THREE.AmbientLight(0x404040);
 
-
-	//scene.add(light2);
-	//var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
@@ -122,7 +119,7 @@ function init() {
 	scene.add(controls.getObject());
 	
 
-	botBody = new JailBotBody();
+	/*botBody = new JailBotBody();
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
 	scene.add(botBody);
@@ -134,7 +131,7 @@ function init() {
 	
 	botArmStatus = 0;
 	botHit = 0;
-	botAggressive = 0;
+	botAggressive = 0;*/
 
 
 	//add prison hallway
@@ -158,7 +155,7 @@ function init() {
 		scene.add(pcell);
 	}
 
-
+	//showCameraHelpers();
 	animate();
 	$( "#dialog" ).dialog({
 		  autoOpen: false
@@ -174,6 +171,13 @@ function showraycasthelper(){
 	scene.add( arrow );
 }
 
+function showCameraHelpers(){
+//	scene.add( new THREE.CameraHelper(camera)); //main camera
+	for (j = 0; j < mirror_cameras.length ; j++) { 
+    	scene.add( new THREE.CameraHelper( mirror_cameras[j]) ); //mirror cameras
+	}
+}
+
 function showinfo(intersect){
 	var message = animationLock + " " + intersect.object.parent.name + ": " + intersect.object.parent.userData.info;
 	if(intersect.object.parent.userData.rotatable == true){
@@ -187,30 +191,37 @@ function showinfo(intersect){
 	//$("#dialog").dialog( 'option', 'position', ['left',20] );
 }
 
+function updateMirrors() {
+for (j = 0; j < mirror_cameras.length ; j++) { 
+    		camera.updateProjectionMatrix();
+    		//mirror_cameras[j].lookAt(camera);
+    		    		//	mirror_cameras[j].lookAt(crosshair.position );
+    		    				//	mirror_cameras[j].applyMatrix(controls.getObject().projectionMatrix  );
+    		mirror_cameras[j].updateProjectionMatrix();
+
+	    	renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
+		}
+		
+	}
 
 function animate() {
 	
 	    requestAnimationFrame(animate); 
 	if (loadDone) {
 
-    	for (j = 0; j < mirror_cameras.length ; j++) { 
-    		//performance problems
-    		//mirror_cameras[j].updateProjectionMatrix();
-	    	//renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
-		}
-
+ 		updateMirrors();
 	    renderer.render(scene, camera);
 	    camera.updateProjectionMatrix();
 	 	proximityDetector();
 	 	animateDoors();
 
 	 	animateDrop(lastObject);
-		patrolRobot();
+		//patrolRobot();
  	
-		if(botAggressive == 1)
-		{
-			robotAttack();
-		}
+		//if(botAggressive == 1)
+		//{
+		//	robotAttack();
+		//}
 	 	updateControls();
 
  	}
