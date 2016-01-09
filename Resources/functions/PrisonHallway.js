@@ -24,7 +24,6 @@ function Hallway()
 
 	var ceilingLamp = new CeilingLamp();
 	ceilingLamp.position.set(10,9,22);
-	//ceilingLamp.rotation.x = Math.PI;
 	this.add(ceilingLamp);
 	
 	this.add(object);

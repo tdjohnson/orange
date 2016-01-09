@@ -76,8 +76,8 @@ function init() {
 
 
 
-	scene.add(light2);
-	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
+	//scene.add(light2);
+	//var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
 
 
