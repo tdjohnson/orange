@@ -29,21 +29,16 @@ function meshloader(url,callback){
 function Soap()
 {
 	THREE.Object3D.call( this );
-	var object = new THREE.Object3D();
-	loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Seife/seife.json',function ( geometry, materials ) {
-		materialsNew = renderer._microCache.getSet(materials[0].name, new THREE.MeshFaceMaterial(materials));
-		object.add(new THREE.Mesh( geometry, materialsNew));
-	});
 
-	object.name = 'soap_' + this.id;
-	object.castShadow = true;
-	object.scale.x = object.scale.y = object.scale.z = 0.1;
-	object.userData.info = "Wirf mich runter mit Y!";
-	object.userData.rotatable = true;
-	object.userData.isDropable = true;
+	this.name = 'soap_' + this.id;
+	this.castShadow = true;
+	this.scale.x = this.scale.y = this.scale.z = 0.1;
+	this.userData.info = "Wirf mich runter mit Y!";
+	this.userData.rotatable = true;
+	this.userData.isDropable = true;
 	
-	this.add(object);
+	var scope = this;
+	meshloader( '../Prototypes/Seife/seife.json',function(model) {scope.add(model);});
 }
 Soap.prototype = Object.create(THREE.Object3D.prototype);
 Soap.prototype.constructor = Soap;
