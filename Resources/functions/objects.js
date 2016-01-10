@@ -111,7 +111,7 @@ Table.prototype.constructor = Table;
 function Chair()
 {
 	THREE.Object3D.call( this );
-    this.rotation.y =  Math.PI/180*90;
+   // this.rotation.y =  Math.PI/180*90;
 
     this.scale.x = this.scale.y = this.scale.z = 1.2;
     this.name = "chair";
