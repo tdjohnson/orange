@@ -1,5 +1,17 @@
 //loader = new THREE.JSONLoader();
 
+function meshloader(url,callback){
+
+			if(meshes.has(url)){ //check if model has been loaded before
+				callback(meshes.get(url));  //return preloaded model from Map
+			}else{
+				loader = new THREE.JSONLoader();
+				loader.load(url,function ( geometry, materials ) {  //load model from json /()
+				console.log("LOADING JSON MODEL: " + url); 
+				callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials))); 
+			});					
+			}
+}
 function Soap()
 {
 	THREE.Object3D.call( this );
@@ -26,22 +38,17 @@ Soap.prototype.constructor = Soap;
 function Toilet()
 {
 	THREE.Object3D.call( this );
-	var object = new THREE.Object3D();
-	//loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Klo/klo.json',function ( geometry, materials ) {
-		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
-	});
-
-
-		object.castShadow = true;
-		object.receiveShadow = true;
-		object.name = "Klo";
-		object.userData.info = "Sehr schön";
-		object.userData.rotatable = true;
-		collidableMeshList.push(object);
-		this.add(object);
+	this.castShadow = true;
+	this.receiveShadow = true;
+	this.name = "Klo";
+	this.userData.info = "Sehr schön";
+	this.userData.rotatable = true;
+	this.userData.callback;
+	var scope = this;
+	meshloader( '../Prototypes/Klo/klo.json',function(model) {scope.add(model);});
+	collidableMeshList.push(this);
 }
-Toilet.prototype = new THREE.Object3D();
+Toilet.prototype =  Object.create(THREE.Object3D.prototype);
 Toilet.prototype.constructor = Toilet;
 
 
@@ -253,20 +260,18 @@ function Mirror()
 	});
 	mirrorFrame.rotation.y = Math.PI*0.5; 
 	mirrorFrame.castShadow = true;
-	mirrorFrame.scale.x = mirrorFrame.scale.y = mirrorFrame.scale.z = 1;
+	mirrorFrame.scale.x = mirrorFrame.scale.y = mirrorFrame.scale.z = 1.1;
 	
-	var mmaterial = new THREE.WebGLRenderTarget( 200, 200, { format: THREE.RGBFormat } );
+	var mmaterial = new THREE.WebGLRenderTarget( 500, 500, { format: THREE.RGBFormat } );
 	mirror_materials.push(mmaterial);
-	var mcam= new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 5.2,50);
-	mcam.position.z = -5;
-	mcam.rotation.y = Math.PI;
+	var mcam= new THREE.PerspectiveCamera(45, 1, 2.6,50);
+	mcam.up = new THREE.Vector3(0,0,1);
+	mcam.applyMatrix(new THREE.Matrix4().makeScale(1, 1, -1)); //flip view to create "mirrored" image
+	mcam.position.z = -2.5; //set camera origin behind, (front plane set accordingly)
 	mcam.updateProjectionMatrix();
 	this.add(mcam);
-	//scene.add( new THREE.CameraHelper( mcam) );
+
 	mirror_cameras.push(mcam); // update cameras
-	//load third-party mirror (by author Slayvin )
-	//mirrorMaterial = new THREE.Mirror( renderer, mirrorCamera, { textureWidth: window.innerWidth, textureHeight: window.innerHeight, color:0x858585} );
-	//	var mirrorMesh = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), mirrorMaterial.material );
 
 
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: mmaterial } );
@@ -479,6 +484,22 @@ function CeilingCell()
 CeilingCell.prototype = new THREE.Object3D();
 CeilingCell.prototype.constructor = CeilingCell;
 
+
+function FloorCell() 
+{
+	THREE.Object3D.call( this );
+	var object = new THREE.Object3D();
+	//loader = new THREE.JSONLoader();
+	loader.load('../Prototypes/Zelle/boden.json',function ( geometry, materials ) {
+		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
+	});
+	object.scale.x = 3.5;
+	object.scale.z = 3.35;
+    //object.rotation.y = Math.PI/2;
+	this.add(object);
+}
+FloorCell.prototype = new THREE.Object3D();
+FloorCell.prototype.constructor = FloorCell;
 
 
 function CeilingLamp() {

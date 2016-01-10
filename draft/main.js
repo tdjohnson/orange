@@ -25,7 +25,7 @@ var animationLock = false; // needed to complete animations before selection nex
 var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit;
 
 var collided = false;
-
+var meshes = new Map();
 
 function init() { 
 	
@@ -107,9 +107,6 @@ function init() {
 	
 	var light2 = new THREE.AmbientLight(0x404040);
 
-
-	//scene.add(light2);
-	//var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
@@ -125,7 +122,7 @@ function init() {
 	scene.add(controls.getObject());
 	
 
-	botBody = new JailBotBody();
+	/*botBody = new JailBotBody();
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
 	scene.add(botBody);
@@ -137,7 +134,7 @@ function init() {
 	
 	botArmStatus = 0;
 	botHit = 0;
-	botAggressive = 0;
+	botAggressive = 0;*/
 
 
 	//add prison hallway
@@ -148,7 +145,7 @@ function init() {
 		
 	//add 4 cells to the left side
 	for (i = 0; i < 4; i++) { 
-		var pcell = new PrisonCell(); 
+		var pcell = new PrisonCell();
 		pcell.position.set(i*11.5,0,0);
 		scene.add(pcell);
 	}
@@ -161,7 +158,7 @@ function init() {
 		scene.add(pcell);
 	}
 
-	
+	//showCameraHelpers();
 	animate();
 	$( "#dialog" ).dialog({
 		  autoOpen: false
@@ -170,49 +167,41 @@ function init() {
 }
 
 
-
-function showraycasthelper(){
-	scene.remove (arrow);
-	arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
-	scene.add( arrow );
-}
-
-function showinfo(intersect){
-	var message = animationLock + " " + intersect.object.parent.name + ": " + intersect.object.parent.userData.info;
-	if(intersect.object.parent.userData.rotatable == true){
-		console.log(message + "  Tip! " + intersect.object.parent.name + " can be rotated by pressing q or e");
-	}else{
-		console.log(message);
+function showCameraHelpers(){
+//	scene.add( new THREE.CameraHelper(camera)); //main camera
+	for (j = 0; j < mirror_cameras.length ; j++) { 
+    	scene.add( new THREE.CameraHelper( mirror_cameras[j]) ); //mirror cameras
 	}
-	//log distance to object
-	// console.log("distance to " +intersect.object.name + ": " + intersect.distance); 
-	//$("#dialog").html(message); //disabled dialogs for now... buggy
-	//$("#dialog").dialog( 'option', 'position', ['left',20] );
 }
 
+
+function updateMirrors() {
+for (j = 0; j < mirror_cameras.length ; j++) { 
+    		camera.updateProjectionMatrix();
+    		mirror_cameras[j].updateProjectionMatrix();
+	    	renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
+		}
+		
+	}
 
 function animate() {
 	
 	requestAnimationFrame(animate); 
 	if (loadDone) {
-    	for (j = 0; j < mirror_cameras.length ; j++) { 
-    		//performance problems
-    		//mirror_cameras[j].updateProjectionMatrix();
-	    	//renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
-		}
 
+ 		updateMirrors();
 	    renderer.render(scene, camera);
 	    camera.updateProjectionMatrix();
 	 	proximityDetector();
 	 	animateDoors();
 
 	 	animateDrop(lastObject);
-		patrolRobot();
+		//patrolRobot();
  	
-		if(botAggressive == 1)
-		{
-			robotAttack();
-		}
+		//if(botAggressive == 1)
+		//{
+		//	robotAttack();
+		//}
 	 	updateControls();
  } else {
  	controls.getObject().rotation.y += Math.PI/-16;

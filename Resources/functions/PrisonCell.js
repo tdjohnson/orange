@@ -1,38 +1,19 @@
 function PrisonCell()
 {
 	THREE.Object3D.call( this );
-	var object = new THREE.Object3D();
-	loader = new THREE.JSONLoader();
-	
-	
-	/*loader.load( '../Prototypes/Zelle/Zelle_hires.json', 
-	
-	function ( geometry, materials ) {
-		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-	});*/
-	
-	loader.load( '../Prototypes/Zelle/boden.json', 
-	
-	function ( geometry, materials ) {
-		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-		object.castShadow = true;
-		object.recieveShadow = true;
-	});
 
 	
-	object.name = 'PrisonCell_' + this.id;
-	//object.castShadow = true;
-	object.receiveShadow = true;
-	object.scale.x =  object.scale.y = object.scale.z = 3.5;
-	object.rotation.y = Math.PI / -2;
-
-    this.add(object);
-
+	this.name = 'PrisonCell_' + this.id;
 	
 	var wallCell1 = new WallCell1();
 	wallCell1.position.set(0.3,0,0.6);
 	wallCell1.rotation.y = Math.PI*-0.5;
 	this.add(wallCell1);
+	
+	var floorCell = new FloorCell();
+	floorCell.position.set(0,0,0);
+	floorCell.rotation.y = Math.PI/-2;
+	this.add(floorCell);
 	
 	var wallCell2 = new WallCell2();
 	wallCell2.position.set(4.8,0,0.6);
