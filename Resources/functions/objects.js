@@ -170,7 +170,7 @@ function TableLamp()
 		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
 	});
 	
-	var light = new THREE.PointLight(0xffff99, 5, 10 );
+	var light = new THREE.DirectionalLight(0x555555, 0.1);
 	//light.shadowCameraVisible = true;
 	light.shadowDarkness = 0.95;
 	light.castShadow = true;
@@ -217,10 +217,11 @@ function Door1()
 	//loader = new THREE.JSONLoader();
 	loader.load('../Prototypes/Tuer/tuer1.json',function (geometry, materials ) {
 		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
+		object.castShadow = true;
+	object.receiveShadow = true;
 	});
     object.scale.y = 1.4;
-   	object.castShadow = true;
-	object.receiveShadow = true;
+   
     object.updateMatrix();
     object.name = "Tuer1";
 	//object.userData.info = "geschlossen!, öffne mit T";
@@ -301,6 +302,8 @@ function Wall() {
 	loader.load('../Prototypes/Gang/wall.json',function ( geometry, materials ) {
 		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
 	});
+	object.castShadow = true;
+	object.receiveShadow = true;
 	   object.scale.x = object.scale.z = 4;
 	   object.scale.y = 3.15;
 
@@ -483,6 +486,8 @@ function CeilingCell()
 		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
 	});
 	
+	object.castShadow = true;
+	object.receiveShadow = true;
 	object.scale.x = object.scale.z = 3.35;
     //object.scale.y = 3.15;
     object.rotation.y = Math.PI/2;
@@ -500,6 +505,9 @@ function FloorCell()
 	loader.load('../Prototypes/Zelle/boden.json',function ( geometry, materials ) {
 		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
 	});
+	
+	object.castShadow = true;
+	object.receiveShadow = true;
 	object.scale.x = 3.5;
 	object.scale.z = 3.4;
     //object.rotation.y = Math.PI/2;
@@ -520,14 +528,19 @@ function CeilingLamp() {
 	
 	this.scale.x = this.scale.z = this.scale.y = 0.5;
 	this.rotation.x = Math.PI;
+	this.castShadow = true;
+	this.receiveShadow = true;
 	
-	var light = new THREE.PointLight(0xffff99, 1, 10);
+	var light = new THREE.PointLight(0xffff99, 10, 5);
+	//var light = new THREE.HemisphereLight(0x555555, 0.001);
 	light.castShadow = true;
 	light.position.set(9, 8.7, 21);
-	var light2 = new THREE.PointLight(0xffff99, 1, 10);
+	var light2 = new THREE.PointLight(0xffff99, 10, 5);
+	//var light2 = new THREE.HemisphereLight(0x555555, 0.001);
 	light2.castShadow = true;
 	light2.position.set(10, 8.7, 21);
-	var light3 = new THREE.PointLight(0xffff99, 1, 10);
+	var light3 = new THREE.PointLight(0xffff99, 10, 5);
+	//var light3 = new THREE.HemisphereLight(0x555555, 0.001);
 	light3.castShadow = true;
 	light3.position.set(11, 8.7, 21);
 	var lightHelper = new THREE.PointLightHelper(light, 0.05);
