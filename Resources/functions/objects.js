@@ -244,7 +244,7 @@ function Door2() {
 		object.castShadow = true;
 		object.receiveShadow = true;
 		object.scale.y = 1.4;
-		object.updateMatrix();
+		//object.updateMatrix();
 		object.name = "Tuer2";
 		object.userData.info = "geschlossen!<br/> öffne mit T";
 		object.userData.startPosition = object.position.x;

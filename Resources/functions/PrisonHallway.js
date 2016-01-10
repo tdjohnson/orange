@@ -9,7 +9,7 @@ function Hallway()
 	this.add(wall);
 	
 	var ceiling = new Ceiling();
-	ceiling.position.set(24,9,21.4);
+	ceiling.position.set(24,8.5,21.4);
 	this.add(ceiling);
 	
 	var floor = new Floor();
@@ -18,12 +18,12 @@ function Hallway()
 
         
     var wallDoor = new WallDoor();
-	wallDoor.position.set(48,0,27.3);
+	wallDoor.position.set(46,0,27.3);
 	this.add(wallDoor);
 
 
 	var ceilingLamp = new CeilingLamp();
-	ceilingLamp.position.set(10,9,21);
+	ceilingLamp.position.set(10,8.5,21);
 	this.add(ceilingLamp);
 	
 	this.add(object);
