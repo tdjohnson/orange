@@ -97,15 +97,6 @@ function init() {
 	crosshair.position.z = -0.3;
 	camera.add( crosshair );
 	
-	var geometry = new THREE.PlaneGeometry( 0.3, 0.02 );
-	var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
-	var mesh = new THREE.Mesh( geometry, material );
-	mesh.position.z = -0.2;
-	mesh.position.y = -0.15;
-	mesh.name="message";
-	mesh.userData.message = "I'm root";
-	camera.add( mesh );
-	
 
 	patrolStatus = 0;
 
@@ -215,6 +206,7 @@ function animate() {
 	    camera.updateProjectionMatrix();
 	 	proximityDetector();
 	 	animateDoors();
+	 	
 
 	 	animateDrop(lastObject);
 		//patrolRobot();
@@ -236,4 +228,8 @@ function zoom(){
 		camera.zoom = 1;
 	else
 		camera.zoom = 4;
+}
+
+function showMessage(text){
+	document.getElementById("message").innerHTML=text;
 }
