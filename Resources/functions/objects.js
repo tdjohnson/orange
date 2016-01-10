@@ -25,26 +25,22 @@ function meshloader(url,callback){
 			}
 }
 
+
 function Soap()
 {
 	THREE.Object3D.call( this );
-	var object = new THREE.Object3D();
-	//loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Seife/seife.json',function ( geometry, materials ) {
-		materialsNew = renderer._microCache.getSet(materials[0].name, new THREE.MeshFaceMaterial(materials));
-		object.add(new THREE.Mesh( geometry, materialsNew));
-	});
 
-	object.name = 'soap_' + this.id;
-	object.castShadow = true;
-	object.scale.x = object.scale.y = object.scale.z = 0.1;
-	object.userData.info = "Wirf mich runter mit Y!";
-	object.userData.rotatable = true;
-	object.userData.isDropable = true;
+	this.name = 'soap_' + this.id;
+	this.castShadow = true;
+	this.scale.x = this.scale.y = this.scale.z = 0.1;
+	this.userData.info = "Wirf mich runter mit Y!";
+	this.userData.rotatable = true;
+	this.userData.isDropable = true;
 	
-	this.add(object);
+	var scope = this;
+	meshloader( '../Prototypes/Seife/seife.json',function(model) {scope.add(model);});
 }
-Soap.prototype = new THREE.Object3D();
+Soap.prototype = Object.create(THREE.Object3D.prototype);
 Soap.prototype.constructor = Soap;
 
 
@@ -78,7 +74,7 @@ function Sink()
 	meshloader('../Prototypes/Becken/becken.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-Sink.prototype = new THREE.Object3D();
+Sink.prototype  =  Object.create(THREE.Object3D.prototype);
 Sink.prototype.constructor = Sink;
 
 
@@ -93,7 +89,7 @@ function Book()
 	meshloader('../Prototypes/Buch/buch_neu_comb.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-Book.prototype = new THREE.Object3D();
+Book.prototype = Object.create(THREE.Object3D.prototype);
 Book.prototype.constructor = Book;
 
 
@@ -109,7 +105,7 @@ function Table()
 	meshloader('../Prototypes/Tisch/table.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-Table.prototype = new THREE.Object3D();
+Table.prototype = Object.create(THREE.Object3D.prototype);
 Table.prototype.constructor = Table;
 
 function Chair()
@@ -123,7 +119,7 @@ function Chair()
 	meshloader('../Prototypes/Stuhl/stuhl.json',function(model) {scope.add(model);});
 	//collidableMeshList.push(this);
 }
-Chair.prototype = new THREE.Object3D();
+Chair.prototype = Object.create(THREE.Object3D.prototype);
 Chair.prototype.constructor = Chair;
 
 
@@ -138,7 +134,7 @@ function Radiator()
 	meshloader('../Prototypes/Luefter/luefter.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-Radiator.prototype = new THREE.Object3D();
+Radiator.prototype = Object.create(THREE.Object3D.prototype);
 Radiator.prototype.constructor = Radiator;
 
 function TableLamp()
@@ -164,7 +160,7 @@ function TableLamp()
 	meshloader('../Prototypes/TischLampe/TischLampeTop.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-TableLamp.prototype = new THREE.Object3D();
+TableLamp.prototype = Object.create(THREE.Object3D.prototype);
 TableLamp.prototype.constructor = TableLamp;
 
 function Bed()
@@ -180,7 +176,7 @@ function Bed()
 	meshloader('../Prototypes/Bett/bett.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-Bed.prototype = new THREE.Object3D();
+Bed.prototype = Object.create(THREE.Object3D.prototype);
 Bed.prototype.constructor = Bed;
 
 function Door1()
@@ -198,7 +194,7 @@ function Door1()
 }
 
 
-Door1.prototype = new THREE.Object3D();
+Door1.prototype = Object.create(THREE.Object3D.prototype);
 Door1.prototype.constructor = Door1;
 
 function Door2() {
@@ -206,16 +202,15 @@ function Door2() {
 		this.castShadow = true;
 		this.receiveShadow = true;
 		this.scale.y = 1.4;
-		//this.updateMatrix();
 		this.name = "Tuer2";
 		this.userData.info = "geschlossen!<br/> öffne mit T";
-		this.userData.startPosition = this.position.x;
+		
 		this.userData.isOpenable = true;
 	var scope = this;
 	meshloader('../Prototypes/Tuer/tuer2.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-Door2.prototype = new THREE.Object3D();
+Door2.prototype = Object.create(THREE.Object3D.prototype);
 Door2.prototype.constructor = Door2;
 
 
@@ -223,7 +218,7 @@ function Mirror()
 {	
 	THREE.Object3D.call( this );
 
-	this.rotation.y = Math.PI*0.5; 
+
 	this.castShadow = true;
 	this.scale.x = this.scale.y = this.scale.z = 1.1;
 	
@@ -244,9 +239,12 @@ function Mirror()
 	this.add(plane);
 
 	var scope = this;
-	meshloader('../Prototypes/Spiegel/SpiegelRahmen.json',function(model) {scope.add(model);});
+	meshloader('../Prototypes/Spiegel/SpiegelRahmen.json',function(model) {
+			model.rotation.y = Math.PI*0.5; 
+		scope.add(model);});
+		this.rotation.y = Math.PI*0.5; 
 }
-Mirror.prototype = new THREE.Object3D();
+Mirror.prototype = Object.create(THREE.Object3D.prototype);
 Mirror.prototype.constructor = Mirror;
 
 
@@ -260,7 +258,7 @@ function Wall() {
 	meshloader('../Prototypes/Gang/wall.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-Wall.prototype = new THREE.Object3D();
+Wall.prototype = Object.create(THREE.Object3D.prototype);
 Wall.prototype.constructor = Wall;
 
 
@@ -273,7 +271,7 @@ function Ceiling() {
 	var scope = this;
 	meshloader('../Prototypes/Gang/ceiling.json',function(model) {scope.add(model);});
 }
-Ceiling.prototype = new THREE.Object3D();
+Ceiling.prototype = Object.create(THREE.Object3D.prototype);
 Ceiling.prototype.constructor = Ceiling;
 
 
@@ -287,7 +285,7 @@ function Floor()
 	var scope = this;
 	meshloader('../Prototypes/Gang/gang.json',function(model) {scope.add(model);});
 }
-Floor.prototype = new THREE.Object3D();
+Floor.prototype = Object.create(THREE.Object3D.prototype);
 Floor.prototype.constructor = Floor;
 
 function WallDoor() 
@@ -303,7 +301,7 @@ function WallDoor()
 	meshloader('../Prototypes/Gang/wallDoor.json',function(model) {scope.add(model);});
 
 }
-WallDoor.prototype = new THREE.Object3D();
+WallDoor.prototype = Object.create(THREE.Object3D.prototype);
 WallDoor.prototype.constructor = WallDoor;
 
 function WallCell1() 
@@ -317,7 +315,7 @@ function WallCell1()
 	meshloader('../Prototypes/Zelle/wand2.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-WallCell1.prototype = new THREE.Object3D();
+WallCell1.prototype = Object.create(THREE.Object3D.prototype);
 WallCell1.prototype.constructor = WallCell1;
 
 function WallCell2() 
@@ -332,7 +330,7 @@ function WallCell2()
 	meshloader('../Prototypes/Zelle/wand.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-WallCell2.prototype = new THREE.Object3D();
+WallCell2.prototype = Object.create(THREE.Object3D.prototype);
 WallCell2.prototype.constructor = WallCell2;
 
 function WallCellWindow() 
@@ -348,7 +346,7 @@ function WallCellWindow()
 	meshloader('../Prototypes/Zelle/wandFenster.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-WallCellWindow.prototype = new THREE.Object3D();
+WallCellWindow.prototype = Object.create(THREE.Object3D.prototype);
 WallCellWindow.prototype.constructor = WallCellWindow;
 
 
@@ -360,9 +358,9 @@ function WallCellDoor()
 	this.receiveShadow = true;
 	var scope = this;
 	meshloader('../Prototypes/Zelle/wandFront.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
+	
 }
-WallCellDoor.prototype = new THREE.Object3D();
+WallCellDoor.prototype = Object.create(THREE.Object3D.prototype);
 WallCellDoor.prototype.constructor = WallCellDoor;
 
 function WallCellDoorCol1() 
@@ -373,7 +371,7 @@ function WallCellDoorCol1()
 	meshloader('../Prototypes/Zelle/wandFrontCol1.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-WallCellDoorCol1.prototype = new THREE.Object3D();
+WallCellDoorCol1.prototype = Object.create(THREE.Object3D.prototype);
 WallCellDoorCol1.prototype.constructor = WallCellDoorCol1;
 
 function WallCellDoorCol2() 
@@ -384,7 +382,7 @@ function WallCellDoorCol2()
 	meshloader('../Prototypes/Zelle/wandFrontCol2.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
-WallCellDoorCol2.prototype = new THREE.Object3D();
+WallCellDoorCol2.prototype = Object.create(THREE.Object3D.prototype);
 WallCellDoorCol2.prototype.constructor = WallCellDoorCol2;
 
 
@@ -398,7 +396,7 @@ function CeilingCell()
 	var scope = this;
 	meshloader('../Prototypes/Zelle/dach.json',function(model) {scope.add(model);});
 }
-CeilingCell.prototype = new THREE.Object3D();
+CeilingCell.prototype = Object.create(THREE.Object3D.prototype);
 CeilingCell.prototype.constructor = CeilingCell;
 
 
@@ -411,7 +409,7 @@ function FloorCell()
 	var scope = this;
 	meshloader('../Prototypes/Zelle/boden.json',function(model) {scope.add(model);});
 }
-FloorCell.prototype = new THREE.Object3D();
+FloorCell.prototype = Object.create(THREE.Object3D.prototype);
 FloorCell.prototype.constructor = FloorCell;
 
 
@@ -448,7 +446,7 @@ function CeilingLamp() {
 
 }
 
-CeilingLamp.prototype = new THREE.Object3D();
+CeilingLamp.prototype = Object.create(THREE.Object3D.prototype);
 CeilingLamp.prototype.constructor = CeilingLamp;
 
 function JailBotBody()
@@ -462,7 +460,7 @@ function JailBotBody()
 	var scope = this;
 	meshloader( '../Prototypes/Bot/bot_body.json',function(model) {scope.add(model);});
 }
-JailBotBody.prototype = new THREE.Object3D();
+JailBotBody.prototype = Object.create(THREE.Object3D.prototype);
 JailBotBody.prototype.constructor = JailBotBody;
 
 function JailBotArms()
@@ -477,6 +475,6 @@ function JailBotArms()
 	var scope = this;
 	meshloader('../Prototypes/Bot/bot_arms.json',function(model) {scope.add(model);});
 }
-JailBotArms.prototype = new THREE.Object3D();
+JailBotArms.prototype = Object.create(THREE.Object3D.prototype);
 JailBotArms.prototype.constructor = JailBotArms;
 

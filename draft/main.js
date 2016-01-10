@@ -32,7 +32,7 @@ function init() {
 	
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.domElement.id = "scene";
-	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setSize(window.innerWidth, window.innerHeight-30);
 	renderer.setClearColor(0xb2e1f2);
 	renderer.shadowMap.enabled = true;
 	renderer._microCache = new MicroCache();
@@ -43,19 +43,19 @@ function init() {
 	THREE.DefaultLoadingManager.onLoad = function () {
 		console.log("finished loading");
     	loadDone = true;
-    	try {
+    	/*try {
     		document.getElementById("txt").innerHTML = "Loading done, klick to start!";
     		document.getElementById("scene").style.display = "inline";
     	} catch (e) {
     		alert(e);
-    	}
+    	}*/
     	
 	};
 	
-	THREE.DefaultLoadingManager.onProgress = function ( item, loaded, total ) {
+	/*THREE.DefaultLoadingManager.onProgress = function ( item, loaded, total ) {
     	document.getElementById("txt").innerHTML = "Loading: "+ item+", "+ loaded+", "+ total;
     	
-	};
+	};*/
 	
 	//needed for controls
     clock = new THREE.Clock();
@@ -96,8 +96,7 @@ function init() {
 	
 	crosshair.position.z = -0.3;
 	camera.add( crosshair );
-    
-
+	
 
 	patrolStatus = 0;
 	hitDirection = 1;
@@ -209,6 +208,7 @@ function animate() {
 	    camera.updateProjectionMatrix();
 	 	proximityDetector();
 	 	animateDoors();
+	 	
 
 	 	animateDrop(lastObject);
 		patrolRobot();
@@ -230,4 +230,8 @@ function zoom(){
 		camera.zoom = 1;
 	else
 		camera.zoom = 4;
+}
+
+function showMessage(text){
+	document.getElementById("message").innerHTML=text;
 }

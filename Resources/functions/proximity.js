@@ -22,7 +22,7 @@ function proximityDetector() {
 		frustum.setFromMatrix(cam_matrix); //set frustum (camera view)
 	
 		if(!frustum.intersectsObject(lastObject)){ //if object left field of view
-		
+			showMessage(" ");
 			lastObject = new THREE.Object3D(); //reset lastObject to empty object
 		}
 		}else{
@@ -39,12 +39,12 @@ function showraycasthelper(){
 }
 
 function showinfo(intersect){
-	var message = animationLock + " " + intersect.object.parent.name + ": " + intersect.object.parent.userData.info;
-	if(intersect.object.parent.userData.rotatable == true){
-		console.log(message + "  Tip! " + intersect.object.parent.name + " can be rotated by pressing q or e");
-	}else{
-		console.log(message);
+	var message = intersect.object.parent.userData.info;
+	if(!(message === undefined)){
+		showMessage(message);
+		//console.log(message + "  Tip! " + intersect.object.parent.name + " can be rotated by pressing q or e");
 	}
+	
 	//log distance to object
 	// console.log("distance to " +intersect.object.name + ": " + intersect.distance); 
 	//$("#dialog").html(message); //disabled dialogs for now... buggy

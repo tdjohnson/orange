@@ -90,7 +90,7 @@ function PrisonCell()
 	this.add(radiator);
 	
 	var tablelamp = new TableLamp();
-	tablelamp.position.set(10.3,2.2,10.4);
+	tablelamp.position.set(10.3,3,10.4);
 	this.add(tablelamp);
 	
 	
@@ -105,6 +105,7 @@ function PrisonCell()
 	
 	var door2 = new Door2();
 	door2.position.set(8.5,3.8,14.9);
+	door2.userData.startPosition = door2.position.x; 
 	this.add(door2);
 	
 	var mirror = new Mirror();

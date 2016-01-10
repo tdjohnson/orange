@@ -40,15 +40,15 @@ function animateDrop(object) {
 	if (object.userData.isDropable == false) {
 			animationLock = true; // lock raycaster //not nice...shame on you
 		if (object.userData.info.indexOf("Heb")>-1) {
-			if(object.parent.position.z > 11.7){
-					object.parent.position.z -= 0.05;
+			if(object.position.z > 11.7){
+					object.position.z -= 0.05;
 			}
 			else{
-				if (object.parent.position.y > 0.1){
-					object.parent.position.y -= 0.1;
+				if (object.position.y > 0.1){
+					object.position.y -= 0.1;
 					
-					if(object.parent.position.z > 11 && object.parent.position.z < 11.7){
-						object.parent.position.z -= 0.05;
+					if(object.position.z > 11 && object.position.z < 11.7){
+						object.position.z -= 0.05;
 					}
 					
 					rotate(object, new THREE.Vector3(1,0,0),-8);
@@ -98,15 +98,15 @@ function animateDoors() {
 					door.position.x -= 0.1*rotFact;
 				} else {
 					door.userData.isOpenable = true;
-					door.userData.startPosition = 0;
+					door.userData.startPosition = door.position.x;
 				}
 			} else {
-				if (door.position.x < door.userData.startPosition) {
+				if (door.position.x < door.userData.startPosition+3) {
 					//console.log(door.position.x+" "+door.userData.startPosition);
 					door.position.x += 0.1*rotFact;
 				} else {
 					door.userData.isOpenable = true;
-					door.userData.startPosition = 0;
+					door.userData.startPosition = door.position.x;
 				}
 			}
 		}
