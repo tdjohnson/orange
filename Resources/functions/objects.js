@@ -169,11 +169,11 @@ function Bed()
 		this.scale.x = this.scale.y = this.scale.z = 1;
 		this.updateMatrix();
 		this.name = "Bett";
-		this.userData.info = "Einsteigen!";
+		//this.userData.info = "Einsteigen!";
 		this.castShadow = true;
 		this.receiveShadow = true;
 	var scope = this;
-	meshloader('../Prototypes/Bett/bett.json',function(model) {scope.add(model);});
+	meshloader('../Prototypes/Bett/bett2.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
 Bed.prototype = Object.create(THREE.Object3D.prototype);
