@@ -116,4 +116,3 @@ function PrisonCell()
 
 }
 PrisonCell.prototype = new THREE.Object3D();
-PrisonCell.prototype.constructor = PrisonCell;

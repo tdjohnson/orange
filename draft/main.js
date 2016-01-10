@@ -26,6 +26,7 @@ var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatu
 
 var collided = false;
 var meshes = new Map();
+var rootCell;
 
 function init() { 
 	
@@ -142,21 +143,13 @@ function init() {
 	hallway.position.set(0,0,0);
 		
 	scene.add(hallway);
-		
-	//add 4 cells to the left side
-	for (i = 0; i < 4; i++) { 
-		var pcell = new PrisonCell();
-		pcell.position.set(i*11.5,0,0);
-		scene.add(pcell);
-	}
 	
-	//add 4 cells to the right side
-	for (j = 1; j < 5; j++) { 
-		var pcell = new PrisonCell(); 
-		pcell.rotation.y =  Math.PI;
-		pcell.position.set(j*11.5,0,41);
-		scene.add(pcell);
-	}
+	rootCell = new PrisonCell();
+	rootCell.position.set(0,0,0);
+	scene.add(rootCell);
+	
+	//add 4 cells to the left side
+	
 
 	//showCameraHelpers();
 	animate();
@@ -166,9 +159,25 @@ function init() {
 	
 }
 
+function cloning(n) {
+	for (i = 1; i < n; i++) { 
+		
+		var newCell = rootCell.clone();
+		newCell.position.set(i*11.5,0,0);
+		scene.add(newCell);
+	}
+	
+	for (j = 1; j < n+1; j++) { 
+		var newCell = rootCell.clone();
+		newCell.rotation.y =  Math.PI;
+		newCell.position.set(j*11.5,0,41);
+		scene.add(newCell);
+	}
+}
+
 
 function showCameraHelpers(){
-//	scene.add( new THREE.CameraHelper(camera)); //main camera
+	scene.add( new THREE.CameraHelper(camera)); //main camera
 	for (j = 0; j < mirror_cameras.length ; j++) { 
     	scene.add( new THREE.CameraHelper( mirror_cameras[j]) ); //mirror cameras
 	}

@@ -2,16 +2,29 @@
 
 function meshloader(url,callback){
 
-			if(meshes.has(url)){ //check if model has been loaded before
+			/*if(meshes.has(url)){ //check if model has been loaded before
 				callback(meshes.get(url));  //return preloaded model from Map
 			}else{
 				loader = new THREE.JSONLoader();
 				loader.load(url,function ( geometry, materials ) {  //load model from json /()
-				console.log("LOADING JSON MODEL: " + url); 
-				callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials))); 
+				console.log("LOADING JSON MODEL: " + url);
+				meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+				callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 			});					
+			}*/
+			if(renderer._microCache.contains(url)){ //check if model has been loaded before
+				callback(renderer._microCache.get(url));  //return preloaded model from Map
+			}else{
+				loader = new THREE.JSONLoader();
+				loader.load(url,function ( geometry, materials ) {  //load model from json /()
+					console.log("LOADING JSON MODEL: " + url);
+					//meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+					renderer._microCache.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+					callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+				});
 			}
 }
+
 function Soap()
 {
 	THREE.Object3D.call( this );
@@ -494,7 +507,7 @@ function FloorCell()
 		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
 	});
 	object.scale.x = 3.5;
-	object.scale.z = 3.35;
+	object.scale.z = 3.4;
     //object.rotation.y = Math.PI/2;
 	this.add(object);
 }
