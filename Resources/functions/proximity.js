@@ -1,7 +1,7 @@
 function proximityDetector() {
 			//detect objects hit by raycaster vector
 	try{
-	//if(!animationLock){ // wait for running animations
+	if(!animationLock){ // wait for running animations
 
 		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection()); //bind raycaster to camera	
 		//showraycasthelper();//Raycaster helper - displays raycaster as vector
@@ -17,6 +17,7 @@ function proximityDetector() {
 				}
 			}
 		}
+	}
 cam_matrix = new THREE.Matrix4();
 	cam_matrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
 	frustum.setFromMatrix(cam_matrix);

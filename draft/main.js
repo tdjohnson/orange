@@ -146,12 +146,12 @@ function init() {
 	//showCameraHelpers();
 	
 	var grid = new THREE.GridHelper(500, 5);
-	var light4 = new THREE.DirectionalLight(0xffffff, 1, 1);
-	light4.position.x = light4.position.z = 100;
-	light4.castShadow = true;
-	scene.add(light4); 
-	createSandFloor();
+
+	scene.add(grid ); 
 	
+	
+	//createSandFloor();
+	sun();
 	animate();
 	$( "#dialog" ).dialog({
 		  autoOpen: false
@@ -159,6 +159,31 @@ function init() {
 	
 }
 
+function sun(){
+	
+				var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+				dirLight.color.setHSL( 0.1, 1, 0.95 );
+				dirLight.position.set( -1, 1.75, 1 );
+				dirLight.position.multiplyScalar( 50 );
+				scene.add( dirLight );
+
+				dirLight.castShadow = true;
+
+				dirLight.shadowMapWidth = 2048;
+				dirLight.shadowMapHeight = 2048;
+
+				var d = 50;
+
+				dirLight.shadowCameraLeft = -d;
+				dirLight.shadowCameraRight = d;
+				dirLight.shadowCameraTop = d;
+				dirLight.shadowCameraBottom = -d;
+
+				dirLight.shadowCameraFar = 3500;
+				dirLight.shadowBias = -0.0001;
+				//dirLight.shadowCameraVisible = true;
+	
+}
 function createSandFloor() {
 	var sand = new Sand();
 	sand.position.set(100, -5, 100);
