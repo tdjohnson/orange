@@ -22,7 +22,7 @@ var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of
 var collidableMeshList = [];
 var loadDone = false;
 var animationLock = false; // needed to complete animations before selection next object
-var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit;
+var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit, hitDirection, rotationActive;
 
 var collided = false;
 var meshes = new Map();
@@ -97,17 +97,10 @@ function init() {
 	crosshair.position.z = -0.3;
 	camera.add( crosshair );
 	
-	var geometry = new THREE.PlaneGeometry( 0.3, 0.02 );
-	var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
-	var mesh = new THREE.Mesh( geometry, material );
-	mesh.position.z = -0.2;
-	mesh.position.y = -0.15;
-	mesh.name="message";
-	mesh.userData.message = "I'm root";
-	camera.add( mesh );
-	
 
 	patrolStatus = 0;
+	hitDirection = 1;
+	rotationActive = 0;
 
 	var light = new THREE.PointLight(0xffffff);
 	light.position.y = 3;
@@ -132,7 +125,7 @@ function init() {
 	scene.add(controls.getObject());
 	
 
-	/*botBody = new JailBotBody();
+	botBody = new JailBotBody();
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
 	scene.add(botBody);
@@ -144,7 +137,7 @@ function init() {
 	
 	botArmStatus = 0;
 	botHit = 0;
-	botAggressive = 0;*/
+	botAggressive = 0;
 
 
 	//add prison hallway
@@ -226,14 +219,15 @@ function animate() {
 	    camera.updateProjectionMatrix();
 	 	proximityDetector();
 	 	animateDoors();
+	 	
 
 	 	animateDrop(lastObject);
-		//patrolRobot();
+		patrolRobot();
  	
-		//if(botAggressive == 1)
-		//{
-		//	robotAttack();
-		//}
+		if(botAggressive == 1)
+		{
+			robotAttack();
+		}
 	 	updateControls();
  } else {
  	controls.getObject().rotation.y += Math.PI/-16;
@@ -247,4 +241,8 @@ function zoom(){
 		camera.zoom = 1;
 	else
 		camera.zoom = 4;
+}
+
+function showMessage(text){
+	document.getElementById("message").innerHTML=text;
 }
