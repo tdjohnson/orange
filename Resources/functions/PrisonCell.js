@@ -71,18 +71,17 @@ function PrisonCell()
 	this.add(sink);
 	
 	var book = new Book();
-	book.position.set(10,2,11.2);
+	book.position.set(10,2.2,12);
 	book.rotation.y =  Math.PI/180*90;
 	this.add(book);
 	
 	var table = new Table();
-	table.position.set(10,0,13);
+	table.position.set(10,0,15);
 	table.rotation.y =  Math.PI/180*90;
 	this.add(table);
 	
 	var chair = new Chair();
-	chair.position.set(8,0,13);
-	chair.rotation.y =  Math.PI/180*90;
+	chair.position.set(-3,-0.5,13);
 	this.add(chair);
 	
 	var radiator = new Radiator();
@@ -91,7 +90,7 @@ function PrisonCell()
 	this.add(radiator);
 	
 	var tablelamp = new TableLamp();
-	tablelamp.position.set(10.3,2,10.9);
+	tablelamp.position.set(10.3,2.2,10.9);
 	this.add(tablelamp);
 	
 	
