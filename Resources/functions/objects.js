@@ -100,7 +100,8 @@ Book.prototype.constructor = Book;
 function Table()
 {
 	THREE.Object3D.call( this );
-    this.scale.x = this.scale.y = this.scale.z = 1;
+
+    this.scale.x = this.scale.y = this.scale.z = 1.2;
     this.name = "tisch";
     this.castShadow = true;
     this.recieveShadow = true;
@@ -116,11 +117,11 @@ function Chair()
 	THREE.Object3D.call( this );
     this.rotation.y =  Math.PI/180*90;
 
-    this.scale.x = this.scale.y = this.scale.z = 1;
+    this.scale.x = this.scale.y = this.scale.z = 1.2;
     this.name = "chair";
 	var scope = this;
 	meshloader('../Prototypes/Stuhl/stuhl.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
+	//collidableMeshList.push(this);
 }
 Chair.prototype = new THREE.Object3D();
 Chair.prototype.constructor = Chair;
@@ -271,7 +272,6 @@ function Ceiling() {
 
 	var scope = this;
 	meshloader('../Prototypes/Gang/ceiling.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
 }
 Ceiling.prototype = new THREE.Object3D();
 Ceiling.prototype.constructor = Ceiling;
@@ -286,7 +286,6 @@ function Floor()
 
 	var scope = this;
 	meshloader('../Prototypes/Gang/gang.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
 }
 Floor.prototype = new THREE.Object3D();
 Floor.prototype.constructor = Floor;
