@@ -1,6 +1,7 @@
 function checkForPointerLock() {
     return 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 }
+var cloned = false;
   
 function initPointerLock() {
 	var element = document.body;
@@ -12,6 +13,10 @@ function initPointerLock() {
             	  document.getElementById("txt").style.display = "none";
 		          controlsEnabled = true;
 		          controls.enabled = true;
+		          if (!cloned) {
+		          	cloning(4);
+		          	cloned = true;
+		          }
         } else {
           controls.enabled = false;
         }
