@@ -163,14 +163,6 @@ function init() {
 }
 
 
-
-
-function showraycasthelper(){
-	scene.remove (arrow);
-	arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
-	scene.add( arrow );
-}
-
 function showCameraHelpers(){
 //	scene.add( new THREE.CameraHelper(camera)); //main camera
 	for (j = 0; j < mirror_cameras.length ; j++) { 
@@ -178,27 +170,11 @@ function showCameraHelpers(){
 	}
 }
 
-function showinfo(intersect){
-	var message = animationLock + " " + intersect.object.parent.name + ": " + intersect.object.parent.userData.info;
-	if(intersect.object.parent.userData.rotatable == true){
-		console.log(message + "  Tip! " + intersect.object.parent.name + " can be rotated by pressing q or e");
-	}else{
-		console.log(message);
-	}
-	//log distance to object
-	// console.log("distance to " +intersect.object.name + ": " + intersect.distance); 
-	//$("#dialog").html(message); //disabled dialogs for now... buggy
-	//$("#dialog").dialog( 'option', 'position', ['left',20] );
-}
 
 function updateMirrors() {
 for (j = 0; j < mirror_cameras.length ; j++) { 
     		camera.updateProjectionMatrix();
-    		//mirror_cameras[j].lookAt(camera);
-    		    		//	mirror_cameras[j].lookAt(crosshair.position );
-    		    				//	mirror_cameras[j].applyMatrix(controls.getObject().projectionMatrix  );
     		mirror_cameras[j].updateProjectionMatrix();
-
 	    	renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
 		}
 		

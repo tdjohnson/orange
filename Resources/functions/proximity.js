@@ -4,7 +4,7 @@ function proximityDetector() {
 	if(!animationLock){ // wait for running animations
 
 		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection()); //bind raycaster to camera	
-		showraycasthelper();//Raycaster helper - displays raycaster as vector
+		//showraycasthelper();//Raycaster helper - displays raycaster as vector
 		var intersects = raycaster.intersectObjects( scene.children, true); //get all object intersecting with raycast vector
 		if ( intersects.length > 0 ) { //if objects are intersected
 			if(intersects[0].object.parent.name.length >= 1){ //if object has a name
@@ -30,4 +30,23 @@ function proximityDetector() {
 		}
 	}catch(err){
 	}
+}
+
+function showraycasthelper(){
+	scene.remove (arrow);
+	arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
+	scene.add( arrow );
+}
+
+function showinfo(intersect){
+	var message = animationLock + " " + intersect.object.parent.name + ": " + intersect.object.parent.userData.info;
+	if(intersect.object.parent.userData.rotatable == true){
+		console.log(message + "  Tip! " + intersect.object.parent.name + " can be rotated by pressing q or e");
+	}else{
+		console.log(message);
+	}
+	//log distance to object
+	// console.log("distance to " +intersect.object.name + ": " + intersect.distance); 
+	//$("#dialog").html(message); //disabled dialogs for now... buggy
+	//$("#dialog").dialog( 'option', 'position', ['left',20] );
 }
