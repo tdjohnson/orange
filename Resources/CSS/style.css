@@ -1,26 +1,24 @@
+body{
+	font-family: "Arial", monospace;
+}
+
 p
 {
-font-family: "Courier New", Courier, monospace;
 font-size: 13px;
 }
 h1
 {
-font-size: 16px;
-font-family: "Courier New", Courier, monospace;
+font-size: 32px;
+padding-bottom:20px;
 }
+
+h1#clickStart{
+	font-size: 30px;
+}
+
 h2
 {
 font-size: 14px;
-font-family: "Courier New", Courier, monospace;
-}
-a
-{
-background -color: #445566;
-font-size: 14px;
-border: 1px;
-display: block;
-font-family: "Courier New", Courier, monospace;
-color: white;
 }
 canvas
 {
@@ -32,21 +30,32 @@ div
 position: fixed;
 padding: 10px;
 }
-input
-{
-width:45px;
+
+p#credits{
+	color: white;
 }
-td
-{
-padding-bottom: 0px;
-padding-top: 0px;
-margin-bottom: 0px;
-margin-top:0px;
+
+div#message{
+	position: fixed;
+	bottom:10px;
+	left:0px;
+	height:30px;
+	width:100%;
+	text-align:center;
+	color:white;
+
+	font-size: 18px;
 }
-.ui-dialog-titlebar-close {
-  visibility: hidden;
+
+div#startScreen{
+	position: fixed;
+	top:0;
+	left:0;
+	height:100%;
+	width:100%;
+	background-color:black;
+	text-align:center;
+	color:orange;
 }
-=======
-.ui-dialog-titlebar {
-    display: none;
-}
+
+
