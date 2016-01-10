@@ -127,31 +127,44 @@ function patrolRobot()
 	//console.log("sein wert");
 	//console.log(bot.rotation.y);
 	
-	if(botBody.position.x <= 46 && botBody.position.z >= 22 && patrolStatus == 0)
+	if(botBody.position.x <= 43 && botBody.position.z >= 22 && patrolStatus == 0)
 	{
+		hitDirection = 1;
+		rotationActive = 0;
 		botBody.position.x += 0.1;
 		botArms.position.x += 0.1;
 		botRotateCounter=0;
 	}
 	
-	else if(botBody.position.x >= 46  && botBody.position.z == 22  && botRotateCounter<18)//&& bot.rotation.y >  Math.PI / -1024) //(Math.PI / 180 *180))
+	else if(botBody.position.x >= 43  && botBody.position.z == 22  && botRotateCounter<18)//&& bot.rotation.y >  Math.PI / -1024) //(Math.PI / 180 *180))
 	{
-
+		rotationActive = 1;
+		if(botArmStatus != 0)
+		{
+			rotateBot(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
+			botArmStatus = 0;
+		}
+		
 		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
 		rotateBot(botArms,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
+		
+		
 		botRotateCounter++;
 		patrolStatus = 1;
 	}
 	
-	else if(botBody.position.x >= 46 && botBody.position.z > 18)
+	else if(botBody.position.x >= 43 && botBody.position.z > 18)
 	{
+		hitDirection = 0;
+		rotationActive = 0;
 		botBody.position.z -= 0.1;
 		botArms.position.z -= 0.1;
 		botRotateCounter=0;
 	}
 	
-	else if(botBody.position.x >= 46  && botBody.position.z <= 18  && botRotateCounter<18)//&& bot.rotation.y >  Math.PI / -1023) //(Math.PI / 180 *180))
+	else if(botBody.position.x >= 43  && botBody.position.z <= 18  && botRotateCounter<18)//&& bot.rotation.y >  Math.PI / -1023) //(Math.PI / 180 *180))
 	{
+		rotationActive = 1;
 		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
 		rotateBot(botArms,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
 		botRotateCounter++;
@@ -160,6 +173,8 @@ function patrolRobot()
 	
 	else if(botBody.position.x > 4  && botBody.position.z <= 18 && botBody.rotation.y) //(Math.PI / 180 *180))
 	{
+		hitDirection = -1;
+		rotationActive = 0;
 		botBody.position.x -= 0.1;
 		botArms.position.x -= 0.1;
 		botRotateCounter=0;
@@ -167,20 +182,35 @@ function patrolRobot()
 
 	else if(botBody.position.x <= 4  && botBody.position.z <= 18  && botRotateCounter<18)//&& bot.rotation.y >  Math.PI / -1023) //(Math.PI / 180 *180))
 	{
+		rotationActive = 1;
+		if(botArmStatus != 0)
+		{
+			rotateBot(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
+			botArmStatus = 0;
+		}
 		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
 		rotateBot(botArms,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
 		botRotateCounter++;
 	}
 	
-	else if(botBody.position.x <= 46 && botBody.position.z < 22)
+	else if(botBody.position.x <= 43 && botBody.position.z < 22)
 	{
-		botArms.position.z += 0.1;
+		hitDirection = 0;
+		rotationActive = 0;
+		botBody.position.z += 0.1;
 		botArms.position.z += 0.1;
 		botRotateCounter=0;
 	}
 	
-	else if(botBody.position.x <= 46  && botBody.position.z >= 22  && botRotateCounter<18 && patrolStatus == 1)//&& bot.rotation.y >  Math.PI / -1023) //(Math.PI / 180 *180))
+	else if(botBody.position.x <= 43  && botBody.position.z >= 22  && botRotateCounter<18 && patrolStatus == 1)//&& bot.rotation.y >  Math.PI / -1023) //(Math.PI / 180 *180))
 	{
+		rotationActive = 1;
+		/*if(botArmStatus != 0)
+		{
+			rotateBot(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
+			botArmStatus = 0;
+		}*/
+		
 		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
 		rotateBot(botArms,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
 		botRotateCounter++;
@@ -192,26 +222,30 @@ function patrolRobot()
 
 function robotAttack()
 {
-	if(botHit == 0)
+	console.log("attack");
+	console.log(hitDirection);
+	console.log(5 * hitDirection);
+	
+	if(rotationActive != 1 && hitDirection != 0)
 	{
-		rotateBot(botArms,new THREE.Vector3(1,0,0),5 ); //object,axis,degree
-		botArmStatus += 5;
-		if(botArmStatus == 120)
+		if(botHit == 0)
 		{
-			botHit = 1;
+			rotateBot(botArms,new THREE.Vector3(1,0,0), -5);//(5 * hitDirection) ); //object,axis,degree
+			botArmStatus += 5;
+			if(botArmStatus >= 120)
+			{
+				botHit = 1;
+			}			
 		}
 		
-	}
-	
-	else if(botHit == 1)
-	{
-		rotateBot(botArms,new THREE.Vector3(1,0,0), -5 ); //object,axis,degree
-		botArmStatus -= 5;
-		if(botArmStatus == 20)
+		else if(botHit == 1)
 		{
-			botHit = 0;
+			rotateBot(botArms,new THREE.Vector3(1,0,0), 5); //(-5 * hitDirection) ); //object,axis,degree
+			botArmStatus -= 5;
+			if(botArmStatus <= 20)
+			{
+				botHit = 0;
+			}	
 		}
-		
-	}
-	
+	}	
 }
