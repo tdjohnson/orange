@@ -1,7 +1,7 @@
 function proximityDetector() {
 			//detect objects hit by raycaster vector
 	try{
-	if(!animationLock){ // wait for running animations
+	//if(!animationLock){ // wait for running animations
 
 		raycaster.set(camera.getWorldPosition(),camera.getWorldDirection()); //bind raycaster to camera	
 		//showraycasthelper();//Raycaster helper - displays raycaster as vector
@@ -11,23 +11,24 @@ function proximityDetector() {
 				if(intersects[0].object.parent.id != lastObject.id){ //do if object is new
 					if(intersects[0].distance <= 6){ //only show near objects
 						showinfo(intersects[0]); //show alert and log to console
-						lastObject = intersects[0].object.parent; //remember last object
+						lastObject = intersects[0].object.parent; //remember last object parent
+						lastObjectc = intersects[0].object; //remember last object
 					}	
 				}
 			}
 		}
+cam_matrix = new THREE.Matrix4();
+	cam_matrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
+	frustum.setFromMatrix(cam_matrix);
 	
-		//detect if object previously hit by raycaster has left the field of view
-		cam_matrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse ); //calculate matrix for camera
-		frustum.setFromMatrix(cam_matrix); //set frustum (camera view)
 	
-		if(!frustum.intersectsObject(lastObject)){ //if object left field of view
-			showMessage(" ");
-			lastObject = new THREE.Object3D(); //reset lastObject to empty object
-		}
-		}else{
-			
-		}
+	if(!frustum.intersectsObject(lastObjectc)){
+		console.log("object reset");
+		lastObject = new THREE.Object3D();
+		lastObjectc = new THREE.Object3D();
+
+	}
+	
 	}catch(err){
 	}
 }
@@ -50,3 +51,5 @@ function showinfo(intersect){
 	//$("#dialog").html(message); //disabled dialogs for now... buggy
 	//$("#dialog").dialog( 'option', 'position', ['left',20] );
 }
+
+
