@@ -23,7 +23,7 @@ function Hallway()
 
 
 	var ceilingLamp = new CeilingLamp();
-	ceilingLamp.position.set(10,9,22);
+	ceilingLamp.position.set(10,9,21);
 	this.add(ceilingLamp);
 	
 	this.add(object);
