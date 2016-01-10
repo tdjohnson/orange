@@ -113,8 +113,7 @@ function Table()
 		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
 	});
 
-        object.scale.x = object.scale.y = object.scale.z = 1;
-        object.updateMatrix();
+        object.scale.x = object.scale.y = object.scale.z = 1.2;
         object.name = "tisch";
         object.castShadow = true;
         object.recieveShadow = true;
@@ -133,12 +132,7 @@ function Chair()
 		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
 	});
 
-        object.rotation.y =  Math.PI/180*90;
-        object.position.z = 11;
-        object.position.x = 9;
-        object.position.y = -0.5;
-        object.scale.x = object.scale.y = object.scale.z = 1;
-        object.updateMatrix();
+        object.scale.x = object.scale.y = object.scale.z = 1.2;
         object.name = "chair";
 	    collidableMeshList.push(object);
 		this.add(object);
@@ -250,7 +244,7 @@ function Door2() {
 		object.castShadow = true;
 		object.receiveShadow = true;
 		object.scale.y = 1.4;
-		object.updateMatrix();
+		//object.updateMatrix();
 		object.name = "Tuer2";
 		object.userData.info = "geschlossen!<br/> öffne mit T";
 		object.userData.startPosition = object.position.x;
