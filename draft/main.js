@@ -114,9 +114,10 @@ function init() {
 	light.position.z = 4;
 	//scene.add(light);
 	
-	var light2 = new THREE.AmbientLight(0x404040);
-
-	scene.add(light2);
+	var light2 = new THREE.AmbientLight(0xffffff, 0.);
+	light2.position.x = light2.position.y = light2.position.z = -100;
+	light2.target = light;
+	//scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
 
@@ -162,13 +163,23 @@ function init() {
 	//showCameraHelpers();
 	
 	var grid = new THREE.GridHelper(500, 5);
-	scene.add(grid);
+	var light4 = new THREE.DirectionalLight(0xffffff, 1, 1);
+	light4.position.x = light4.position.z = 100;
+	light4.castShadow = true;
+	scene.add(light4); 
+	createSandFloor();
 	
 	animate();
 	$( "#dialog" ).dialog({
 		  autoOpen: false
 	});
 	
+}
+
+function createSandFloor() {
+	var sand = new Sand();
+	sand.position.set(100, -5, 100);
+	scene.add(sand);
 }
 
 function cloning(n) {
