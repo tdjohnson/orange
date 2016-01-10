@@ -75,7 +75,7 @@ THREE.JSONLoader.prototype = {
 			}
 
 			var object = scope.parse( json, texturePath );
-			onLoad( object.geometry, object.materials );
+			onLoad( object.geometry, object.materials, texturePath );
 
 		}, onProgress, onError );
 
@@ -546,7 +546,7 @@ THREE.JSONLoader.prototype = {
 
 			var materials = THREE.Loader.prototype.initMaterials( json.materials, texturePath, this.crossOrigin );
 
-			return { geometry: geometry, materials: materials };
+			return { geometry: geometry, materials: materials, texturePath: texturePath};
 
 		}
 
