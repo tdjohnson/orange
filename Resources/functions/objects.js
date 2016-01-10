@@ -516,22 +516,38 @@ FloorCell.prototype.constructor = FloorCell;
 
 
 function CeilingLamp() {
-	THREE.Object3D.call( this );
-	var object = new THREE.Object3D();
-	//loader = new THREE.JSONLoader();
-	loader.load('../Prototypes/DeckenLampe/lampe.json',function ( geometry, materials ) {
-		object.add(new THREE.Mesh( geometry, new THREE.MeshFaceMaterial(materials)));
-	});
 	
-	    object.scale.x = object.scale.z = object.scale.y = 0.5;
-	    var light = new THREE.DirectionalLight(0xffff99, 1, 2);
-		light.castShadow = true;
-		light.position.set(object.position.x, object.position.y, object.position.z);
-		
+	THREE.Object3D.call( this );
+	this.castShadow = true;
+	this.receiveShadow = true;
+	this.name = "CeilingLamp";
+	var scope = this;
+	meshloader( '../Prototypes/DeckenLampe/lampe.json',function(model) {scope.add(model);});
+	
+	this.scale.x = this.scale.z = this.scale.y = 0.5;
+	this.rotation.x = Math.PI;
+	
+	var light = new THREE.PointLight(0xffff99, 1, 10);
+	light.castShadow = true;
+	light.position.set(9, 8.7, 21);
+	var light2 = new THREE.PointLight(0xffff99, 1, 10);
+	light2.castShadow = true;
+	light2.position.set(10, 8.7, 21);
+	var light3 = new THREE.PointLight(0xffff99, 1, 10);
+	light3.castShadow = true;
+	light3.position.set(11, 8.7, 21);
+	var lightHelper = new THREE.PointLightHelper(light, 0.05);
+	var lightHelper2 = new THREE.PointLightHelper(light2, 0.05);
+	var lightHelper3 = new THREE.PointLightHelper(light3, 0.05);
+	scene.add(lightHelper);
+	scene.add(lightHelper2);
+	scene.add(lightHelper3);
+	scene.add(light);
+	scene.add(light2);
+	scene.add(light3);
 
-	    
-	this.add(object);
 }
+
 CeilingLamp.prototype = new THREE.Object3D();
 CeilingLamp.prototype.constructor = CeilingLamp;
 
