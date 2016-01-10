@@ -46,8 +46,7 @@ function onKeyDown(e) {
   			triggerDrop(lastObject);
   			break;
 	   	case 90: //z
-	   		//zoom();
-	   		cloning(4);
+	   		zoom();
 	   		break;
     	}
   }
