@@ -25,11 +25,12 @@ function meshloader(url,callback){
 			}
 }
 
+
 function Soap()
 {
 	THREE.Object3D.call( this );
 	var object = new THREE.Object3D();
-	//loader = new THREE.JSONLoader();
+	loader = new THREE.JSONLoader();
 	loader.load( '../Prototypes/Seife/seife.json',function ( geometry, materials ) {
 		materialsNew = renderer._microCache.getSet(materials[0].name, new THREE.MeshFaceMaterial(materials));
 		object.add(new THREE.Mesh( geometry, materialsNew));
