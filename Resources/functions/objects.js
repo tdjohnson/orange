@@ -223,7 +223,7 @@ function Mirror()
 {	
 	THREE.Object3D.call( this );
 
-	this.rotation.y = Math.PI*0.5; 
+
 	this.castShadow = true;
 	this.scale.x = this.scale.y = this.scale.z = 1.1;
 	
@@ -244,7 +244,10 @@ function Mirror()
 	this.add(plane);
 
 	var scope = this;
-	meshloader('../Prototypes/Spiegel/SpiegelRahmen.json',function(model) {scope.add(model);});
+	meshloader('../Prototypes/Spiegel/SpiegelRahmen.json',function(model) {
+			model.rotation.y = Math.PI*0.5; 
+		scope.add(model);});
+		this.rotation.y = Math.PI*0.5; 
 }
 Mirror.prototype = new THREE.Object3D();
 Mirror.prototype.constructor = Mirror;
