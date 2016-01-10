@@ -436,31 +436,58 @@ function CeilingLamp() {
 	meshloader( '../Prototypes/DeckenLampe/lampe.json',function(model) {scope.add(model);});
 	
 	this.scale.x = this.scale.z = this.scale.y = 0.5;
-	this.rotation.x = Math.PI;
+	//this.rotation.x = Math.PI;
 	
-	var light = new THREE.PointLight(0xffff99, 1, 10);
-	light.castShadow = true;
-	light.position.set(9, 8.7, 21);
-	var light2 = new THREE.PointLight(0xffff99, 1, 10);
-	light2.castShadow = true;
-	light2.position.set(10, 8.7, 21);
-	var light3 = new THREE.PointLight(0xffff99, 1, 10);
-	light3.castShadow = true;
-	light3.position.set(11, 8.7, 21);
-	var lightHelper = new THREE.PointLightHelper(light, 0.05);
-	var lightHelper2 = new THREE.PointLightHelper(light2, 0.05);
-	var lightHelper3 = new THREE.PointLightHelper(light3, 0.05);
-	scene.add(lightHelper);
-	scene.add(lightHelper2);
-	scene.add(lightHelper3);
-	scene.add(light);
-	scene.add(light2);
-	scene.add(light3);
+
 
 }
 
 CeilingLamp.prototype = Object.create(THREE.Object3D.prototype);
 CeilingLamp.prototype.constructor = CeilingLamp;
+
+function generateLamps(){
+	var light = new THREE.PointLight(0xffff99, 1, 12);
+	light.castShadow = true;
+	light.position.set(9.4, 7.8, 21);
+	scene.add(light);
+	
+	var light2 = light.clone();
+	light2.position.set(10, 7.8, 21);
+	scene.add(light2);
+	
+	var light3 = light.clone();
+	light3.position.set(10.6, 7.8, 21);
+	scene.add(light3);
+	
+	var light4 = light.clone();
+	light4.position.set(24.4, 7.8, 21);
+	scene.add(light4);
+	
+	var light5 = light.clone();
+	light5.position.set(25, 7.8, 21);
+	scene.add(light5);
+	
+	var light6 = light.clone();
+	light6.position.set(25.6, 7.8, 21);
+	scene.add(light6);
+	
+	var light7 = light.clone();
+	light7.position.set(34.4, 7.8, 21);
+	scene.add(light7);
+	
+	var light8 = light.clone();
+	light8.position.set(35, 7.8, 21);
+	scene.add(light8);
+	
+	var light9 = light.clone();
+	light9.position.set(35.6, 7.8, 21);
+	scene.add(light9);	
+	
+	
+}
+
+
+
 
 function JailBotBody()
 {
@@ -490,4 +517,5 @@ function JailBotArms()
 }
 JailBotArms.prototype = Object.create(THREE.Object3D.prototype);
 JailBotArms.prototype.constructor = JailBotArms;
+
 

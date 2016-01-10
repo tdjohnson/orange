@@ -43,19 +43,9 @@ function init() {
 	THREE.DefaultLoadingManager.onLoad = function () {
 		console.log("finished loading");
     	loadDone = true;
-    	/*try {
-    		document.getElementById("txt").innerHTML = "Loading done, klick to start!";
-    		document.getElementById("scene").style.display = "inline";
-    	} catch (e) {
-    		alert(e);
-    	}*/
     	
 	};
-	
-	/*THREE.DefaultLoadingManager.onProgress = function ( item, loaded, total ) {
-    	document.getElementById("txt").innerHTML = "Loading: "+ item+", "+ loaded+", "+ total;
-    	
-	};*/
+
 	
 	//needed for controls
     clock = new THREE.Clock();

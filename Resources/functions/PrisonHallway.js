@@ -24,7 +24,18 @@ function Hallway()
 
 	var ceilingLamp = new CeilingLamp();
 	ceilingLamp.position.set(10,8.5,21);
+	ceilingLamp.rotation.x = Math.PI;
 	this.add(ceilingLamp);
+	
+	var ceilingLamp2 = ceilingLamp.clone();
+	ceilingLamp2.position.set(25,8.5,21);
+	this.add(ceilingLamp2);
+	
+	var ceilingLamp3 = ceilingLamp.clone();
+	ceilingLamp3.position.set(35,8.5,21);
+	this.add(ceilingLamp3);
+	generateLamps();	
+	
 	
 	this.add(object);
 }
