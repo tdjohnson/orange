@@ -92,28 +92,14 @@ function init() {
 	hitDirection = 1;
 	rotationActive = 0;
 
-	var light = new THREE.PointLight(0xffffff);
-	light.position.y = 3;
-	light.position.z = 4;
-	//scene.add(light);
-	
-	var light2 = new THREE.AmbientLight(0xffffff, 0.);
-	light2.position.x = light2.position.y = light2.position.z = -100;
-	light2.target = light;
-	//scene.add(light2);
-	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
-	//scene.add(pointLightHelper);
-
-
 	initControls();
     initPointerLock();
-    camera.position.z = 1;
+
 	controls = new THREE.PointerLockControls(camera);
 	
-	controls.getObject().position.x = 6;
-	controls.getObject().position.z = 8;
+	controls.getObject().position.set(5, 5, 8);
+
 	scene.add(controls.getObject());
-	
 
 	botBody = new JailBotBody();
 	botBody.position.set(1.25,2.5,22);
@@ -129,7 +115,6 @@ function init() {
 	botHit = 0;
 	botAggressive = 0;
 
-
 	//add prison hallway
 	var hallway = new Hallway();
 	hallway.position.set(0,0,0);
@@ -140,8 +125,6 @@ function init() {
 	rootCell.position.set(0,0,0);
 	scene.add(rootCell);
 	
-	//add 4 cells to the left side
-	
 
 	//showCameraHelpers();
 	
@@ -149,6 +132,7 @@ function init() {
 
 	scene.add(grid ); 
 	
+	controls.getObject().lookAt(rootCell);
 	
 	//createSandFloor();
 	sun();
@@ -160,12 +144,11 @@ function init() {
 }
 
 function sun(){
-	
+				//let the sun shine
 				var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
 				dirLight.color.setHSL( 0.1, 1, 0.95 );
-				dirLight.position.set( -1, 1.75, 1 );
-				dirLight.position.multiplyScalar( 50 );
-				scene.add( dirLight );
+				dirLight.position.set( 20, 20, 20 );
+				scene.add(dirLight);
 
 				dirLight.castShadow = true;
 
