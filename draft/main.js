@@ -22,7 +22,7 @@ var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of
 var collidableMeshList = [];
 var loadDone = false;
 var animationLock = false; // needed to complete animations before selection next object
-var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit;
+var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit, hitDirection, rotationActive;
 
 var collided = false;
 var meshes = new Map();
@@ -99,15 +99,18 @@ function init() {
 	
 
 	patrolStatus = 0;
+	hitDirection = 1;
+	rotationActive = 0;
 
 	var light = new THREE.PointLight(0xffffff);
 	light.position.y = 3;
 	light.position.z = 4;
 	//scene.add(light);
 	
-	var light2 = new THREE.AmbientLight(0x404040);
-
-	scene.add(light2);
+	var light2 = new THREE.AmbientLight(0xffffff, 0.);
+	light2.position.x = light2.position.y = light2.position.z = -100;
+	light2.target = light;
+	//scene.add(light2);
 	var pointLightHelper = new THREE.PointLightHelper(light2, 1);
 	//scene.add(pointLightHelper);
 
@@ -122,7 +125,7 @@ function init() {
 	scene.add(controls.getObject());
 	
 
-	/*botBody = new JailBotBody();
+	botBody = new JailBotBody();
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
 	scene.add(botBody);
@@ -134,7 +137,7 @@ function init() {
 	
 	botArmStatus = 0;
 	botHit = 0;
-	botAggressive = 0;*/
+	botAggressive = 0;
 
 
 	//add prison hallway
@@ -153,13 +156,23 @@ function init() {
 	//showCameraHelpers();
 	
 	var grid = new THREE.GridHelper(500, 5);
-	scene.add(grid);
+	var light4 = new THREE.DirectionalLight(0xffffff, 1, 1);
+	light4.position.x = light4.position.z = 100;
+	light4.castShadow = true;
+	scene.add(light4); 
+	createSandFloor();
 	
 	animate();
 	$( "#dialog" ).dialog({
 		  autoOpen: false
 	});
 	
+}
+
+function createSandFloor() {
+	var sand = new Sand();
+	sand.position.set(100, -5, 100);
+	scene.add(sand);
 }
 
 function cloning(n) {
@@ -209,12 +222,12 @@ function animate() {
 	 	
 
 	 	animateDrop(lastObject);
-		//patrolRobot();
+		patrolRobot();
  	
-		//if(botAggressive == 1)
-		//{
-		//	robotAttack();
-		//}
+		if(botAggressive == 1)
+		{
+			robotAttack();
+		}
 	 	updateControls();
  } else {
  	controls.getObject().rotation.y += Math.PI/-16;

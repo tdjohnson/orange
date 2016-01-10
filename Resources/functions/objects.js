@@ -141,7 +141,7 @@ function TableLamp()
 {	
 	THREE.Object3D.call( this );
 
-	var light = new THREE.PointLight(0xffff99, 5, 10 );
+	var light = new THREE.SpotLight(0xffff99, 5, 10 );
 	//light.shadowCameraVisible = true;
 	light.shadowDarkness = 0.95;
 	light.castShadow = true;
@@ -287,6 +287,19 @@ function Floor()
 }
 Floor.prototype = Object.create(THREE.Object3D.prototype);
 Floor.prototype.constructor = Floor;
+
+function Sand()
+{
+	THREE.Object3D.call( this );
+	this.castShadow = true;
+	this.receiveShadow = true;
+	this.scale.x = this.scale.z = 2;
+	//this.scale.y = 5;
+	var scope = this;
+	meshloader('../Prototypes/Sand/sand.json',function(model) {scope.add(model);});
+}
+Sand.prototype = Object.create(THREE.Object3D.prototype);
+Sand.prototype.constructor = Sand;
 
 function WallDoor() 
 {
@@ -477,3 +490,4 @@ function JailBotArms()
 }
 JailBotArms.prototype = Object.create(THREE.Object3D.prototype);
 JailBotArms.prototype.constructor = JailBotArms;
+
