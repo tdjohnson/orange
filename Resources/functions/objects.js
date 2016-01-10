@@ -202,10 +202,9 @@ function Door2() {
 		this.castShadow = true;
 		this.receiveShadow = true;
 		this.scale.y = 1.4;
-		//this.updateMatrix();
 		this.name = "Tuer2";
 		this.userData.info = "geschlossen!<br/> öffne mit T";
-		this.userData.startPosition = this.position.x;
+		
 		this.userData.isOpenable = true;
 	var scope = this;
 	meshloader('../Prototypes/Tuer/tuer2.json',function(model) {scope.add(model);});
@@ -359,7 +358,7 @@ function WallCellDoor()
 	this.receiveShadow = true;
 	var scope = this;
 	meshloader('../Prototypes/Zelle/wandFront.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
+	
 }
 WallCellDoor.prototype = Object.create(THREE.Object3D.prototype);
 WallCellDoor.prototype.constructor = WallCellDoor;

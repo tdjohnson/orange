@@ -5,7 +5,7 @@ function Hallway()
 	loader = new THREE.JSONLoader();
 		
 	var wall = new Wall();
-	wall.position.set(0,4.7,21.4);
+	wall.position.set(0.4,4.7,21);
 	this.add(wall);
 	
 	var ceiling = new Ceiling();
