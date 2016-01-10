@@ -91,7 +91,8 @@ function PrisonCell()
 	this.add(radiator);
 	
 	var tablelamp = new TableLamp();
-	tablelamp.position.set(10.3,3,10.4);
+	tablelamp.position.set(10.3,2.2,9.7);
+	tablelamp.rotation.y =  Math.PI;
 	this.add(tablelamp);
 	
 	

@@ -14,7 +14,7 @@ function initPointerLock() {
 		          controlsEnabled = true;
 		          controls.enabled = true;
 		          if (!cloned) {
-		          	cloning(4);
+		          	cloning(2);
 		          	cloned = true;
 		          }
         } else {

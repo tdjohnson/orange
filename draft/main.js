@@ -212,7 +212,7 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (loadDone) {
 
- 		updateMirrors();
+ 		//updateMirrors();
 	    renderer.render(scene, camera);
 	    camera.updateProjectionMatrix();
 	 	proximityDetector();
