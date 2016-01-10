@@ -22,7 +22,7 @@ function proximityDetector() {
 		frustum.setFromMatrix(cam_matrix); //set frustum (camera view)
 	
 		if(!frustum.intersectsObject(lastObject)){ //if object left field of view
-		
+			showMessage(" ");
 			lastObject = new THREE.Object3D(); //reset lastObject to empty object
 		}
 		}else{
