@@ -24,6 +24,7 @@ cam_matrix = new THREE.Matrix4();
 	
 	if(!frustum.intersectsObject(lastObjectc)){
 		console.log("object reset");
+		showMessage(" ");
 		lastObject = new THREE.Object3D();
 		lastObjectc = new THREE.Object3D();
 
