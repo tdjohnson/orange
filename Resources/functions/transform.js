@@ -99,7 +99,6 @@ function animateDoors() {
 				} else {
 					door.userData.isOpenable = true;
 					door.userData.startPosition = 0;
-					doorsToAnimate[i] = null;
 				}
 			} else {
 				if (door.position.x < door.userData.startPosition) {
@@ -108,7 +107,6 @@ function animateDoors() {
 				} else {
 					door.userData.isOpenable = true;
 					door.userData.startPosition = 0;
-					doorsToAnimate[i] = null;
 				}
 			}
 		}
