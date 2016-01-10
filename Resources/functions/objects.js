@@ -41,7 +41,6 @@ function Toilet()
 	this.name = "Klo";
 	this.userData.info = "Sehr schön";
 	this.userData.rotatable = true;
-	this.userData.callback;
 	var scope = this;
 	meshloader( '../Prototypes/Klo/klo.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
