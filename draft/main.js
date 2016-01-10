@@ -34,6 +34,7 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 	renderer.shadowMap.enabled = true;
+	renderer._microCache = new MicroCache();
 
 	document.body.appendChild(renderer.domElement);
 	
@@ -62,6 +63,7 @@ function init() {
     //scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
     
     var material = new THREE.LineBasicMaterial({ color: 0xAAFFAA });
 
@@ -117,6 +119,7 @@ function init() {
     initPointerLock();
     camera.position.z = 1;
 	controls = new THREE.PointerLockControls(camera);
+	
 	controls.getObject().position.x = 6;
 	controls.getObject().position.z = 8;
 	scene.add(controls.getObject());
@@ -145,26 +148,26 @@ function init() {
 		
 	//add 4 cells to the left side
 	for (i = 0; i < 4; i++) { 
-		var pcell = new PrisonCell();
+		var pcell = new PrisonCell(); 
 		pcell.position.set(i*11.5,0,0);
 		scene.add(pcell);
 	}
 	
 	//add 4 cells to the right side
 	for (j = 1; j < 5; j++) { 
-		var pcell = new PrisonCell();
+		var pcell = new PrisonCell(); 
 		pcell.rotation.y =  Math.PI;
 		pcell.position.set(j*11.5,0,41);
 		scene.add(pcell);
 	}
 
-
+	
 	animate();
 	$( "#dialog" ).dialog({
 		  autoOpen: false
 	});
+	
 }
-
 
 
 
@@ -190,9 +193,8 @@ function showinfo(intersect){
 
 function animate() {
 	
-	    requestAnimationFrame(animate); 
+	requestAnimationFrame(animate); 
 	if (loadDone) {
-
     	for (j = 0; j < mirror_cameras.length ; j++) { 
     		//performance problems
     		//mirror_cameras[j].updateProjectionMatrix();
@@ -212,8 +214,9 @@ function animate() {
 			robotAttack();
 		}
 	 	updateControls();
-
- 	}
+ } else {
+ 	controls.getObject().rotation.y += Math.PI/-16;
+ }
 
 }
 

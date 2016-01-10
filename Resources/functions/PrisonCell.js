@@ -99,6 +99,11 @@ function PrisonCell()
 	table.rotation.y =  Math.PI/180*90;
 	this.add(table);
 	
+	var chair = new Chair();
+	chair.position.set(8,0,13);
+	chair.rotation.y =  Math.PI/180*90;
+	this.add(chair);
+	
 	var radiator = new Radiator();
 	radiator.position.set(1,5.6,9.9);
 	radiator.rotation.y =  Math.PI/180*90;
@@ -107,6 +112,7 @@ function PrisonCell()
 	var tablelamp = new TableLamp();
 	tablelamp.position.set(10.3,2,10.9);
 	this.add(tablelamp);
+	
 	
 	var bed = new Bed();
 	bed.position.set(9,0,5);
