@@ -25,7 +25,7 @@ var animationLock = false; // needed to complete animations before selection nex
 var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit;
 
 var collided = false;
-
+var meshes = new Map();
 
 function init() { 
 	

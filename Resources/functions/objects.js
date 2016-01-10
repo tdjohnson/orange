@@ -1,3 +1,16 @@
+function meshloader(url,callback){
+
+			if(meshes.has(url)){ //check if model has been loaded before
+				callback(meshes.get(url));  //return preloaded model from Map
+			}else{
+				loader = new THREE.JSONLoader();
+				loader.load(url,function ( geometry, materials ) {  //load model from json /()
+				console.log("LOADING JSON MODEL: " + url); 
+				callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials))); 
+			});					
+			}
+}
+
 function Soap()
 {
 	THREE.Object3D.call( this );
@@ -23,22 +36,17 @@ Soap.prototype.constructor = Soap;
 function Toilet()
 {
 	THREE.Object3D.call( this );
-	var object = new THREE.Object3D();
-	loader = new THREE.JSONLoader();
-	loader.load( '../Prototypes/Klo/klo.json',function ( geometry, materials ) {
-		object.add(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-	});
-
-
-		object.castShadow = true;
-		object.receiveShadow = true;
-		object.name = "Klo";
-		object.userData.info = "Sehr schön";
-		object.userData.rotatable = true;
-		collidableMeshList.push(object);
-		this.add(object);
+	this.castShadow = true;
+	this.receiveShadow = true;
+	this.name = "Klo";
+	this.userData.info = "Sehr schön";
+	this.userData.rotatable = true;
+	this.userData.callback;
+	var scope = this;
+	meshloader( '../Prototypes/Klo/klo.json',function(model) {scope.add(model);});
+	collidableMeshList.push(this);
 }
-Toilet.prototype = new THREE.Object3D();
+Toilet.prototype =  Object.create(THREE.Object3D.prototype);
 Toilet.prototype.constructor = Toilet;
 
 
