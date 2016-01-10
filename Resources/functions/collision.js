@@ -8,7 +8,7 @@ function collisionDetection() {
 			(controls.getObject().position.x <= bbox.box.max.x) &&
 			(controls.getObject().position.z >= bbox.box.min.z) &&
 			(controls.getObject().position.z <= bbox.box.max.z)) {
-				console.log(i);
+				console.log(collidableMeshList[i]);
 			 	collision = false;
 			 	break;
 			} else {

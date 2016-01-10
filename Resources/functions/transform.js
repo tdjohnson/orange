@@ -94,19 +94,19 @@ function animateDoors() {
 				}
 					
 				if (door.position.x > door.userData.startPosition-3) {
-					//console.log(door.position.x+" "+door.userData.startPosition+3);
+					console.log(door.position.x+" "+door.userData.startPosition+3);
 					door.position.x -= 0.1*rotFact;
 				} else {
 					door.userData.isOpenable = true;
-					door.userData.startPosition = 0;
+					door.userData.startPosition = door.position.x;
 				}
 			} else {
-				if (door.position.x < door.userData.startPosition) {
-					//console.log(door.position.x+" "+door.userData.startPosition);
+				if (door.position.x < door.userData.startPosition+3) {
+					console.log(door.position.x+" "+door.userData.startPosition);
 					door.position.x += 0.1*rotFact;
 				} else {
 					door.userData.isOpenable = true;
-					door.userData.startPosition = 0;
+					door.userData.startPosition = door.position.x;
 				}
 			}
 		}
