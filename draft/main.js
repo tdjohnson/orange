@@ -130,6 +130,7 @@ function init() {
 	
 	var grid = new THREE.GridHelper(500, 5);
 	prisonWallRoot = new PrisonWall();
+	prisonWallRoot.rotation.y += Math.PI/2;
 	addWall();
 	addTowers();
 	scene.add(grid); 
@@ -141,27 +142,28 @@ function init() {
 }
 
 function addWall() {
+	var y = 3.7;
 	for (i = -3; i < 3; i++) { 
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(i*16+7,3.5,-50);
+		prisonWall.position.set(i*16+7,y,-50);
 		scene.add(prisonWall);
 	}
 	prisonWallRoot.rotation.y += Math.PI/2;
 	for (i = -3; i < 3; i++) { 
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(-50,3.5,i*16+7);
+		prisonWall.position.set(-50,y,i*16+7);
 		scene.add(prisonWall);
 	}
 	prisonWallRoot.rotation.y += Math.PI/2;
 	for (i = -3; i < 3; i++) { 
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(i*16+7,3.5,50);
+		prisonWall.position.set(i*16+7,y,50);
 		scene.add(prisonWall);
 	}
 	prisonWallRoot.rotation.y += Math.PI/2;
 	for (i = -3; i < 3; i++) { 
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(50,3.5,i*16+7);
+		prisonWall.position.set(50,y,i*16+7);
 		scene.add(prisonWall);
 	}
 }
