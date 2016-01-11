@@ -1,12 +1,15 @@
 function PrisonWall()
 {
 	THREE.Object3D.call( this );
-	var object = new THREE.Object3D();
-	object.scale.x = object.scale.y = object.scale.z = 200;
-	loader = new THREE.JSONLoader();
-	
-	
-	this.add(object);
+		this.scale.x  = this.scale.z = 100;
+		this.scale.y = 12;
+		//this.castShadow = true;
+		this.name = "JailBotBody";
+		this.userData.info = "you shall not pass!";
+		this.userData.rotatable = false;
+		var scope = this;
+		meshloader( '../Prototypes/Schutzmauer/wall.json',function(model) {scope.add(model);});
 }
-PrisonWall.prototype = new THREE.Object3D();
-HallPrisonWallway.prototype.constructor = PrisonWall;
+
+PrisonWall.prototype = Object.create(THREE.Object3D.prototype);
+PrisonWall.prototype.constructor = PrisonWall;
