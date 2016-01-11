@@ -222,11 +222,10 @@ function Mirror()
 	
 	var mmaterial = new THREE.WebGLRenderTarget( 500, 500, { format: THREE.RGBFormat } );
 	mirror_materials.push(mmaterial);
-	var mcam= new THREE.PerspectiveCamera(45, 1, 2.6,50);
+	var mcam= new THREE.PerspectiveCamera(45, 1, 3.0,50);
 	mcam.up = new THREE.Vector3(0,0,1);
 	mcam.applyMatrix(new THREE.Matrix4().makeScale(1, 1, -1)); //flip view to create "mirrored" image
 	mcam.position.z = -2.5; //set camera origin behind, (front plane set accordingly)
-	mcam.updateProjectionMatrix();
 	mcam.name = "mirror" + this.id;
 	this.add(mcam);
 

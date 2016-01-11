@@ -76,7 +76,7 @@ function PrisonCell()
 	
 	
 	var sink = new Sink();
-	sink.position.set(0.9,2.5,12.8);
+	sink.position.set(1.0,2.5,12.8);
 	sink.rotation.y = Math.PI*0.5;
 	this.add(sink);
 	

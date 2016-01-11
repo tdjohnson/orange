@@ -238,7 +238,7 @@ function cloning(n) {
 
 
 function showCameraHelpers(){
-	scene.add( new THREE.CameraHelper(camera)); //main camera
+	//scene.add( new THREE.CameraHelper(camera)); //main camera
 	for (j = 0; j < mirror_cameras.length ; j++) { 
     	scene.add( new THREE.CameraHelper( mirror_cameras[j]) ); //mirror cameras
 	}
@@ -248,8 +248,8 @@ function showCameraHelpers(){
 function updateMirrors() { //update mirrors/materials
 	//u = 0; 
 	var d = 10; //+- position of camera 
+	var cx= controls.getObject().position.x; //get current x-coordinate from world camera
 	for (j = 0; j < mirror_cameras.length ; j++) { 
-	   		var cx= controls.getObject().position.x; //get current x-coordinate from world camera
 			enableMirrors(cx-d,cx+d); //enable and render only mirrors near world camera
 	    }
 	//console.log("mirrors: " + u);
@@ -258,6 +258,12 @@ function updateMirrors() { //update mirrors/materials
 function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coordinates
 	    var p = mirror_cameras[j].localToWorld(new THREE.Vector3(location.x, location.y, location.z));
     	if(p.x >= x1 & p.x <= x2){
+    		//controls.getObject().updateMatrixWorld();
+			//var rx= controls.getObject().rotation.y;
+			var rx= controls.getObject().position.z;
+			var rr =  ((rx/10) * Math.PI);
+			mirror_cameras[j].rotation.set(0, rr,0 );
+   			mirror_cameras[j].updateMatrix();
     		mirror_cameras[j].updateProjectionMatrix(); //update
     		renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );	
     		//u++;
