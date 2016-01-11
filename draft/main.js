@@ -132,9 +132,6 @@ function init() {
 	var grid = new THREE.GridHelper(500, 5);
 
 	scene.add(grid); 
-	for (var i=0; i<collidableMeshList.length; i++)
-		console.log(collidableMeshList[i]+" "+collidableMeshList[i].position.y);
-	
 	
 	//createSandFloor();
 	sun();

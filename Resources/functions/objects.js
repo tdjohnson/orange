@@ -237,15 +237,18 @@ function Mirror()
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: mmaterial } );
 	var plane = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), planeMaterial );
 	this.add(plane);
-
+	this.name = "mirror" + this.id;
+	
 	var scope = this;
 	meshloader('../Prototypes/Spiegel/SpiegelRahmen.json',function(model) {
 			model.rotation.y = Math.PI*0.5; 
 		scope.add(model);});
 		this.rotation.y = Math.PI*0.5; 
+		this.mvisible  = true;
 }
 Mirror.prototype = Object.create(THREE.Object3D.prototype);
 Mirror.prototype.constructor = Mirror;
+	
 
 
 function Wall() {
