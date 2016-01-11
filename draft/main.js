@@ -136,11 +136,7 @@ function init() {
 	
 	//createSandFloor();
 	sun();
-	animate();
-	$( "#dialog" ).dialog({
-		  autoOpen: false
-	});
-	
+	animate();	
 }
 
 
