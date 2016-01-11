@@ -139,7 +139,7 @@ function TableLamp()
 {	
 	THREE.Object3D.call( this );
 
-	var light = new THREE.PointLight(0xffff99, 5, 10 );
+	var light = new THREE.PointLight(0xffff99, 4, 10 );
 	//light.shadowCameraVisible = true;
 	light.shadowDarkness = 0.95;
 	light.castShadow = true;
@@ -164,7 +164,9 @@ TableLamp.prototype = Object.create(THREE.Object3D.prototype);
 function Bed()
 {
    	THREE.Object3D.call( this );
-		this.scale.x = this.scale.y = this.scale.z = 1;
+		this.scale.x = 0.9;
+		this.scale.y = this.scale.z = 1;
+		
 		this.updateMatrix();
 		this.name = "Bett";
 		//this.castShadow = true;
@@ -254,7 +256,7 @@ function Wall() {
 	THREE.Object3D.call( this );
 
 	   this.scale.x = this.scale.z = 4;
-	   this.scale.y = 3.15;
+	   this.scale.y = 2.85;
 
 	var scope = this;
 	meshloader('../Prototypes/Gang/wall.json',function(model) {scope.add(model);});
@@ -267,7 +269,7 @@ Wall.prototype.constructor = Wall;
 function Ceiling() {
 	THREE.Object3D.call( this );
 
-	this.scale.x = 4;
+	this.scale.x = 3.82;
 	this.scale.z = 4.1;
 	this.scale.y = 3.15;
 
@@ -283,7 +285,7 @@ function Floor()
 	THREE.Object3D.call( this );
 		//this.castShadow = true;
 		//this.receiveShadow = true;
-	   this.scale.x = 3.9;
+	   this.scale.x = 3.85;
 	   this.scale.z = 4;
 
 	var scope = this;
@@ -312,7 +314,7 @@ function WallDoor()
 		//this.castShadow = true;
 		//this.receiveShadow = true;
 	    this.scale.x = this.scale.z = 4;
-	    this.scale.y = 3.15;
+	    this.scale.y = 2.9;
 	    
 	var scope = this;
 	meshloader('../Prototypes/Gang/wallDoor.json',function(model) {scope.add(model);});

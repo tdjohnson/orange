@@ -88,13 +88,15 @@ function switchTableLight(object) {
 	if(object.userData.isTurnedOn === false)
 	{
 		object.userData.info = "Licht an mit T";
+		showMessage(object.userData.info);
 		object.children[0].intensity = 0;
 		object.userData.isTurnedOn = true;
 	}
 	else if (object.userData.isTurnedOn === true)
 	{
 		object.userData.info = "Licht aus mit T";
-		object.children[0].intensity = 5;
+		showMessage(object.userData.info);
+		object.children[0].intensity = 4;
 		object.userData.isTurnedOn = false;
 	}
 }

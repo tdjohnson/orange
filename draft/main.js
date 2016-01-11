@@ -143,27 +143,27 @@ function init() {
 
 function addWall() {
 	var y = 3.7;
-	for (i = -3; i < 3; i++) { 
+	for (i = -3; i < 5; i++) { 
 		var prisonWall = prisonWallRoot.clone();
 		prisonWall.position.set(i*16+7,y,-50);
 		scene.add(prisonWall);
 	}
 	prisonWallRoot.rotation.y += Math.PI/2;
-	for (i = -3; i < 3; i++) { 
+	for (i = -3; i < 4; i++) { 
 		var prisonWall = prisonWallRoot.clone();
 		prisonWall.position.set(-50,y,i*16+7);
 		scene.add(prisonWall);
 	}
-	prisonWallRoot.rotation.y += Math.PI/2;
-	for (i = -3; i < 3; i++) { 
+	prisonWallRoot.rotation.y -= Math.PI/2;
+	for (i = -3; i < 5; i++) { 
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(i*16+7,y,50);
+		prisonWall.position.set(i*16+7,y,60);
 		scene.add(prisonWall);
 	}
-	prisonWallRoot.rotation.y += Math.PI/2;
-	for (i = -3; i < 3; i++) { 
+	prisonWallRoot.rotation.y -= Math.PI/2;
+	for (i = -3; i < 4; i++) { 
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(50,y,i*16+7);
+		prisonWall.position.set(80,y,i*16+7);
 		scene.add(prisonWall);
 	}
 }
@@ -175,15 +175,15 @@ function addTowers() {
 	scene.add(tower);
 	
 	var tower = new Tower();
-	tower.position.set(50,0,-50);	
+	tower.position.set(80,0,-50);	
 	scene.add(tower);
 	
 	var tower = new Tower();
-	tower.position.set(50,0,50);	
+	tower.position.set(80,0,60);	
 	scene.add(tower);
 	
 	var tower = new Tower();
-	tower.position.set(-50,0,50);	
+	tower.position.set(-50,0,60);	
 	scene.add(tower);
 }
 
@@ -191,9 +191,17 @@ function addTowers() {
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
 	var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+	var dirLight2 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	var dirLight3 = new THREE.DirectionalLight( 0xffffff, 0.5 );
 
 	dirLight.color.setHSL( 0.1, 1, 0.95 );
 	dirLight.position.set( 20, 20, 20 );
+	
+	dirLight2.color.setHSL( 0.1, 1, 0.95 );
+	dirLight2.position.set( -40, 40, 0 );
+	
+	dirLight3.color.setHSL( 0.1, 1, 0.95 );
+	dirLight3.position.set( 0, 40, -40 );
 	
 	
 	dirLight.shadowMapWidth = 2048;
@@ -211,6 +219,8 @@ function sun(){
 	//dirLight.shadowCameraVisible = true;
 	dirLight.castShadow = true;
 	
+	scene.add(dirLight3);
+	scene.add(dirLight2);
 	scene.add(dirLight);			
 	
 }
