@@ -120,30 +120,73 @@ function init() {
 	//add prison hallway
 	var hallway = new Hallway();
 	hallway.position.set(0,0,0);
-		
 	scene.add(hallway);
 	
 	rootCell = new PrisonCell();
 	rootCell.position.set(0,0,0);
 	scene.add(rootCell);
-	
-
 	//showCameraHelpers();
 	
 	var grid = new THREE.GridHelper(500, 5);
-
+	addTowers();
 	scene.add(grid); 
-
+	addWall();
 	
 	//createSandFloor();
 	sun();
 	animate();	
 }
 
+function addWall() {
+	var prisonWallRoot = new PrisonWall();
+	for (i = -3; i < 3; i++) { 
+		var prisonWall = prisonWallRoot.clone();
+		prisonWall.position.set(i*16+7,3.5,-50);
+		scene.add(prisonWall);
+	}
+	prisonWallRoot.rotation.y += Math.PI/2;
+	for (i = -3; i < 3; i++) { 
+		var prisonWall = prisonWallRoot.clone();
+		prisonWall.position.set(-50,3.5,i*16+7);
+		scene.add(prisonWall);
+	}
+	prisonWallRoot.rotation.y += Math.PI/2;
+	for (i = -3; i < 3; i++) { 
+		var prisonWall = prisonWallRoot.clone();
+		prisonWall.position.set(i*16+7,3.5,50);
+		scene.add(prisonWall);
+	}
+	prisonWallRoot.rotation.y += Math.PI/2;
+	for (i = -3; i < 3; i++) { 
+		var prisonWall = prisonWallRoot.clone();
+		prisonWall.position.set(50,3.5,i*16+7);
+		scene.add(prisonWall);
+	}
+}
+
+
+function addTowers() {
+	var tower = new Tower();
+	tower.position.set(-50,0,-50);	
+	scene.add(tower);
+	
+	var tower = new Tower();
+	tower.position.set(50,0,-50);	
+	scene.add(tower);
+	
+	var tower = new Tower();
+	tower.position.set(50,0,50);	
+	scene.add(tower);
+	
+	var tower = new Tower();
+	tower.position.set(-50,0,50);	
+	scene.add(tower);
+}
+
 
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
-	var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+	var dirLight = new THREE.DirectionalLight( 0xffffff, 1);
 	dirLight.color.setHSL( 0.1, 1, 0.95 );
 	dirLight.position.set( 20, 20, 20 );
 	
