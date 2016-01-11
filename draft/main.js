@@ -119,14 +119,15 @@ function init() {
 	//add prison hallway
 	var hallway = new Hallway();
 	hallway.position.set(0,0,0);
-		
 	scene.add(hallway);
+	
+	var tower = new Tower();
+	tower.position.set(-20,0,0);	
+	scene.add(tower);
 	
 	rootCell = new PrisonCell();
 	rootCell.position.set(0,0,0);
 	scene.add(rootCell);
-	
-
 	//showCameraHelpers();
 	
 	var grid = new THREE.GridHelper(500, 5);
