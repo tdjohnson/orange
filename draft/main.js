@@ -20,7 +20,7 @@ var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
 var collidableMeshList = [];
-var loadDone = false;
+var loadDone, toWakeUp = false;
 var animationLock = false; // needed to complete animations before selection next object
 var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit, hitDirection, rotationActive;
 
@@ -86,6 +86,7 @@ function init() {
 	
 	crosshair.position.z = -0.3;
 	camera.add( crosshair );
+	//camera.position.z = 1;
 	
 
 	patrolStatus = 0;
@@ -130,9 +131,9 @@ function init() {
 	
 	var grid = new THREE.GridHelper(500, 5);
 
-	scene.add(grid ); 
+	scene.add(grid); 
 	
-	controls.getObject().lookAt(rootCell);
+	
 	
 	//createSandFloor();
 	sun();
@@ -143,28 +144,30 @@ function init() {
 	
 }
 
+
 function sun(){
-				//let the sun shine
-				var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-				dirLight.color.setHSL( 0.1, 1, 0.95 );
-				dirLight.position.set( 20, 20, 20 );
-				scene.add(dirLight);
+	//let the sun shine
+	var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+	dirLight.color.setHSL( 0.1, 1, 0.95 );
+	dirLight.position.set( 20, 20, 20 );
+	
+	
+	dirLight.shadowMapWidth = 2048;
+	dirLight.shadowMapHeight = 2048;
 
-				dirLight.castShadow = true;
+	var d = 50;
 
-				dirLight.shadowMapWidth = 2048;
-				dirLight.shadowMapHeight = 2048;
+	dirLight.shadowCameraLeft = -d;
+	dirLight.shadowCameraRight = d;
+	dirLight.shadowCameraTop = d;
+	dirLight.shadowCameraBottom = -d;
 
-				var d = 50;
-
-				dirLight.shadowCameraLeft = -d;
-				dirLight.shadowCameraRight = d;
-				dirLight.shadowCameraTop = d;
-				dirLight.shadowCameraBottom = -d;
-
-				dirLight.shadowCameraFar = 3500;
-				dirLight.shadowBias = -0.0001;
-				//dirLight.shadowCameraVisible = true;
+	dirLight.shadowCameraFar = 3500;
+	dirLight.shadowBias = -0.0001;
+	//dirLight.shadowCameraVisible = true;
+	dirLight.castShadow = true;
+	
+	scene.add(dirLight);			
 	
 }
 function createSandFloor() {
@@ -212,24 +215,25 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (loadDone) {
 
- 		updateMirrors();
+ 		//updateMirrors();
 	    renderer.render(scene, camera);
-	    camera.updateProjectionMatrix();
+	    
 	 	proximityDetector();
 	 	animateDoors();
-	 	
+ 		
 
 	 	animateDrop(lastObject);
 		patrolRobot();
  	
 		if(botAggressive == 1)
-		{
-			robotAttack();
-		}
-	 	updateControls();
- } else {
- 	controls.getObject().rotation.y += Math.PI/-16;
- }
+			{
+				robotAttack();
+			}	 	
+	 	} else {
+	 		controls.getObject().rotation.y += Math.PI/-16;
+		 }
+		updateControls();
+ 		camera.updateProjectionMatrix();
 
 }
 

@@ -79,31 +79,52 @@ function updateControls() {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
       	var walkingSpeed = 100.0;
-		
+		var toTest = new THREE.Vector3(controls.getObject().position.x, 1, controls.getObject().position.z);
 
 
-	    if (collisionDetection()) {
+	    if (!collisionDetection(0, 0, toTest)) {
 	    	velocity.x -= velocity.x * 10.0 * delta;
 		    velocity.z -= velocity.z * 10.0 * delta;
 		    velocity.y -= 9.8 * 30.0 * delta;
+		    if (moveForward)	velocity.z -= walkingSpeed * delta;
+		    if (moveBackward)  velocity.z += walkingSpeed * delta;
+		    if (moveLeft) velocity.x -= walkingSpeed * delta;
+		    if (moveRight) velocity.x += walkingSpeed * delta;
 		} else {
-			if (collided == false){
-				collided = true;
-				velocity.x = -velocity.x*1.3;
-		    	velocity.z = -velocity.z*1.3;
-			} else {
+			//if (collided == false){
+				//collided = true;
+				/*velocity.x = -velocity.x*1.3;
+		    	velocity.z = -velocity.z*1.3;*/
+		    	if (moveForward && !collisionDetection(0, 1, toTest)) {
+		    		velocity.z -= walkingSpeed * delta;
+		    	} else {
+		    		velocity.z = 0;
+		    	}
+			    if (moveBackward && !collisionDetection(0, -1, toTest))  {
+			    	velocity.z += walkingSpeed * delta; 
+			    } else {
+		    		velocity.z = 0;
+		    	}
+			    if (moveLeft && !collisionDetection(1, 0, toTest))  {
+			    	velocity.x -= walkingSpeed * delta;
+			    } else {
+		    		velocity.x = 0;
+		    	}
+			    if (moveRight && !collisionDetection(-1, 0, toTest))  {
+			    	velocity.x += walkingSpeed * delta;
+			    } else {
+		    		velocity.x = 0;
+		    	}
+			/*} else {
 				if (velocity.x == velocity.z == 0) {
 					collided = false;
 				}
-			}
+			}*/
 		}
 
 	   
 	
-	    if (moveForward)	velocity.z -= walkingSpeed * delta;
-	    if (moveBackward)  velocity.z += walkingSpeed * delta;
-	    if (moveLeft) velocity.x -= walkingSpeed * delta;
-	    if (moveRight) velocity.x += walkingSpeed * delta;
+	    
 
 	
 	    controls.getObject().translateX(velocity.x * delta);
