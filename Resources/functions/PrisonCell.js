@@ -116,6 +116,7 @@ function PrisonCell()
 	var mirror = new Mirror();
 	mirror.position.set(0.5,4,12.8);
 	mirror.rotation.y =  Math.PI/180*90;
+
 	this.add(mirror);
 
 

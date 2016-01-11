@@ -69,16 +69,33 @@ function animateDrop(object) {
 function triggerDoor(object) {
 	if (object.userData.isOpenable == true) {
 		object.userData.isOpenable = false;
-			if (object.userData.info.indexOf("geschlossen")>-1) {
+			if (object.userData.isOpen === false) {
+				object.userData.isOpen = true;
 				object.userData.info = "offen!<br/> schließen mit T";
 				door = object;
-			} else if(object.userData.info.indexOf("offen")>-1) {
+			} else if(object.userData.isOpen === true) {
+				object.userData.isOpen = false;
 				object.userData.info = "geschlossen!<br/> öffne mit T";
 				door = object;
 			}
 		doorsToAnimate = object;
 	} else {
 		
+	}
+}
+
+function switchTableLight(object) {
+	if(object.userData.isTurnedOn === false)
+	{
+		object.userData.info = "Licht an mit T";
+		object.children[0].intensity = 0;
+		object.userData.isTurnedOn = true;
+	}
+	else if (object.userData.isTurnedOn === true)
+	{
+		object.userData.info = "Licht aus mit T";
+		object.children[0].intensity = 5;
+		object.userData.isTurnedOn = false;
 	}
 }
 

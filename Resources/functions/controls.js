@@ -19,7 +19,17 @@ function onKeyDown(e) {
 			moveLeft = true; 
 			break;
 		case 66: //b
-			botAggressive = 1;
+			{
+			if(botAggressive == 0)
+			{
+				botAggressive = 1;
+			}
+			
+			else 
+			{
+				botAggressive = 0;
+			}
+			}
 			break;
 		case 68: // d
     		moveRight = true;
@@ -37,7 +47,8 @@ function onKeyDown(e) {
     		moveBackward = true;
     		break;		
 		case 84: //t
-	    	triggerDoor(lastObject);	    	
+	    	triggerDoor(lastObject);
+	    	switchTableLight(lastObject);	    	
 	    	break;
   		case 87: // w
     		moveForward = true;	
@@ -95,22 +106,22 @@ function updateControls() {
 				//collided = true;
 				/*velocity.x = -velocity.x*1.3;
 		    	velocity.z = -velocity.z*1.3;*/
-		    	if (moveForward && !collisionDetection(0, 1, toTest)) {
+		    	if (moveForward && !collisionDetection(0, 0.5, toTest)) {
 		    		velocity.z -= walkingSpeed * delta;
 		    	} else {
 		    		velocity.z = 0;
 		    	}
-			    if (moveBackward && !collisionDetection(0, -1, toTest))  {
+			    if (moveBackward && !collisionDetection(0, -0.5, toTest))  {
 			    	velocity.z += walkingSpeed * delta; 
 			    } else {
 		    		velocity.z = 0;
 		    	}
-			    if (moveLeft && !collisionDetection(1, 0, toTest))  {
+			    if (moveLeft && !collisionDetection(0.5, 0, toTest))  {
 			    	velocity.x -= walkingSpeed * delta;
 			    } else {
 		    		velocity.x = 0;
 		    	}
-			    if (moveRight && !collisionDetection(-1, 0, toTest))  {
+			    if (moveRight && !collisionDetection(-0.5, 0, toTest))  {
 			    	velocity.x += walkingSpeed * delta;
 			    } else {
 		    		velocity.x = 0;

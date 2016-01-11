@@ -16,6 +16,7 @@ var arrow; //for raycasterhelper
 var mirrorMaterial;
 var mirror_cameras = new Array();
 var mirror_materials= new Array();
+var u = 0; //number of rendered mirrors
 var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
@@ -27,6 +28,7 @@ var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatu
 var collided = false;
 var meshes = new Map();
 var rootCell;
+var prisonWallRoot;
 
 function init() { 
 	
@@ -121,35 +123,75 @@ function init() {
 	hallway.position.set(0,0,21);
 	scene.add(hallway);
 	
-
-	var prisonWall = new PrisonWall();
-	prisonWall.position.set(0,0,0);		
-	scene.add(prisonWall);
-
-	var tower = new Tower();
-	tower.position.set(-20,0,0);	
-	scene.add(tower);
-
-	
 	rootCell = new PrisonCell();
 	rootCell.position.set(0,0,0);
 	scene.add(rootCell);
 	//showCameraHelpers();
 	
 	var grid = new THREE.GridHelper(500, 5);
-
+	prisonWallRoot = new PrisonWall();
+	prisonWallRoot.rotation.y += Math.PI/2;
+	addWall();
+	addTowers();
 	scene.add(grid); 
-
+	
 	
 	//createSandFloor();
 	sun();
 	animate();	
 }
 
+function addWall() {
+	var y = 3.7;
+	for (i = -3; i < 3; i++) { 
+		var prisonWall = prisonWallRoot.clone();
+		prisonWall.position.set(i*16+7,y,-50);
+		scene.add(prisonWall);
+	}
+	prisonWallRoot.rotation.y += Math.PI/2;
+	for (i = -3; i < 3; i++) { 
+		var prisonWall = prisonWallRoot.clone();
+		prisonWall.position.set(-50,y,i*16+7);
+		scene.add(prisonWall);
+	}
+	prisonWallRoot.rotation.y += Math.PI/2;
+	for (i = -3; i < 3; i++) { 
+		var prisonWall = prisonWallRoot.clone();
+		prisonWall.position.set(i*16+7,y,50);
+		scene.add(prisonWall);
+	}
+	prisonWallRoot.rotation.y += Math.PI/2;
+	for (i = -3; i < 3; i++) { 
+		var prisonWall = prisonWallRoot.clone();
+		prisonWall.position.set(50,y,i*16+7);
+		scene.add(prisonWall);
+	}
+}
+
+
+function addTowers() {
+	var tower = new Tower();
+	tower.position.set(-50,0,-50);	
+	scene.add(tower);
+	
+	var tower = new Tower();
+	tower.position.set(50,0,-50);	
+	scene.add(tower);
+	
+	var tower = new Tower();
+	tower.position.set(50,0,50);	
+	scene.add(tower);
+	
+	var tower = new Tower();
+	tower.position.set(-50,0,50);	
+	scene.add(tower);
+}
+
 
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
 	var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+
 	dirLight.color.setHSL( 0.1, 1, 0.95 );
 	dirLight.position.set( 20, 20, 20 );
 	
@@ -203,21 +245,31 @@ function showCameraHelpers(){
 }
 
 
-function updateMirrors() {
-for (j = 0; j < mirror_cameras.length ; j++) { 
-    		camera.updateProjectionMatrix();
-    		mirror_cameras[j].updateProjectionMatrix();
-	    	renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
-		}
-		
+function updateMirrors() { //update mirrors/materials
+	//u = 0; 
+	var d = 10; //+- position of camera 
+	for (j = 0; j < mirror_cameras.length ; j++) { 
+	   		var cx= controls.getObject().position.x; //get current x-coordinate from world camera
+			enableMirrors(cx-d,cx+d); //enable and render only mirrors near world camera
+	    }
+	//console.log("mirrors: " + u);
 	}
+	
+function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coordinates
+	    var p = mirror_cameras[j].localToWorld(new THREE.Vector3(location.x, location.y, location.z));
+    	if(p.x >= x1 & p.x <= x2){
+    		mirror_cameras[j].updateProjectionMatrix(); //update
+    		renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );	
+    		//u++;
+    	}
+}
 
 function animate() {
 	
 	requestAnimationFrame(animate); 
 	if (loadDone) {
 
- 		//updateMirrors();
+ 		updateMirrors();
 	    renderer.render(scene, camera);
 	    
 	 	proximityDetector();
@@ -231,9 +283,7 @@ function animate() {
 			{
 				robotAttack();
 			}	 	
-	 	} else {
-	 		controls.getObject().rotation.y += Math.PI/-16;
-		 }
+	 	} 
 		updateControls();
  		camera.updateProjectionMatrix();
 

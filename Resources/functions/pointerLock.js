@@ -14,6 +14,7 @@ function initPointerLock() {
 		          controls.enabled = true;
 		          if (!cloned) {
 		          	cloning(4);
+		          	addWall();
 		          	cloned = true;
 		          	toWakeUp = true;
 		          }
