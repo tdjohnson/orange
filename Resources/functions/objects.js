@@ -118,7 +118,6 @@ function Chair()
     this.name = "chair";
 	var scope = this;
 	meshloader('../Prototypes/Stuhl/stuhl.json',function(model) {scope.add(model);});
-	//collidableMeshList.push(this);
 }
 Chair.prototype = Object.create(THREE.Object3D.prototype);
 Chair.prototype.constructor = Chair;
@@ -229,6 +228,7 @@ function Mirror()
 	mcam.applyMatrix(new THREE.Matrix4().makeScale(1, 1, -1)); //flip view to create "mirrored" image
 	mcam.position.z = -2.5; //set camera origin behind, (front plane set accordingly)
 	mcam.updateProjectionMatrix();
+	mcam.name = "mirror" + this.id;
 	this.add(mcam);
 
 	mirror_cameras.push(mcam); // update cameras
@@ -237,7 +237,7 @@ function Mirror()
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: mmaterial } );
 	var plane = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), planeMaterial );
 	this.add(plane);
-	this.name = "mirror" + this.id;
+
 	
 	var scope = this;
 	meshloader('../Prototypes/Spiegel/SpiegelRahmen.json',function(model) {
@@ -245,8 +245,9 @@ function Mirror()
 		scope.add(model);});
 		this.rotation.y = Math.PI*0.5; 
 		this.mvisible  = true;
+	
 }
-Mirror.prototype = Object.create(THREE.Object3D.prototype);
+Mirror.prototype = new THREE.Object3D();
 Mirror.prototype.constructor = Mirror;
 	
 

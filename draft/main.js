@@ -16,6 +16,7 @@ var arrow; //for raycasterhelper
 var mirrorMaterial;
 var mirror_cameras = new Array();
 var mirror_materials= new Array();
+var u = 0; //number of rendered mirrors
 var lastObject = new THREE.Object3D();//for pausing raycaster updates
 var frustum = new THREE.Frustum(); //needed for proximityDetection - reset of lastObject
 var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of lastObject
@@ -196,21 +197,31 @@ function showCameraHelpers(){
 }
 
 
-function updateMirrors() {
-for (j = 0; j < mirror_cameras.length ; j++) { 
-    		camera.updateProjectionMatrix();
-    		mirror_cameras[j].updateProjectionMatrix();
-	    	renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );
-		}
-		
+function updateMirrors() { //update mirrors/materials
+	u = 0; 
+	var d = 10; //+- position of camera 
+	for (j = 0; j < mirror_cameras.length ; j++) { 
+	   		var cx= controls.getObject().position.x; //get current x-coordinate from world camera
+			enableMirrors(cx-d,cx+d); //enable and render only mirrors near world camera
+	    }
+	console.log("mirrors: " + u);
 	}
+	
+function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coordinates
+	    var p = mirror_cameras[j].localToWorld(new THREE.Vector3(location.x, location.y, location.z));
+    	if(p.x >= x1 & p.x <= x2){
+    		mirror_cameras[j].updateProjectionMatrix(); //update
+    		renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );	
+    		u++;
+    	}
+}
 
 function animate() {
 	
 	requestAnimationFrame(animate); 
 	if (loadDone) {
 
- 		//updateMirrors();
+ 		updateMirrors();
 	    renderer.render(scene, camera);
 	    
 	 	proximityDetector();
@@ -224,9 +235,7 @@ function animate() {
 			{
 				robotAttack();
 			}	 	
-	 	} else {
-	 		controls.getObject().rotation.y += Math.PI/-16;
-		 }
+	 	} 
 		updateControls();
  		camera.updateProjectionMatrix();
 
