@@ -65,6 +65,7 @@ function PrisonCell()
 	toilet.rotation.y =  Math.PI*0.5;
 	this.add(toilet);
 	
+	
 	var sink = new Sink();
 	sink.position.set(1.25,2.5,13);
 	sink.rotation.y = Math.PI*0.5;
@@ -81,7 +82,8 @@ function PrisonCell()
 	this.add(table);
 	
 	var chair = new Chair();
-	chair.position.set(8,-0.5, 12.5);
+	chair.position.set(8.5,-0.5, 10);
+	chair.rotation.y =  Math.PI/180*-90;
 	this.add(chair);
 	
 	var radiator = new Radiator();
@@ -90,7 +92,8 @@ function PrisonCell()
 	this.add(radiator);
 	
 	var tablelamp = new TableLamp();
-	tablelamp.position.set(10.3,3,10.4);
+	tablelamp.position.set(10.3,2.2,9.7);
+	tablelamp.rotation.y =  Math.PI;
 	this.add(tablelamp);
 	
 	

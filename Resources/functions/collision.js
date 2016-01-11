@@ -1,20 +1,24 @@
-function collisionDetection() {
+function collisionDetection(xNew, zNew, toTest) {
 	var collision;
 	for (var i=0; i<collidableMeshList.length; i++) {
-		var bbox = new THREE.BoundingBoxHelper(collidableMeshList[i]);
-		bbox.update();
+		var homeBB = new THREE.Box3().setFromObject(collidableMeshList[i]);
+		toTest.x += xNew;
+		toTest.z += zNew;
+		toTest.y = (homeBB.max.y-homeBB.min.y)/2;
 		
-		if ((controls.getObject().position.x >= bbox.box.min.x) &&
-			(controls.getObject().position.x <= bbox.box.max.x) &&
-			(controls.getObject().position.z >= bbox.box.min.z) &&
-			(controls.getObject().position.z <= bbox.box.max.z)) {
-			 	collision = false;
+		
+		if ((homeBB.containsPoint(toTest))) { /*&&
+			(controls.getObject().position.x+n <= bbox.box.max.x) &&
+			(controls.getObject().position.z+n >= bbox.box.min.z) &&
+			(controls.getObject().position.z+n <= bbox.box.max.z)) {*/
+				console.log(collidableMeshList[i].name);
+			 	collision = true;
 			 	break;
 			} else {
 				//alert(controls.getObject().position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
-				collision = true;
+				//console.log(toTest);
+				collision = false;
 			}
-		
 	}
 	return collision;
 }

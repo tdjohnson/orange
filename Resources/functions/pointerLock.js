@@ -16,6 +16,7 @@ function initPointerLock() {
 		          if (!cloned) {
 		          	cloning(4);
 		          	cloned = true;
+		          	toWakeUp = true;
 		          }
         } else {
           controls.enabled = false;
