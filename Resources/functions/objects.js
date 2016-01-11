@@ -17,7 +17,7 @@ function meshloader(url,callback){
 			}else{
 				loader = new THREE.JSONLoader();
 				loader.load(url,function ( geometry, materials ) {  //load model from json /()
-					console.log("LOADING JSON MODEL: " + url);
+					//console.log("LOADING JSON MODEL: " + url);
 					//meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 					renderer._microCache.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 					callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
@@ -55,6 +55,7 @@ function Toilet()
 	var scope = this;
 	meshloader( '../Prototypes/Klo/klo.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
+
 }
 Toilet.prototype =  Object.create(THREE.Object3D.prototype);
 Toilet.prototype.constructor = Toilet;

@@ -121,11 +121,6 @@ function updateControls() {
 				}
 			}*/
 		}
-
-	   
-	
-	    
-
 	
 	    controls.getObject().translateX(velocity.x * delta);
 	    controls.getObject().translateY(velocity.y * delta);

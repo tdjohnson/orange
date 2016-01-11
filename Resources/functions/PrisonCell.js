@@ -65,6 +65,7 @@ function PrisonCell()
 	toilet.rotation.y =  Math.PI*0.5;
 	this.add(toilet);
 	
+	
 	var sink = new Sink();
 	sink.position.set(1.25,2.5,13);
 	sink.rotation.y = Math.PI*0.5;

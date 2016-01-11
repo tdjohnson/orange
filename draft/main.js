@@ -86,7 +86,7 @@ function init() {
 	
 	crosshair.position.z = -0.3;
 	camera.add( crosshair );
-	//camera.position.z = 1;
+	camera.position.z = 1;
 	
 
 	patrolStatus = 0;
@@ -132,7 +132,8 @@ function init() {
 	var grid = new THREE.GridHelper(500, 5);
 
 	scene.add(grid); 
-	
+	for (var i=0; i<collidableMeshList.length; i++)
+		console.log(collidableMeshList[i]+" "+collidableMeshList[i].position.y);
 	
 	
 	//createSandFloor();
@@ -146,7 +147,7 @@ function init() {
 
 
 function sun(){
-	//let the sun shine
+	//let the sun shine in, leeeeeet the sunshine
 	var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
 	dirLight.color.setHSL( 0.1, 1, 0.95 );
 	dirLight.position.set( 20, 20, 20 );
