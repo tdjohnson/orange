@@ -19,7 +19,17 @@ function onKeyDown(e) {
 			moveLeft = true; 
 			break;
 		case 66: //b
-			botAggressive = 1;
+			{
+			if(botAggressive == 0)
+			{
+				botAggressive = 1;
+			}
+			
+			else 
+			{
+				botAggressive = 0;
+			}
+			}
 			break;
 		case 68: // d
     		moveRight = true;
