@@ -141,7 +141,7 @@ function TableLamp()
 {	
 	THREE.Object3D.call( this );
 
-	var light = new THREE.PointLight(0xffff99, 5, 10 );
+	var light = new THREE.PointLight(0xffff99, 4, 10 );
 	//light.shadowCameraVisible = true;
 	light.shadowDarkness = 0.95;
 	light.castShadow = true;
@@ -166,7 +166,9 @@ TableLamp.prototype = Object.create(THREE.Object3D.prototype);
 function Bed()
 {
    	THREE.Object3D.call( this );
-		this.scale.x = this.scale.y = this.scale.z = 1;
+		this.scale.x = 0.9;
+		this.scale.y = this.scale.z = 1;
+		
 		this.updateMatrix();
 		this.name = "Bett";
 		//this.castShadow = true;
