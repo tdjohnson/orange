@@ -51,7 +51,6 @@ function Toilet()
 	//this.receiveShadow = true;
 	this.name = "Klo";
 	this.userData.info = "Sauber geputzt!";
-	this.userData.rotatable = true;
 	var scope = this;
 	meshloader( '../Prototypes/Klo/klo.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
@@ -69,7 +68,6 @@ function Sink()
 	//this.castShadow = true;
 	this.name = "Waschbecken";
 	this.userData.info = " ";
-	this.userData.rotatable = true;
 
 	var scope = this;
 	meshloader('../Prototypes/Becken/becken.json',function(model) {scope.add(model);});
