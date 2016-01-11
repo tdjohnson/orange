@@ -270,7 +270,7 @@ Wall.prototype.constructor = Wall;
 function Ceiling() {
 	THREE.Object3D.call( this );
 
-	this.scale.x = 4;
+	this.scale.x = 3.82;
 	this.scale.z = 4.1;
 	this.scale.y = 3.15;
 
@@ -286,7 +286,7 @@ function Floor()
 	THREE.Object3D.call( this );
 		//this.castShadow = true;
 		//this.receiveShadow = true;
-	   this.scale.x = 3.9;
+	   this.scale.x = 3.85;
 	   this.scale.z = 4;
 
 	var scope = this;
@@ -315,7 +315,7 @@ function WallDoor()
 		//this.castShadow = true;
 		//this.receiveShadow = true;
 	    this.scale.x = this.scale.z = 4;
-	    this.scale.y = 2.8;
+	    this.scale.y = 2.9;
 	    
 	var scope = this;
 	meshloader('../Prototypes/Gang/wallDoor.json',function(model) {scope.add(model);});
