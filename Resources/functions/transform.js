@@ -40,14 +40,14 @@ function animateDrop(object) {
 	if (object.userData.isDropable == false) {
 			animationLock = true; // lock raycaster //not nice...shame on you
 		if (object.userData.info.indexOf("Heb")>-1) {
-			if(object.position.z > 11.7){
+			if(object.position.z > 11.6){
 					object.position.z -= 0.05;
 			}
 			else{
 				if (object.position.y > 0.1){
 					object.position.y -= 0.1;
 					
-					if(object.position.z > 11 && object.position.z < 11.7){
+					if(object.position.z > 11 && object.position.z < 11.6){
 						object.position.z -= 0.05;
 					}
 					

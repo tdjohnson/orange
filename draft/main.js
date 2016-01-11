@@ -120,7 +120,7 @@ function init() {
 
 	//add prison hallway
 	var hallway = new Hallway();
-	hallway.position.set(0,0,0);
+	hallway.position.set(0,0,21);
 	scene.add(hallway);
 	
 	rootCell = new PrisonCell();
@@ -190,7 +190,8 @@ function addTowers() {
 
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
-	var dirLight = new THREE.DirectionalLight( 0xffffff, 1);
+	var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+
 	dirLight.color.setHSL( 0.1, 1, 0.95 );
 	dirLight.position.set( 20, 20, 20 );
 	
@@ -223,14 +224,14 @@ function cloning(n) {
 	for (i = 1; i < n; i++) { 
 		
 		var newCell = rootCell.clone();
-		newCell.position.set(i*11.5,0,0);
+		newCell.position.set(i*11.55,0,0);
 		scene.add(newCell);
 	}
 	
 	for (j = 1; j < n+1; j++) { 
 		var newCell = rootCell.clone();
 		newCell.rotation.y =  Math.PI;
-		newCell.position.set(j*11.5,0,41);
+		newCell.position.set(j*11.55,0,41.5);
 		scene.add(newCell);
 	}
 }
