@@ -133,15 +133,11 @@ function init() {
 	var grid = new THREE.GridHelper(500, 5);
 
 	scene.add(grid); 
-	
+
 	
 	//createSandFloor();
 	sun();
-	animate();
-	$( "#dialog" ).dialog({
-		  autoOpen: false
-	});
-	
+	animate();	
 }
 
 
@@ -215,7 +211,7 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (loadDone) {
 
- 		updateMirrors();
+ 		//updateMirrors();
 	    renderer.render(scene, camera);
 	    
 	 	proximityDetector();

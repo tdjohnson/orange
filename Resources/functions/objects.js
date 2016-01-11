@@ -50,7 +50,7 @@ function Toilet()
 	//this.castShadow = true;
 	//this.receiveShadow = true;
 	this.name = "Klo";
-	this.userData.info = "Sehr schön";
+	this.userData.info = "Sauber geputzt!";
 	this.userData.rotatable = true;
 	var scope = this;
 	meshloader( '../Prototypes/Klo/klo.json',function(model) {scope.add(model);});
@@ -68,7 +68,7 @@ function Sink()
 	this.scale.x = this.scale.y = this.scale.x = 1.2;
 	//this.castShadow = true;
 	this.name = "Waschbecken";
-	this.userData.info = "Waschbecken";
+	this.userData.info = " ";
 	this.userData.rotatable = true;
 
 	var scope = this;
@@ -84,7 +84,7 @@ function Book()
 	THREE.Object3D.call( this );
 	this.scale.x = this.scale.y = this.scale.z = 0.3;
 	this.name = "Buch";
-	this.userData.info = "Lies Faust";
+	this.userData.info = "Lies Faust!";
 	this.userData.rotatable = true;
 	var scope = this;
 	meshloader('../Prototypes/Buch/buch_neu_comb.json',function(model) {scope.add(model);});
@@ -112,7 +112,6 @@ Table.prototype.constructor = Table;
 function Chair()
 {
 	THREE.Object3D.call( this );
-   // this.rotation.y =  Math.PI/180*90;
 
     this.scale.x = this.scale.y = this.scale.z = 1.2;
     this.name = "chair";
@@ -130,7 +129,7 @@ function Radiator()
 	this.scale.x = 1.2;
 	this.scale.y = this.scale.z = 0.7;
 	this.name = "Luefter";
-	this.userData.info = "BRRRRRRRR";
+	this.userData.info = " ";
 	var scope = this;
 	meshloader('../Prototypes/Luefter/luefter.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
@@ -169,7 +168,6 @@ function Bed()
 		this.scale.x = this.scale.y = this.scale.z = 1;
 		this.updateMatrix();
 		this.name = "Bett";
-		//this.userData.info = "Einsteigen!";
 		//this.castShadow = true;
 		//this.receiveShadow = true;
 	var scope = this;
@@ -187,7 +185,6 @@ function Door1()
 	//this.receiveShadow = true;
     this.updateMatrix();
     this.name = "Tuer1";
-	//object.userData.info = "geschlossen!, öffne mit T";
 	var scope = this;
 	meshloader('../Prototypes/Tuer/tuer1.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
@@ -237,15 +234,18 @@ function Mirror()
 	var planeMaterial = new THREE.MeshBasicMaterial( { map: mmaterial } );
 	var plane = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), planeMaterial );
 	this.add(plane);
-
+	this.name = "mirror" + this.id;
+	
 	var scope = this;
 	meshloader('../Prototypes/Spiegel/SpiegelRahmen.json',function(model) {
 			model.rotation.y = Math.PI*0.5; 
 		scope.add(model);});
 		this.rotation.y = Math.PI*0.5; 
+		this.mvisible  = true;
 }
 Mirror.prototype = Object.create(THREE.Object3D.prototype);
 Mirror.prototype.constructor = Mirror;
+	
 
 
 function Wall() {
@@ -505,8 +505,8 @@ function JailBotBody()
 		this.scale.x = this.scale.y = this.scale.z = 1.2;
 		//this.castShadow = true;
 		this.name = "JailBotBody";
-		this.userData.info = "Rapiiiing!";
-		this.userData.rotatable = true;
+		this.userData.info = "Ab in deine Zelle!";
+		//this.userData.rotatable = true;
 	var scope = this;
 	meshloader( '../Prototypes/Bot/bot_body.json',function(model) {scope.add(model);});
 }
@@ -520,7 +520,7 @@ function JailBotArms()
 		this.scale.x = this.scale.y = this.scale.z = 1.2;
 		//this.castShadow = true;
 		this.name = "JailBotArms";
-		this.userData.info = "Rapiiiing!";
+		this.userData.info = " ";
 		this.userData.rotatable = true;
 	var scope = this;
 	meshloader('../Prototypes/Bot/bot_arms.json',function(model) {scope.add(model);});
