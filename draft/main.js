@@ -121,6 +121,11 @@ function init() {
 		
 	scene.add(hallway);
 	
+	var prisonWall = new prisonWall();
+	prisonWall.position.set(0,0,0);
+		
+	scene.add(prisonWall);
+	
 	rootCell = new PrisonCell();
 	rootCell.position.set(0,0,0);
 	scene.add(rootCell);
