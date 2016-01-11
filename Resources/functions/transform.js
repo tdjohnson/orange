@@ -241,9 +241,6 @@ function patrolRobot()
 
 function robotAttack()
 {
-	console.log("attack");
-	console.log(hitDirection);
-	console.log(5 * hitDirection);
 	
 	if(rotationActive != 1 && hitDirection != 0)
 	{
