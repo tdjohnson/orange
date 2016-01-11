@@ -257,7 +257,7 @@ function Wall() {
 	THREE.Object3D.call( this );
 
 	   this.scale.x = this.scale.z = 4;
-	   this.scale.y = 2.8;
+	   this.scale.y = 2.85;
 
 	var scope = this;
 	meshloader('../Prototypes/Gang/wall.json',function(model) {scope.add(model);});
