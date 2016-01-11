@@ -51,7 +51,6 @@ function Toilet()
 	//this.receiveShadow = true;
 	this.name = "Klo";
 	this.userData.info = "Sauber geputzt!";
-	this.userData.rotatable = true;
 	var scope = this;
 	meshloader( '../Prototypes/Klo/klo.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
@@ -69,7 +68,6 @@ function Sink()
 	//this.castShadow = true;
 	this.name = "Waschbecken";
 	this.userData.info = " ";
-	this.userData.rotatable = true;
 
 	var scope = this;
 	meshloader('../Prototypes/Becken/becken.json',function(model) {scope.add(model);});
@@ -126,7 +124,8 @@ function Radiator()
 {
 	THREE.Object3D.call( this );
 	this.scale.x = 1.2;
-	this.scale.y = this.scale.z = 0.7;
+	this.scale.y = 0.7;
+	this.scale.z = 0.5;
 	this.name = "Luefter";
 	this.userData.info = " ";
 	var scope = this;
@@ -140,7 +139,7 @@ function TableLamp()
 {	
 	THREE.Object3D.call( this );
 
-	var light = new THREE.PointLight(0xffff99, 5, 10 );
+	var light = new THREE.PointLight(0xffff99, 4, 10 );
 	//light.shadowCameraVisible = true;
 	light.shadowDarkness = 0.95;
 	light.castShadow = true;
@@ -152,6 +151,7 @@ function TableLamp()
     this.name = "Table Lamp";
     this.userData.info = "Licht aus  mit T";
    	this.userData.rotatable = true;
+   	this.userData.isTurnedOn = true;
 	this.add(light);
 
 	var scope = this;
@@ -159,12 +159,14 @@ function TableLamp()
 	collidableMeshList.push(this);
 }
 TableLamp.prototype = Object.create(THREE.Object3D.prototype);
-TableLamp.prototype.constructor = TableLamp;
+//TableLamp.prototype.constructor = TableLamp; //lol
 
 function Bed()
 {
    	THREE.Object3D.call( this );
-		this.scale.x = this.scale.y = this.scale.z = 1;
+		this.scale.x = 0.9;
+		this.scale.y = this.scale.z = 1;
+		
 		this.updateMatrix();
 		this.name = "Bett";
 		//this.castShadow = true;
@@ -180,6 +182,7 @@ function Door1()
 {
 	THREE.Object3D.call( this );
     this.scale.y = 1.4;
+    this.scale.x = 1.1;
    	//this.castShadow = true;
 	//this.receiveShadow = true;
     this.updateMatrix();
@@ -198,9 +201,10 @@ function Door2() {
 		//this.castShadow = true;
 		//this.receiveShadow = true;
 		this.scale.y = 1.4;
+		this.scale.x = 1.1;
 		this.name = "Tuer2";
 		this.userData.info = "geschlossen!<br/> öffne mit T";
-		
+		this.userData.isOpen = false;
 		this.userData.isOpenable = true;
 	var scope = this;
 	meshloader('../Prototypes/Tuer/tuer2.json',function(model) {scope.add(model);});
@@ -266,7 +270,8 @@ Wall.prototype.constructor = Wall;
 function Ceiling() {
 	THREE.Object3D.call( this );
 
-	this.scale.x = this.scale.z = 4;
+	this.scale.x = 4;
+	this.scale.z = 4.1;
 	this.scale.y = 3.15;
 
 	var scope = this;
@@ -281,7 +286,8 @@ function Floor()
 	THREE.Object3D.call( this );
 		//this.castShadow = true;
 		//this.receiveShadow = true;
-	   this.scale.x = this.scale.z = 4;
+	   this.scale.x = 3.9;
+	   this.scale.z = 4;
 
 	var scope = this;
 	meshloader('../Prototypes/Gang/gang.json',function(model) {scope.add(model);});
@@ -404,7 +410,8 @@ WallCellDoorCol2.prototype.constructor = WallCellDoorCol2;
 function CeilingCell() 
 {
 	THREE.Object3D.call( this );
-	this.scale.x = this.scale.z = 3.35;
+	this.scale.x = 3.3;
+	this.scale.z = 3.35;
     //object.scale.y = 3.15;
     this.rotation.y = Math.PI/2;
 	var scope = this;

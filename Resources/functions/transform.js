@@ -40,14 +40,14 @@ function animateDrop(object) {
 	if (object.userData.isDropable == false) {
 			animationLock = true; // lock raycaster //not nice...shame on you
 		if (object.userData.info.indexOf("Heb")>-1) {
-			if(object.position.z > 11.7){
+			if(object.position.z > 11.6){
 					object.position.z -= 0.05;
 			}
 			else{
 				if (object.position.y > 0.1){
 					object.position.y -= 0.1;
 					
-					if(object.position.z > 11 && object.position.z < 11.7){
+					if(object.position.z > 11 && object.position.z < 11.6){
 						object.position.z -= 0.05;
 					}
 					
@@ -69,10 +69,12 @@ function animateDrop(object) {
 function triggerDoor(object) {
 	if (object.userData.isOpenable == true) {
 		object.userData.isOpenable = false;
-			if (object.userData.info.indexOf("geschlossen")>-1) {
+			if (object.userData.isOpen === false) {
+				object.userData.isOpen = true;
 				object.userData.info = "offen!<br/> schließen mit T";
 				door = object;
-			} else if(object.userData.info.indexOf("offen")>-1) {
+			} else if(object.userData.isOpen === true) {
+				object.userData.isOpen = false;
 				object.userData.info = "geschlossen!<br/> öffne mit T";
 				door = object;
 			}
@@ -83,15 +85,19 @@ function triggerDoor(object) {
 }
 
 function switchTableLight(object) {
-	if(object.userData.info.indexOf("aus") >-1)
+	if(object.userData.isTurnedOn === false)
 	{
 		object.userData.info = "Licht an mit T";
+		showMessage(object.userData.info);
 		object.children[0].intensity = 0;
+		object.userData.isTurnedOn = true;
 	}
-	else if (object.userData.info.indexOf("an") >-1)
+	else if (object.userData.isTurnedOn === true)
 	{
 		object.userData.info = "Licht aus mit T";
-		object.children[0].intensity = 5;
+		showMessage(object.userData.info);
+		object.children[0].intensity = 4;
+		object.userData.isTurnedOn = false;
 	}
 }
 

@@ -25,6 +25,7 @@ cam_matrix = new THREE.Matrix4();
 	
 	if(!frustum.intersectsObject(lastObjectc)){
 		showMessage(" ");
+		animationLock = false;
 		lastObject = new THREE.Object3D();
 		lastObjectc = new THREE.Object3D();
 
