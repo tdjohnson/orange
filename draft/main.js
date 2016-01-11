@@ -27,6 +27,7 @@ var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatu
 var collided = false;
 var meshes = new Map();
 var rootCell;
+var prisonWallRoot;
 
 function init() { 
 	
@@ -127,9 +128,11 @@ function init() {
 	//showCameraHelpers();
 	
 	var grid = new THREE.GridHelper(500, 5);
+	prisonWallRoot = new PrisonWall();
+	addWall();
 	addTowers();
 	scene.add(grid); 
-	addWall();
+	
 	
 	//createSandFloor();
 	sun();
@@ -137,7 +140,6 @@ function init() {
 }
 
 function addWall() {
-	var prisonWallRoot = new PrisonWall();
 	for (i = -3; i < 3; i++) { 
 		var prisonWall = prisonWallRoot.clone();
 		prisonWall.position.set(i*16+7,3.5,-50);
