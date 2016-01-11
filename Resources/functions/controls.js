@@ -47,7 +47,8 @@ function onKeyDown(e) {
     		moveBackward = true;
     		break;		
 		case 84: //t
-	    	triggerDoor(lastObject);	    	
+	    	triggerDoor(lastObject);
+	    	switchTableLight(lastObject);	    	
 	    	break;
   		case 87: // w
     		moveForward = true;	

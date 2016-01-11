@@ -151,7 +151,7 @@ function TableLamp()
 	
 	this.scale.x = this.scale.y = this.scale.z = 0.15;
     this.name = "Table Lamp";
-    this.userData.info = "";
+    this.userData.info = "Licht aus  mit T";
    	this.userData.rotatable = true;
 	this.add(light);
 
