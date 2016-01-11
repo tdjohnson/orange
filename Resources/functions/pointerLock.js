@@ -10,7 +10,6 @@ function initPointerLock() {
         if (document.pointerLockElement === element || 
             document.mozPointerLockElement === element || 
             document.webkitPointerLockElement === element) {
-            	  //document.getElementById("txt").style.display = "none";
 		          controlsEnabled = true;
 		          controls.enabled = true;
 		          if (!cloned) {
