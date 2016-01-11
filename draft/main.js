@@ -121,9 +121,7 @@ function init() {
 	hallway.position.set(0,0,0);
 	scene.add(hallway);
 	
-	var tower = new Tower();
-	tower.position.set(-20,0,0);	
-	scene.add(tower);
+	addTowers();
 	
 	rootCell = new PrisonCell();
 	rootCell.position.set(0,0,0);
@@ -138,6 +136,24 @@ function init() {
 	//createSandFloor();
 	sun();
 	animate();	
+}
+
+function addTowers() {
+	var tower = new Tower();
+	tower.position.set(-50,0,0);	
+	scene.add(tower);
+	
+	var tower = new Tower();
+	tower.position.set(50,0,0);	
+	scene.add(tower);
+	
+	var tower = new Tower();
+	tower.position.set(0,0,-50);	
+	scene.add(tower);
+	
+	var tower = new Tower();
+	tower.position.set(0,0,50);	
+	scene.add(tower);
 }
 
 
