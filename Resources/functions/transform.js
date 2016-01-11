@@ -82,6 +82,19 @@ function triggerDoor(object) {
 	}
 }
 
+function switchTableLight(object) {
+	if(object.userData.info.indexOf("aus") >-1)
+	{
+		object.userData.info = "Licht an mit T";
+		object.children[0].intensity = 0;
+	}
+	else if (object.userData.info.indexOf("an") >-1)
+	{
+		object.userData.info = "Licht aus mit T";
+		object.children[0].intensity = 5;
+	}
+}
+
 function animateDoors() {
 	
 	if (door != null) {
