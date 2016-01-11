@@ -127,7 +127,8 @@ function Radiator()
 {
 	THREE.Object3D.call( this );
 	this.scale.x = 1.2;
-	this.scale.y = this.scale.z = 0.7;
+	this.scale.y = 0.7;
+	this.scale.z = 0.5;
 	this.name = "Luefter";
 	this.userData.info = " ";
 	var scope = this;
@@ -181,6 +182,7 @@ function Door1()
 {
 	THREE.Object3D.call( this );
     this.scale.y = 1.4;
+    this.scale.x = 1.1;
    	//this.castShadow = true;
 	//this.receiveShadow = true;
     this.updateMatrix();
@@ -199,6 +201,7 @@ function Door2() {
 		//this.castShadow = true;
 		//this.receiveShadow = true;
 		this.scale.y = 1.4;
+		this.scale.x = 1.1;
 		this.name = "Tuer2";
 		this.userData.info = "geschlossen!<br/> öffne mit T";
 		
@@ -265,7 +268,8 @@ Wall.prototype.constructor = Wall;
 function Ceiling() {
 	THREE.Object3D.call( this );
 
-	this.scale.x = this.scale.z = 4;
+	this.scale.x = 4;
+	this.scale.z = 4.1;
 	this.scale.y = 3.15;
 
 	var scope = this;
@@ -280,7 +284,8 @@ function Floor()
 	THREE.Object3D.call( this );
 		//this.castShadow = true;
 		//this.receiveShadow = true;
-	   this.scale.x = this.scale.z = 4;
+	   this.scale.x = 3.9;
+	   this.scale.z = 4;
 
 	var scope = this;
 	meshloader('../Prototypes/Gang/gang.json',function(model) {scope.add(model);});
@@ -403,7 +408,8 @@ WallCellDoorCol2.prototype.constructor = WallCellDoorCol2;
 function CeilingCell() 
 {
 	THREE.Object3D.call( this );
-	this.scale.x = this.scale.z = 3.35;
+	this.scale.x = 3.3;
+	this.scale.z = 3.35;
     //object.scale.y = 3.15;
     this.rotation.y = Math.PI/2;
 	var scope = this;
