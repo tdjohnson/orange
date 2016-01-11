@@ -141,23 +141,22 @@ function TableLamp()
 {	
 	THREE.Object3D.call( this );
 
-	var light = new THREE.SpotLight(0xffff99, 5, 10 );
+	var light = new THREE.PointLight(0xffff99, 5, 10 );
 	//light.shadowCameraVisible = true;
 	light.shadowDarkness = 0.95;
 	light.castShadow = true;
-	light.position.set(6.7,9.4,-1.7);
-	//var pointLightHelper = new THREE.PointLightHelper(light, 10);
-	//scene.add(pointLightHelper);
+	light.position.set(0,9.8,-4.7);
+	var pointLightHelper = new THREE.PointLightHelper(light, 0.8);
+	scene.add(pointLightHelper);
 	
-	this.scale.x = this.scale.y = this.scale.z = 0.1;
+	this.scale.x = this.scale.y = this.scale.z = 0.15;
     this.name = "Table Lamp";
     this.userData.info = "";
    	this.userData.rotatable = true;
 	this.add(light);
 
 	var scope = this;
-	meshloader('../Prototypes/TischLampe/TischLampeBottom.json',function(model) {scope.add(model);});
-	meshloader('../Prototypes/TischLampe/TischLampeTop.json',function(model) {scope.add(model);});
+	meshloader('../Prototypes/TischLampe/tischlampe_neu.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
 TableLamp.prototype = Object.create(THREE.Object3D.prototype);
