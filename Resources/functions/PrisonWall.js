@@ -3,6 +3,7 @@ function PrisonWall()
 	THREE.Object3D.call( this );
 		this.scale.x  = this.scale.z = 100;
 		this.scale.y = 12;
+		this.castShadow = false;
 		//this.castShadow = true;
 		this.name = "JailBotBody";
 		this.userData.info = "you shall not pass!";

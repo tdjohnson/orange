@@ -121,15 +121,15 @@ function init() {
 	hallway.position.set(0,0,0);
 	scene.add(hallway);
 	
-<<<<<<< HEAD
+
 	var prisonWall = new PrisonWall();
 	prisonWall.position.set(0,0,0);		
 	scene.add(prisonWall);
-=======
+
 	var tower = new Tower();
 	tower.position.set(-20,0,0);	
 	scene.add(tower);
->>>>>>> ddbbc25b7695359e87394654395048b5b3e9fa94
+
 	
 	rootCell = new PrisonCell();
 	rootCell.position.set(0,0,0);
@@ -149,9 +149,9 @@ function init() {
 
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
-	var dirLight = new THREE.DirectionalLight( 0xffffff, 5 );
+	var dirLight = new THREE.DirectionalLight( 0xffffff, 0.1 );
 	dirLight.color.setHSL( 0.1, 1, 0.95 );
-	dirLight.position.set( 20, 2, 20 );
+	dirLight.position.set( 20, 20, 20 );
 	
 	
 	dirLight.shadowMapWidth = 2048;
