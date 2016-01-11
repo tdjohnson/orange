@@ -52,11 +52,11 @@ function PrisonCell()
 	this.add(wallCellDoorCol2);
 	
 	var door1 = new Door1();
-	door1.position.set(4.5,3.8,15.2);
+	door1.position.set(4.5,3.8,14.8);
 	this.add(door1);
 	
 	var door2 = new Door2();
-	door2.position.set(8.2,3.8,14.8);
+	door2.position.set(8.2,3.8,14.4);
 	door2.userData.startPosition = door2.position.x; 
 	this.add(door2);
 	
