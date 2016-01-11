@@ -10,4 +10,3 @@ function PrisonWall()
 }
 
 PrisonWall.prototype = Object.create(THREE.Object3D.prototype);
-PrisonWall.prototype.constructor = PrisonWall;
