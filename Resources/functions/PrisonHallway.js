@@ -3,8 +3,8 @@ function Hallway()
 	THREE.Object3D.call( this );
 
 	var wall = new Wall();
-	wall.position.set(0.4,4.7,0);
-	this.add(wall);
+	wall.position.set(0.4,4.3,-0.2);
+	this.add(wall);	
 	
 	var ceiling = new Ceiling();
 	ceiling.position.set(24,8.5,0);

@@ -257,7 +257,7 @@ function Wall() {
 	THREE.Object3D.call( this );
 
 	   this.scale.x = this.scale.z = 4;
-	   this.scale.y = 3.15;
+	   this.scale.y = 2.8;
 
 	var scope = this;
 	meshloader('../Prototypes/Gang/wall.json',function(model) {scope.add(model);});
@@ -315,7 +315,7 @@ function WallDoor()
 		//this.castShadow = true;
 		//this.receiveShadow = true;
 	    this.scale.x = this.scale.z = 4;
-	    this.scale.y = 3.15;
+	    this.scale.y = 2.8;
 	    
 	var scope = this;
 	meshloader('../Prototypes/Gang/wallDoor.json',function(model) {scope.add(model);});
