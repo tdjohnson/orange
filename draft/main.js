@@ -122,7 +122,7 @@ function init() {
 		
 	scene.add(hallway);
 	
-	var prisonWall = new prisonWall();
+	var prisonWall = new PrisonWall();
 	prisonWall.position.set(0,0,0);
 		
 	scene.add(prisonWall);
