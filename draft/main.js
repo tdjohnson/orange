@@ -119,18 +119,21 @@ function init() {
 	//add prison hallway
 	var hallway = new Hallway();
 	hallway.position.set(0,0,0);
-		
 	scene.add(hallway);
 	
+<<<<<<< HEAD
 	var prisonWall = new PrisonWall();
 	prisonWall.position.set(0,0,0);		
 	scene.add(prisonWall);
+=======
+	var tower = new Tower();
+	tower.position.set(-20,0,0);	
+	scene.add(tower);
+>>>>>>> ddbbc25b7695359e87394654395048b5b3e9fa94
 	
 	rootCell = new PrisonCell();
 	rootCell.position.set(0,0,0);
 	scene.add(rootCell);
-	
-
 	//showCameraHelpers();
 	
 	var grid = new THREE.GridHelper(500, 5);
@@ -140,11 +143,7 @@ function init() {
 	
 	//createSandFloor();
 	sun();
-	animate();
-	$( "#dialog" ).dialog({
-		  autoOpen: false
-	});
-	
+	animate();	
 }
 
 
@@ -218,7 +217,7 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (loadDone) {
 
- 		updateMirrors();
+ 		//updateMirrors();
 	    renderer.render(scene, camera);
 	    
 	 	proximityDetector();
