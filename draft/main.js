@@ -191,8 +191,8 @@ function addTowers() {
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
 	var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-	var dirLight2 = new THREE.DirectionalLight( 0xffffff, 1 );
-	var dirLight3 = new THREE.DirectionalLight( 0xffffff, 1 );
+	var dirLight2 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	var dirLight3 = new THREE.DirectionalLight( 0xffffff, 0.5 );
 
 	dirLight.color.setHSL( 0.1, 1, 0.95 );
 	dirLight.position.set( 20, 20, 20 );
