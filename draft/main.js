@@ -121,8 +121,6 @@ function init() {
 	hallway.position.set(0,0,0);
 	scene.add(hallway);
 	
-	
-	
 	rootCell = new PrisonCell();
 	rootCell.position.set(0,0,0);
 	scene.add(rootCell);
@@ -187,7 +185,7 @@ function addTowers() {
 
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
-	var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+	var dirLight = new THREE.DirectionalLight( 0xffffff, 1);
 	dirLight.color.setHSL( 0.1, 1, 0.95 );
 	dirLight.position.set( 20, 20, 20 );
 	
