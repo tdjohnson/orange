@@ -152,6 +152,7 @@ function TableLamp()
     this.name = "Table Lamp";
     this.userData.info = "Licht aus  mit T";
    	this.userData.rotatable = true;
+   	this.userData.isTurnedOn = true;
 	this.add(light);
 
 	var scope = this;
@@ -159,7 +160,7 @@ function TableLamp()
 	collidableMeshList.push(this);
 }
 TableLamp.prototype = Object.create(THREE.Object3D.prototype);
-TableLamp.prototype.constructor = TableLamp;
+//TableLamp.prototype.constructor = TableLamp; //lol
 
 function Bed()
 {
@@ -200,7 +201,7 @@ function Door2() {
 		this.scale.y = 1.4;
 		this.name = "Tuer2";
 		this.userData.info = "geschlossen!<br/> öffne mit T";
-		
+		this.userData.isOpen = false;
 		this.userData.isOpenable = true;
 	var scope = this;
 	meshloader('../Prototypes/Tuer/tuer2.json',function(model) {scope.add(model);});
