@@ -34,7 +34,7 @@ function init() {
 	renderer.domElement.id = "scene";
 	renderer.setSize(window.innerWidth, window.innerHeight-30);
 	renderer.setClearColor(0xb2e1f2);
-	renderer.shadowMap.enabled = true;
+	//renderer.shadowMap.enabled = true;
 	renderer._microCache = new MicroCache();
 
 	document.body.appendChild(renderer.domElement);
@@ -132,8 +132,6 @@ function init() {
 	var grid = new THREE.GridHelper(500, 5);
 
 	scene.add(grid); 
-	for (var i=0; i<collidableMeshList.length; i++)
-		console.log(collidableMeshList[i]+" "+collidableMeshList[i].position.y);
 	
 	
 	//createSandFloor();
@@ -216,7 +214,7 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (loadDone) {
 
- 		//updateMirrors();
+ 		updateMirrors();
 	    renderer.render(scene, camera);
 	    
 	 	proximityDetector();
