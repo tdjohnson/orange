@@ -241,13 +241,13 @@ function showCameraHelpers(){
 
 
 function updateMirrors() { //update mirrors/materials
-	u = 0; 
+	//u = 0; 
 	var d = 10; //+- position of camera 
 	for (j = 0; j < mirror_cameras.length ; j++) { 
 	   		var cx= controls.getObject().position.x; //get current x-coordinate from world camera
 			enableMirrors(cx-d,cx+d); //enable and render only mirrors near world camera
 	    }
-	console.log("mirrors: " + u);
+	//console.log("mirrors: " + u);
 	}
 	
 function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coordinates
@@ -255,7 +255,7 @@ function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coo
     	if(p.x >= x1 & p.x <= x2){
     		mirror_cameras[j].updateProjectionMatrix(); //update
     		renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );	
-    		u++;
+    		//u++;
     	}
 }
 
