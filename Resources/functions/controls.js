@@ -115,6 +115,7 @@ function updateControls() {
 			    } else {
 		    		velocity.x = 0;
 		    	}
+		    	velocity.y -= 9.8 * 30.0 * delta;
 			/*} else {
 				if (velocity.x == velocity.z == 0) {
 					collided = false;

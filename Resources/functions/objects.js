@@ -31,7 +31,7 @@ function Soap()
 	THREE.Object3D.call( this );
 
 	this.name = 'soap_' + this.id;
-	this.castShadow = true;
+	//this.castShadow = true;
 	this.scale.x = this.scale.y = this.scale.z = 0.1;
 	this.userData.info = "Wirf mich runter mit Y!";
 	this.userData.rotatable = true;
@@ -47,8 +47,8 @@ Soap.prototype.constructor = Soap;
 function Toilet()
 {
 	THREE.Object3D.call( this );
-	this.castShadow = true;
-	this.receiveShadow = true;
+	//this.castShadow = true;
+	//this.receiveShadow = true;
 	this.name = "Klo";
 	this.userData.info = "Sehr schön";
 	this.userData.rotatable = true;
@@ -66,7 +66,7 @@ function Sink()
 	THREE.Object3D.call( this );
 
 	this.scale.x = this.scale.y = this.scale.x = 1.2;
-	this.castShadow = true;
+	//this.castShadow = true;
 	this.name = "Waschbecken";
 	this.userData.info = "Waschbecken";
 	this.userData.rotatable = true;
@@ -100,7 +100,7 @@ function Table()
 
     this.scale.x = this.scale.y = this.scale.z = 1.2;
     this.name = "tisch";
-    this.castShadow = true;
+    //this.castShadow = true;
     this.recieveShadow = true;
 	var scope = this;
 	meshloader('../Prototypes/Tisch/table.json',function(model) {scope.add(model);});
@@ -170,8 +170,8 @@ function Bed()
 		this.updateMatrix();
 		this.name = "Bett";
 		//this.userData.info = "Einsteigen!";
-		this.castShadow = true;
-		this.receiveShadow = true;
+		//this.castShadow = true;
+		//this.receiveShadow = true;
 	var scope = this;
 	meshloader('../Prototypes/Bett/bett2.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
@@ -183,8 +183,8 @@ function Door1()
 {
 	THREE.Object3D.call( this );
     this.scale.y = 1.4;
-   	this.castShadow = true;
-	this.receiveShadow = true;
+   	//this.castShadow = true;
+	//this.receiveShadow = true;
     this.updateMatrix();
     this.name = "Tuer1";
 	//object.userData.info = "geschlossen!, öffne mit T";
@@ -199,8 +199,8 @@ Door1.prototype.constructor = Door1;
 
 function Door2() {
 	THREE.Object3D.call( this );
-		this.castShadow = true;
-		this.receiveShadow = true;
+		//this.castShadow = true;
+		//this.receiveShadow = true;
 		this.scale.y = 1.4;
 		this.name = "Tuer2";
 		this.userData.info = "geschlossen!<br/> öffne mit T";
@@ -219,7 +219,7 @@ function Mirror()
 	THREE.Object3D.call( this );
 
 
-	this.castShadow = true;
+	//this.castShadow = true;
 	this.scale.x = this.scale.y = this.scale.z = 1.1;
 	
 	var mmaterial = new THREE.WebGLRenderTarget( 500, 500, { format: THREE.RGBFormat } );
@@ -281,8 +281,8 @@ Ceiling.prototype.constructor = Ceiling;
 function Floor()
 {
 	THREE.Object3D.call( this );
-		this.castShadow = true;
-		this.receiveShadow = true;
+		//this.castShadow = true;
+		//this.receiveShadow = true;
 	   this.scale.x = this.scale.z = 4;
 
 	var scope = this;
@@ -294,8 +294,8 @@ Floor.prototype.constructor = Floor;
 function Sand()
 {
 	THREE.Object3D.call( this );
-	this.castShadow = true;
-	this.receiveShadow = true;
+	//this.castShadow = true;
+	//this.receiveShadow = true;
 	this.scale.x = this.scale.z = 2;
 	//this.scale.y = 5;
 	var scope = this;
@@ -308,8 +308,8 @@ function WallDoor()
 {
 	THREE.Object3D.call( this );
 
-		this.castShadow = true;
-		this.receiveShadow = true;
+		//this.castShadow = true;
+		//this.receiveShadow = true;
 	    this.scale.x = this.scale.z = 4;
 	    this.scale.y = 3.15;
 	    
@@ -323,8 +323,8 @@ WallDoor.prototype.constructor = WallDoor;
 function WallCell1() 
 {
 	THREE.Object3D.call( this );
-	this.castShadow = true;
-	this.receiveShadow = true;
+	//this.castShadow = true;
+	//this.receiveShadow = true;
 	this.scale.x = this.scale.y = 3.3;
 	this.scale.z = 2;
 	var scope = this;
@@ -338,8 +338,8 @@ function WallCell2()
 {
 	THREE.Object3D.call( this );
 
-	this.castShadow = true;
-	this.receiveShadow = true;
+	//this.castShadow = true;
+	//this.receiveShadow = true;
 	this.scale.x = this.scale.y = 3.3;
 	this.scale.z = 2;
 	var scope = this;
@@ -353,8 +353,8 @@ function WallCellWindow()
 {
 	THREE.Object3D.call( this );
 	
-	this.castShadow = true;
-	this.receiveShadow = true;
+	//this.castShadow = true;
+	//this.receiveShadow = true;
 	this.scale.x = this.scale.y = 3.3;
 	this.scale.z = 3.3;
    
@@ -370,8 +370,8 @@ function WallCellDoor()
 {
 	THREE.Object3D.call( this );
 
-   	this.castShadow = true;
-	this.receiveShadow = true;
+   	//this.castShadow = true;
+	//this.receiveShadow = true;
 	var scope = this;
 	meshloader('../Prototypes/Zelle/wandFront.json',function(model) {scope.add(model);});
 	
@@ -432,8 +432,8 @@ FloorCell.prototype.constructor = FloorCell;
 function CeilingLamp() {
 	
 	THREE.Object3D.call( this );
-	this.castShadow = true;
-	this.receiveShadow = true;
+	//this.castShadow = true;
+	//this.receiveShadow = true;
 	this.name = "CeilingLamp";
 	var scope = this;
 	meshloader( '../Prototypes/DeckenLampe/lampe.json',function(model) {scope.add(model);});
@@ -496,7 +496,7 @@ function JailBotBody()
 {
 	THREE.Object3D.call( this );
 		this.scale.x = this.scale.y = this.scale.z = 1.2;
-		this.castShadow = true;
+		//this.castShadow = true;
 		this.name = "JailBotBody";
 		this.userData.info = "Rapiiiing!";
 		this.userData.rotatable = true;
@@ -511,7 +511,7 @@ function JailBotArms()
 	THREE.Object3D.call( this );
 
 		this.scale.x = this.scale.y = this.scale.z = 1.2;
-		this.castShadow = true;
+		//this.castShadow = true;
 		this.name = "JailBotArms";
 		this.userData.info = "Rapiiiing!";
 		this.userData.rotatable = true;
