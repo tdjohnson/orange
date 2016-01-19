@@ -143,6 +143,7 @@ function init() {
 
 function addWall() {
 	var y = 3.7;
+	prisonWallRoot.rotation.y += Math.PI;
 	for (i = -3; i < 5; i++) { 
 		var prisonWall = prisonWallRoot.clone();
 		prisonWall.position.set(i*16+7,y,-50);
