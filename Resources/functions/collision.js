@@ -4,7 +4,7 @@ function collisionDetection(xNew, zNew, toTest) {
 		var homeBB = new THREE.Box3().setFromObject(collidableMeshList[i]);
 		toTest.x += xNew;
 		toTest.z += zNew;
-		toTest.y = (homeBB.max.y-homeBB.min.y)/2;
+		toTest.y = homeBB.max.y-(homeBB.max.y-homeBB.min.y)/2;
 		
 		
 		if ((homeBB.containsPoint(toTest))) { /*&&
