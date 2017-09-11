@@ -18,7 +18,6 @@ function collisionDetection(xNew, zNew, toTest) {
 				//alert(controls.getObject().position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
 				//console.log(toTest);
 				collision = false;
-				//testpush2
 			}
 	}
 	return collision;
