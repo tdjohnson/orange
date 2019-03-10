@@ -4,7 +4,7 @@ This project ist based on a 3D scene made with three.js for an academic group pr
 We now want to develop the project further just for fun.
 
 ToDos:
-	- build multiplayer
-	- create player characters
-	- add much more interactions
-	- extend game world
+* build multiplayer
+* create player characters
+* add much more interactions
+* extend game world
