@@ -1,15 +1,23 @@
+import * as THREE from 'three';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+import {MicroCache} from '../Resources/functions/MicroCache.mjs';
+import * as controlsModule from '../Resources/functions/controls.mjs';
+import * as pointerLockModule from '../Resources/functions/pointerLock.mjs';
+import * as objectsModule from '../Resources/functions/objects.mjs';
+import * as splashScreenModule from '../Resources/functions/splashScreen.mjs';
+import * as proximityModule from '../Resources/functions/proximity.mjs';
+
+
 var clock;
 var scene, camera, renderer;
 var geometry, material, mesh;
-var havePointerLock = checkForPointerLock();
-var controls, controlsEnabled;
-var moveForward,
-    moveBackward,
-    moveLeft,
-    moveRight,
-    canJump;
+var havePointerLock = pointerLockModule.checkForPointerLock();
+var controls;
+var controlsEnabled = true;
+
 var velocity = new THREE.Vector3();
-var loader = new THREE.JSONLoader();
+var loader = new THREE.ObjectLoader();
 var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
@@ -30,14 +38,18 @@ var meshes = new Map();
 var rootCell;
 var prisonWallRoot;
 
+function closeStart() {
+	splashScreenModule.closeStart()
+}
+
 function init() { 
 	
 	renderer = new THREE.WebGLRenderer({antialias:true});
+	renderer._microCache = MicroCache();
 	renderer.domElement.id = "scene";
 	renderer.setSize(window.innerWidth, window.innerHeight-30);
 	renderer.setClearColor(0xb2e1f2);
-	//renderer.shadowMap.enabled = true;
-	renderer._microCache = new MicroCache();
+	renderer.shadowMap.enabled = true;
 
 	document.body.appendChild(renderer.domElement);
 	
@@ -63,15 +75,23 @@ function init() {
 	// crosshair size
 	var x = 0.01, y = 0.02;
 	
+	/*
 	var geometry = new THREE.Geometry();
-	var geometry2 = new THREE.Geometry();
-	
+	var geometry2 = new THREE.BufferGeometry();
+
 	// crosshair
 	geometry.vertices.push(new THREE.Vector3(0.01, y, 0));
 	geometry.vertices.push(new THREE.Vector3(0, 0.01, 0));
 	geometry.vertices.push(new THREE.Vector3(-0.01, y, 0));    
 	geometry.vertices.push(new THREE.Vector3(0, 0.01, 0));
-	
+	*/
+
+	var crosshairPoints = []
+	crosshairPoints.push(new THREE.Vector3(0.01, y, 0));
+	crosshairPoints.push(new THREE.Vector3(0, 0.01, 0));
+	crosshairPoints.push(new THREE.Vector3(-0.01, y, 0));    
+	crosshairPoints.push(new THREE.Vector3(0, 0.01, 0));
+	let geometry = new THREE.BufferGeometry().setFromPoints(crosshairPoints)
 
 	
 	var crosshair = new THREE.LineSegments( geometry, material );
@@ -95,21 +115,21 @@ function init() {
 	hitDirection = 1;
 	rotationActive = 0;
 
-	initControls();
-    initPointerLock();
+	controlsModule.initControls();
 
-	controls = new THREE.PointerLockControls(camera);
+	controls = new PointerLockControls(camera, document.body);
 	
-	controls.getObject().position.set(5, 5, 8);
+	controls.object.position.set(5, 5, 8);
 
-	scene.add(controls.getObject());
+	scene.add(controls.object);
 
-	botBody = new JailBotBody();
+	botBody = new objectsModule.JailBotBody(renderer);
+
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
 	scene.add(botBody);
 
-	botArms = new JailBotArms();
+/*	botArms = new JailBotArms();
 	botArms.position.set(1.25,2.5,22);
 	botArms.rotation.y =  Math.PI*0.5;
 	scene.add(botArms);
@@ -127,42 +147,65 @@ function init() {
 	rootCell.position.set(0,0,0);
 	scene.add(rootCell);
 	//showCameraHelpers();
-	
+	*/
+
 	var grid = new THREE.GridHelper(500, 5);
-	prisonWallRoot = new PrisonWall();
+	prisonWallRoot = new objectsModule.PrisonWall(renderer);
 	prisonWallRoot.rotation.y += Math.PI/2;
 	addWall();
-	addTowers();
+
+	//cloning(4);
+	//addTowers();
+
+	pointerLockModule.initPointerLock(havePointerLock, prisonWallRoot, scene);
+
+
 	scene.add(grid); 
 	
-	
-	//createSandFloor();
+	createSandFloor();
 	sun();
 	animate();	
 }
 
+function cloning(n) {
+	for (let i = 1; i < n; i++) { 
+		
+		var newCell = rootCell.clone();
+		newCell.position.set(i*11.55,0,0);
+		scene.add(newCell);
+	}
+	
+	for (let j = 1; j < n+1; j++) { 
+		var newCell = rootCell.clone();
+		newCell.rotation.y =  Math.PI;
+		newCell.position.set(j*11.55,0,41.5);
+		scene.add(newCell);
+	}
+}
+
+
 function addWall() {
 	var y = 3.7;
-	prisonWallRoot.rotation.y += Math.PI;
-	for (i = -3; i < 5; i++) { 
+	prisonWallRoot.rotation.y += Math.PI/2;
+	for (let i = -3; i < 5; i++) { 
 		var prisonWall = prisonWallRoot.clone();
 		prisonWall.position.set(i*16+7,y,-50);
 		scene.add(prisonWall);
 	}
 	prisonWallRoot.rotation.y += Math.PI/2;
-	for (i = -3; i < 4; i++) { 
+	for (let i = -3; i < 4; i++) { 
 		var prisonWall = prisonWallRoot.clone();
 		prisonWall.position.set(-50,y,i*16+7);
 		scene.add(prisonWall);
 	}
 	prisonWallRoot.rotation.y -= Math.PI/2;
-	for (i = -3; i < 5; i++) { 
+	for (let i = -3; i < 5; i++) { 
 		var prisonWall = prisonWallRoot.clone();
 		prisonWall.position.set(i*16+7,y,60);
 		scene.add(prisonWall);
 	}
 	prisonWallRoot.rotation.y -= Math.PI/2;
-	for (i = -3; i < 4; i++) { 
+	for (let i = -3; i < 4; i++) { 
 		var prisonWall = prisonWallRoot.clone();
 		prisonWall.position.set(80,y,i*16+7);
 		scene.add(prisonWall);
@@ -226,25 +269,9 @@ function sun(){
 	
 }
 function createSandFloor() {
-	var sand = new Sand();
+	var sand = new objectsModule.Sand(renderer);
 	sand.position.set(100, -5, 100);
 	scene.add(sand);
-}
-
-function cloning(n) {
-	for (i = 1; i < n; i++) { 
-		
-		var newCell = rootCell.clone();
-		newCell.position.set(i*11.55,0,0);
-		scene.add(newCell);
-	}
-	
-	for (j = 1; j < n+1; j++) { 
-		var newCell = rootCell.clone();
-		newCell.rotation.y =  Math.PI;
-		newCell.position.set(j*11.55,0,41.5);
-		scene.add(newCell);
-	}
 }
 
 
@@ -259,7 +286,7 @@ function showCameraHelpers(){
 function updateMirrors() { //update mirrors/materials
 	//u = 0; 
 	var d = 10; //+- position of camera 
-	var cx= controls.getObject().position.x; //get current x-coordinate from world camera
+	var cx= controls.object.position.x; //get current x-coordinate from world camera
 	for (j = 0; j < mirror_cameras.length ; j++) { 
 			enableMirrors(cx-d,cx+d); //enable and render only mirrors near world camera
 	    }
@@ -269,9 +296,9 @@ function updateMirrors() { //update mirrors/materials
 function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coordinates
 	    var p = mirror_cameras[j].localToWorld(new THREE.Vector3(location.x, location.y, location.z));
     	if(p.x >= x1 & p.x <= x2){
-    		//controls.getObject().updateMatrixWorld();
-			//var rx= controls.getObject().rotation.y;
-			var rx= controls.getObject().position.z;
+    		//controls.object.updateMatrixWorld();
+			//var rx= controls.object.rotation.y;
+			var rx= controls.object.position.z;
 			var rr =  ((rx/10) * Math.PI);
 			mirror_cameras[j].rotation.set(0, rr,0 );
    			mirror_cameras[j].updateMatrix();
@@ -281,27 +308,28 @@ function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coo
     	}
 }
 
+
 function animate() {
 	
 	requestAnimationFrame(animate); 
 	if (loadDone) {
 
- 		updateMirrors();
+ 		//updateMirrors();
 	    renderer.render(scene, camera);
 	    
-	 	proximityDetector();
-	 	animateDoors();
+		proximityModule.proximityDetector();
+	 	//animateDoors();
  		
 
-	 	animateDrop(lastObject);
-		patrolRobot();
+	 	//animateDrop(lastObject);
+		//patrolRobot();
  	
 		if(botAggressive == 1)
 			{
 				robotAttack();
 			}	 	
 	 	} 
-		updateControls();
+		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, velocity);
  		camera.updateProjectionMatrix();
 
 }
@@ -317,3 +345,8 @@ function zoom(){
 function showMessage(text){
 	document.getElementById("message").innerHTML=text;
 }
+
+window.onload = init;
+window.onclick = closeStart;
+
+

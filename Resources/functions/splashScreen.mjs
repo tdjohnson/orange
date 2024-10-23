@@ -1,3 +1,3 @@
-function closeStart(){
+export function closeStart(){
 	document.getElementById("startScreen").style.display="none";
 }

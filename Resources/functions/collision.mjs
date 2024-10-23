@@ -1,4 +1,4 @@
-function collisionDetection(xNew, zNew, toTest) {
+export function collisionDetection(xNew, zNew, toTest, collidableMeshList) {
 	var collision;
 	for (var i=0; i<collidableMeshList.length; i++) {
 		var homeBB = new THREE.Box3().setFromObject(collidableMeshList[i]);

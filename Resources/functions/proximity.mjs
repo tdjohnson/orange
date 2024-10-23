@@ -1,4 +1,4 @@
-function proximityDetector() {
+export function proximityDetector(animationLock, raycaster, scene, camera) {
 			//detect objects hit by raycaster vector
 	try{
 	if(!animationLock){ // wait for running animations
@@ -11,14 +11,14 @@ function proximityDetector() {
 				if(intersects[0].object.parent.id != lastObject.id){ //do if object is new
 					if(intersects[0].distance <= 6){ //only show near objects
 						showinfo(intersects[0]); //show alert and log to console
-						lastObject = intersects[0].object.parent; //remember last object parent
-						lastObjectc = intersects[0].object; //remember last object
+						var lastObject = intersects[0].object.parent; //remember last object parent
+						var lastObjectc = intersects[0].object; //remember last object
 					}	
 				}
 			}
 		}
 	}
-cam_matrix = new THREE.Matrix4();
+	cam_matrix = new THREE.Matrix4();
 	cam_matrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
 	frustum.setFromMatrix(cam_matrix);
 	
@@ -31,17 +31,18 @@ cam_matrix = new THREE.Matrix4();
 
 	}
 	
-	}catch(err){
+	} catch(err){
+
 	}
 }
 
-function showraycasthelper(){
+export function showraycasthelper(scene){
 	scene.remove (arrow);
 	arrow = new THREE.ArrowHelper( camera.getWorldDirection(), camera.getWorldPosition(), 100, 0x00ffff );
 	scene.add( arrow );
 }
 
-function showinfo(intersect){
+export function showinfo(intersect){
 	var message = intersect.object.parent.userData.info;
 	if(!(message === undefined)){
 		showMessage(message);

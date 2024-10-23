@@ -1,10 +1,21 @@
-function initControls() {
+import * as THREE from 'three';
+import {collisionDetection} from './collision.mjs'
+
+
+var moveForward,
+    moveBackward,
+    moveLeft,
+    moveRight,
+    canJump;
+
+export function initControls() {
+	let raycaster;
 	document.addEventListener('keydown', onKeyDown, false);
 	document.addEventListener('keyup', onKeyUp, false);
     raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
 }
 
-function onKeyDown(e) {
+export function onKeyDown(e) {
     switch (e.keyCode) {
 		case 32: // space
 		    if (canJump === true) velocity.y += 50;
@@ -64,7 +75,7 @@ function onKeyDown(e) {
   
 
 
-function onKeyUp(e) {
+export function onKeyUp(e) {
 	switch(e.keyCode) {
 		case 37: // left
     	case 38: // up
@@ -86,14 +97,14 @@ function onKeyUp(e) {
 }
 
 
-function updateControls() {
+export function updateControls(controlsEnabled, clock, controls, collidableMeshList, velocity) {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
       	var walkingSpeed = 100.0;
-		var toTest = new THREE.Vector3(controls.getObject().position.x, 1, controls.getObject().position.z);
+		var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
 
 
-	    if (!collisionDetection(0, 0, toTest)) {
+	    if (!collisionDetection(0, 0, toTest, collidableMeshList)) {
 	    	velocity.x -= velocity.x * 10.0 * delta;
 		    velocity.z -= velocity.z * 10.0 * delta;
 		    velocity.y -= 9.8 * 30.0 * delta;
@@ -134,13 +145,13 @@ function updateControls() {
 			}*/
 		}
 	
-	    controls.getObject().translateX(velocity.x * delta);
-	    controls.getObject().translateY(velocity.y * delta);
-	    controls.getObject().translateZ(velocity.z * delta);
+	    controls.object.translateX(velocity.x * delta);
+	    controls.object.translateY(velocity.y * delta);
+	    controls.object.translateZ(velocity.z * delta);
 	
-	    if (controls.getObject().position.y < 4) {
+	    if (controls.object.position.y < 4) {
 	    	velocity.y = 0;
-	        controls.getObject().position.y = 4;
+	        controls.object.position.y = 4;
 	        canJump = true;
 	    }
     }

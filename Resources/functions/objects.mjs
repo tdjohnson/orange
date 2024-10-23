@@ -1,6 +1,9 @@
 //loader = new THREE.JSONLoader();
+import * as THREE from 'three';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 
-function meshloader(url,callback){
+export function meshloader(objURL, matURL, callback, renderer){
 
 			/*if(meshes.has(url)){ //check if model has been loaded before
 				callback(meshes.get(url));  //return preloaded model from Map
@@ -12,21 +15,33 @@ function meshloader(url,callback){
 				callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
 			});					
 			}*/
-			if(renderer._microCache.contains(url)){ //check if model has been loaded before
-				callback(renderer._microCache.get(url));  //return preloaded model from Map
-			}else{
-				loader = new THREE.JSONLoader();
-				loader.load(url,function ( geometry, materials ) {  //load model from json /()
-					//console.log("LOADING JSON MODEL: " + url);
-					//meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-					renderer._microCache.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-					callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-				});
-			}
+			/*if (renderer._microCache) {
+				if(renderer._microCache.contains(url)){ //check if model has been loaded before
+					callback(renderer._microCache.get(url));  //return preloaded model from Map
+				}else{
+					loader = new OBJLoader();
+					loader.load(url,function (combinedObject) {  //load model from json /()
+						//console.log("LOADING JSON MODEL: " + url);
+						//meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+						renderer._microCache.set(url, combinedObject);
+						callback(combinedObject);
+					});
+				}
+			} else {
+
+			}*/
+			var loader = new OBJLoader();
+			var matLoader = new MTLLoader();
+			loader.load(objURL, function (combinedObject) {
+				if ( combinedObject instanceof THREE.Mesh ) {
+					loader.setmaterial(matLoader.load(matURL));
+				}
+				callback(combinedObject)
+			})
 }
 
 
-function Soap()
+export function Soap()
 {
 	THREE.Object3D.call( this );
 
@@ -44,7 +59,7 @@ Soap.prototype = Object.create(THREE.Object3D.prototype);
 Soap.prototype.constructor = Soap;
 
 
-function Toilet()
+export function Toilet()
 {
 	THREE.Object3D.call( this );
 	//this.castShadow = true;
@@ -60,7 +75,7 @@ Toilet.prototype =  Object.create(THREE.Object3D.prototype);
 Toilet.prototype.constructor = Toilet;
 
 
-function Sink()
+export function Sink()
 {
 	THREE.Object3D.call( this );
 
@@ -77,7 +92,7 @@ Sink.prototype  =  Object.create(THREE.Object3D.prototype);
 Sink.prototype.constructor = Sink;
 
 
-function Book()
+export function Book()
 {
 	THREE.Object3D.call( this );
 	this.scale.x = this.scale.y = this.scale.z = 0.3;
@@ -92,7 +107,7 @@ Book.prototype = Object.create(THREE.Object3D.prototype);
 Book.prototype.constructor = Book;
 
 
-function Table()
+export function Table()
 {
 	THREE.Object3D.call( this );
 
@@ -107,7 +122,7 @@ function Table()
 Table.prototype = Object.create(THREE.Object3D.prototype);
 Table.prototype.constructor = Table;
 
-function Chair()
+export function Chair()
 {
 	THREE.Object3D.call( this );
 
@@ -120,7 +135,7 @@ Chair.prototype = Object.create(THREE.Object3D.prototype);
 Chair.prototype.constructor = Chair;
 
 
-function Radiator()
+export function Radiator()
 {
 	THREE.Object3D.call( this );
 	this.scale.x = 1.2;
@@ -135,7 +150,7 @@ function Radiator()
 Radiator.prototype = Object.create(THREE.Object3D.prototype);
 Radiator.prototype.constructor = Radiator;
 
-function TableLamp()
+export function TableLamp()
 {	
 	THREE.Object3D.call( this );
 
@@ -161,7 +176,7 @@ function TableLamp()
 TableLamp.prototype = Object.create(THREE.Object3D.prototype);
 //TableLamp.prototype.constructor = TableLamp; //lol
 
-function Bed()
+export function Bed()
 {
    	THREE.Object3D.call( this );
 		this.scale.x = 0.9;
@@ -178,7 +193,7 @@ function Bed()
 Bed.prototype = Object.create(THREE.Object3D.prototype);
 Bed.prototype.constructor = Bed;
 
-function Door1()
+export function Door1()
 {
 	THREE.Object3D.call( this );
     this.scale.y = 1.4;
@@ -196,7 +211,7 @@ function Door1()
 Door1.prototype = Object.create(THREE.Object3D.prototype);
 Door1.prototype.constructor = Door1;
 
-function Door2() {
+export function Door2() {
 	THREE.Object3D.call( this );
 		//this.castShadow = true;
 		//this.receiveShadow = true;
@@ -214,7 +229,7 @@ Door2.prototype = Object.create(THREE.Object3D.prototype);
 Door2.prototype.constructor = Door2;
 
 
-function Mirror()
+export function Mirror()
 {	
 	THREE.Object3D.call( this );
 
@@ -252,7 +267,7 @@ Mirror.prototype.constructor = Mirror;
 	
 
 
-function Wall() {
+export function Wall() {
 	THREE.Object3D.call( this );
 
 	   this.scale.x = this.scale.z = 4;
@@ -266,7 +281,7 @@ Wall.prototype = Object.create(THREE.Object3D.prototype);
 Wall.prototype.constructor = Wall;
 
 
-function Ceiling() {
+export function Ceiling() {
 	THREE.Object3D.call( this );
 
 	this.scale.x = 3.82;
@@ -280,7 +295,7 @@ Ceiling.prototype = Object.create(THREE.Object3D.prototype);
 Ceiling.prototype.constructor = Ceiling;
 
 
-function Floor()
+export function Floor()
 {
 	THREE.Object3D.call( this );
 		//this.castShadow = true;
@@ -294,20 +309,9 @@ function Floor()
 Floor.prototype = Object.create(THREE.Object3D.prototype);
 Floor.prototype.constructor = Floor;
 
-function Sand()
-{
-	THREE.Object3D.call( this );
-	//this.castShadow = true;
-	//this.receiveShadow = true;
-	this.scale.x = this.scale.z = 2;
-	//this.scale.y = 5;
-	var scope = this;
-	meshloader('../Prototypes/Sand/sand.json',function(model) {scope.add(model);});
-}
-Sand.prototype = Object.create(THREE.Object3D.prototype);
-Sand.prototype.constructor = Sand;
 
-function WallDoor() 
+
+export function WallDoor() 
 {
 	THREE.Object3D.call( this );
 
@@ -323,7 +327,7 @@ function WallDoor()
 WallDoor.prototype = Object.create(THREE.Object3D.prototype);
 WallDoor.prototype.constructor = WallDoor;
 
-function WallCell1() 
+export function WallCell1() 
 {
 	THREE.Object3D.call( this );
 	//this.castShadow = true;
@@ -337,7 +341,7 @@ function WallCell1()
 WallCell1.prototype = Object.create(THREE.Object3D.prototype);
 WallCell1.prototype.constructor = WallCell1;
 
-function WallCell2() 
+export function WallCell2() 
 {
 	THREE.Object3D.call( this );
 
@@ -352,7 +356,7 @@ function WallCell2()
 WallCell2.prototype = Object.create(THREE.Object3D.prototype);
 WallCell2.prototype.constructor = WallCell2;
 
-function WallCellWindow() 
+export function WallCellWindow() 
 {
 	THREE.Object3D.call( this );
 	
@@ -369,7 +373,7 @@ WallCellWindow.prototype = Object.create(THREE.Object3D.prototype);
 WallCellWindow.prototype.constructor = WallCellWindow;
 
 
-function WallCellDoor() 
+export function WallCellDoor() 
 {
 	THREE.Object3D.call( this );
 
@@ -382,7 +386,7 @@ function WallCellDoor()
 WallCellDoor.prototype = Object.create(THREE.Object3D.prototype);
 WallCellDoor.prototype.constructor = WallCellDoor;
 
-function WallCellDoorCol1() 
+export function WallCellDoorCol1() 
 {
 	THREE.Object3D.call( this );
 
@@ -393,7 +397,7 @@ function WallCellDoorCol1()
 WallCellDoorCol1.prototype = Object.create(THREE.Object3D.prototype);
 WallCellDoorCol1.prototype.constructor = WallCellDoorCol1;
 
-function WallCellDoorCol2() 
+export function WallCellDoorCol2() 
 {
 	THREE.Object3D.call( this );
 
@@ -406,7 +410,7 @@ WallCellDoorCol2.prototype.constructor = WallCellDoorCol2;
 
 
 
-function CeilingCell() 
+export function CeilingCell() 
 {
 	THREE.Object3D.call( this );
 	this.scale.x = 3.3;
@@ -419,7 +423,7 @@ function CeilingCell()
 CeilingCell.prototype = Object.create(THREE.Object3D.prototype);
 CeilingCell.prototype.constructor = CeilingCell;
 
-function Tower() 
+export function Tower() 
 {
 	THREE.Object3D.call( this );
 	this.scale.x = this.scale.z = this.scale.y =3.35;
@@ -430,7 +434,7 @@ Tower.prototype = Object.create(THREE.Object3D.prototype);
 Tower.prototype.constructor = Tower;
 
 
-function FloorCell() 
+export function FloorCell() 
 {
 	THREE.Object3D.call( this );
 	this.scale.x = 3.5;
@@ -443,7 +447,7 @@ FloorCell.prototype = Object.create(THREE.Object3D.prototype);
 FloorCell.prototype.constructor = FloorCell;
 
 
-function CeilingLamp() {
+export function CeilingLamp() {
 	
 	THREE.Object3D.call( this );
 	//this.castShadow = true;
@@ -503,24 +507,52 @@ function generateLamps(){
 	
 }
 
-
-
-
-function JailBotBody()
-{
-	THREE.Object3D.call( this );
-		this.scale.x = this.scale.y = this.scale.z = 1.2;
-		//this.castShadow = true;
-		this.name = "JailBotBody";
-		this.userData.info = "Ab in deine Zelle!";
-		//this.userData.rotatable = true;
-	var scope = this;
-	meshloader( '../Prototypes/Bot/bot_body.json',function(model) {scope.add(model);});
+export class Sand extends THREE.Object3D {
+	constructor(renderer) {
+        super();
+		this.castShadow = true;
+		this.receiveShadow = true;
+		this.scale.x = this.scale.z = 2;
+		//this.scale.y = 5;
+		var scope = this;
+		meshloader('../Prototypes/Sand/sand.obj', '../Prototypes/Sand/sand.mtl',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
 }
-JailBotBody.prototype = Object.create(THREE.Object3D.prototype);
-JailBotBody.prototype.constructor = JailBotBody;
 
-function JailBotArms()
+export class PrisonWall extends THREE.Object3D {
+	constructor(renderer) {
+        super();
+		this.castShadow = true;
+		this.name = "Prisonwall";
+		this.userData.info = "you shall not pass!";
+		this.scale.x = this.scale.y = 4;
+		var scope = this;
+		meshloader( '../Prototypes/Schutzmauer/wall.obj', '../Prototypes/Schutzmauer/wall.mtl',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
+}
+
+
+export class JailBotBody extends THREE.Object3D {
+    constructor(renderer) {
+        super();
+        this.scale.x = this.scale.y = this.scale.z = 1.2;
+        // this.castShadow = true;
+        this.name = "JailBotBody";
+        this.userData.info = "Ab in deine Zelle!";
+        // this.userData.rotatable = true;
+
+        const scope = this;
+        meshloader('../Prototypes/Bot/Robo_combined.obj','../Prototypes/Bot/Robo_combined.mtl', function(model) {
+            scope.add(model);
+        }, renderer);
+    }
+}
+
+export function JailBotArms()
 {
 	THREE.Object3D.call( this );
 

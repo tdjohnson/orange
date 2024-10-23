@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 function PrisonCell()
 {
 	THREE.Object3D.call( this );
@@ -6,7 +8,8 @@ function PrisonCell()
 	this.name = 'PrisonCell_' + this.id;
 	
 	var wallCell1 = new WallCell1();
-	wallCell1.position.set(0,0,0);
+	wallCell1.position.set(0,0,0);
+
 	wallCell1.rotation.y = Math.PI*-0.5;
 	this.add(wallCell1);
 	

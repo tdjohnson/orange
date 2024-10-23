@@ -5,7 +5,7 @@
  * 
  * @tags inmemory, keyvalue, cache, node, browser
 */
-var MicroCache	= function(){
+export const MicroCache	= function(){
 	var _values	= {};
 	return {
 		get	: function(key){ return _values[key];	},
@@ -20,10 +20,4 @@ var MicroCache	= function(){
 			return this.get(key); 
 		}
 	}
-}
-
-
-// export in common js
-if( typeof module !== "undefined" && ('exports' in module)){
-	module.exports	= MicroCache;
 }
