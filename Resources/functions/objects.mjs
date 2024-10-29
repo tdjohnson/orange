@@ -395,16 +395,6 @@ export function CeilingCell()
 CeilingCell.prototype = Object.create(THREE.Object3D.prototype);
 CeilingCell.prototype.constructor = CeilingCell;
 
-export function Tower() 
-{
-	THREE.Object3D.call( this );
-	this.scale.x = this.scale.z = this.scale.y =3.35;
-	var scope = this;
-	meshloader('../Prototypes/Turm/turm.json',function(model) {scope.add(model);});
-}
-Tower.prototype = Object.create(THREE.Object3D.prototype);
-Tower.prototype.constructor = Tower;
-
 
 export function CeilingLamp() {
 	
@@ -465,6 +455,18 @@ function generateLamps(){
 	
 	
 }
+
+export class Tower extends THREE.Object3D {
+	constructor(renderer) {
+        super();
+		this.scale.x = this.scale.z = this.scale.y =3.35;
+		var scope = this;
+		meshloader('../Prototypes/Turm/turm.obj', '../Prototypes/Turm/turm.mtl',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
+}
+
 
 export class Sand extends THREE.Object3D {
 	constructor(renderer) {

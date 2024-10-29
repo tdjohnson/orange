@@ -153,14 +153,12 @@ function init() {
 	scene.add(rootCell);
 
 	var grid = new THREE.GridHelper(500, 5);
-	prisonWallRoot = new objectsModule.PrisonWall(renderer);
-	prisonWallRoot.rotation.y += Math.PI/2;
-	addWall();
+	addWall(renderer);
 
 	//cloning(4);
-	//addTowers();
+	addTowers(renderer);
 
-	pointerLockModule.initPointerLock(havePointerLock, prisonWallRoot, scene);
+	pointerLockModule.initPointerLock(havePointerLock);
 
 
 	scene.add(grid); 
@@ -193,7 +191,9 @@ function cloning(n) {
 }
 
 
-function addWall() {
+function addWall(renderer) {
+	prisonWallRoot = new objectsModule.PrisonWall(renderer);
+	prisonWallRoot.rotation.y += Math.PI/2;
 	var y = 3.7;
 	prisonWallRoot.rotation.y += Math.PI/2;
 	for (let i = -3; i < 5; i++) { 
@@ -222,20 +222,20 @@ function addWall() {
 }
 
 
-function addTowers() {
-	var tower = new Tower();
+function addTowers(renderer) {
+	var tower = new objectsModule.Tower(renderer);
 	tower.position.set(-50,0,-50);	
 	scene.add(tower);
 	
-	var tower = new Tower();
+	var tower = new objectsModule.Tower(renderer);
 	tower.position.set(80,0,-50);	
 	scene.add(tower);
 	
-	var tower = new Tower();
+	var tower = new objectsModule.Tower(renderer);
 	tower.position.set(80,0,60);	
 	scene.add(tower);
 	
-	var tower = new Tower();
+	var tower = new objectsModule.Tower(renderer);
 	tower.position.set(-50,0,60);	
 	scene.add(tower);
 }
