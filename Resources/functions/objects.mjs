@@ -5,39 +5,41 @@ import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 
 export function meshloader(objURL, matURL, callback, renderer){
 
-			/*if(meshes.has(url)){ //check if model has been loaded before
-				callback(meshes.get(url));  //return preloaded model from Map
-			}else{
-				loader = new THREE.JSONLoader();
-				loader.load(url,function ( geometry, materials ) {  //load model from json /()
-				console.log("LOADING JSON MODEL: " + url);
-				meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-				callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-			});					
-			}*/
-			/*if (renderer._microCache) {
-				if(renderer._microCache.contains(url)){ //check if model has been loaded before
-					callback(renderer._microCache.get(url));  //return preloaded model from Map
-				}else{
-					loader = new OBJLoader();
-					loader.load(url,function (combinedObject) {  //load model from json /()
-						//console.log("LOADING JSON MODEL: " + url);
-						//meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-						renderer._microCache.set(url, combinedObject);
-						callback(combinedObject);
-					});
-				}
-			} else {
+	/*if(meshes.has(url)){ //check if model has been loaded before
+		callback(meshes.get(url));  //return preloaded model from Map
+	}else{
+		loader = new THREE.JSONLoader();
+		loader.load(url,function ( geometry, materials ) {  //load model from json /()
+		console.log("LOADING JSON MODEL: " + url);
+		meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+		callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+	});					
+	}*/
+	/*if (renderer._microCache) {
+		if(renderer._microCache.contains(url)){ //check if model has been loaded before
+			callback(renderer._microCache.get(url));  //return preloaded model from Map
+		}else{
+			loader = new OBJLoader();
+			loader.load(url,function (combinedObject) {  //load model from json /()
+				//console.log("LOADING JSON MODEL: " + url);
+				//meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
+				renderer._microCache.set(url, combinedObject);
+				callback(combinedObject);
+			});
+		}
+	} else {
 
-			}*/
-			var loader = new OBJLoader();
-			var matLoader = new MTLLoader();
-			loader.load(objURL, function (combinedObject) {
-				if ( combinedObject instanceof THREE.Mesh ) {
-					loader.setmaterial(matLoader.load(matURL));
-				}
-				callback(combinedObject)
-			})
+	}*/
+	const matLoader = new MTLLoader();
+	matLoader.load(matURL, (materials) => {
+		materials.preload();
+
+		const loader = new OBJLoader();
+		loader.setMaterials(materials);
+		loader.load(objURL, (object) => {
+			callback(object)
+		});
+	});
 }
 
 
@@ -176,23 +178,6 @@ export function TableLamp()
 TableLamp.prototype = Object.create(THREE.Object3D.prototype);
 //TableLamp.prototype.constructor = TableLamp; //lol
 
-export function Bed()
-{
-   	THREE.Object3D.call( this );
-		this.scale.x = 0.9;
-		this.scale.y = this.scale.z = 1;
-		
-		this.updateMatrix();
-		this.name = "Bett";
-		//this.castShadow = true;
-		//this.receiveShadow = true;
-	var scope = this;
-	meshloader('../Prototypes/Bett/bett2.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-Bed.prototype = Object.create(THREE.Object3D.prototype);
-Bed.prototype.constructor = Bed;
-
 export function Door1()
 {
 	THREE.Object3D.call( this );
@@ -327,19 +312,6 @@ export function WallDoor()
 WallDoor.prototype = Object.create(THREE.Object3D.prototype);
 WallDoor.prototype.constructor = WallDoor;
 
-export function WallCell1() 
-{
-	THREE.Object3D.call( this );
-	//this.castShadow = true;
-	//this.receiveShadow = true;
-	this.scale.x = this.scale.y = 3.3;
-	this.scale.z = 2;
-	var scope = this;
-	meshloader('../Prototypes/Zelle/wand2.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-WallCell1.prototype = Object.create(THREE.Object3D.prototype);
-WallCell1.prototype.constructor = WallCell1;
 
 export function WallCell2() 
 {
@@ -432,19 +404,6 @@ export function Tower()
 }
 Tower.prototype = Object.create(THREE.Object3D.prototype);
 Tower.prototype.constructor = Tower;
-
-
-export function FloorCell() 
-{
-	THREE.Object3D.call( this );
-	this.scale.x = 3.5;
-	this.scale.z = 3.4;
-    //object.rotation.y = Math.PI/2;
-	var scope = this;
-	meshloader('../Prototypes/Zelle/boden.json',function(model) {scope.add(model);});
-}
-FloorCell.prototype = Object.create(THREE.Object3D.prototype);
-FloorCell.prototype.constructor = FloorCell;
 
 
 export function CeilingLamp() {
@@ -566,5 +525,7 @@ export function JailBotArms()
 }
 JailBotArms.prototype = Object.create(THREE.Object3D.prototype);
 JailBotArms.prototype.constructor = JailBotArms;
+
+
 
 

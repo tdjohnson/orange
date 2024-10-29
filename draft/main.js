@@ -7,7 +7,7 @@ import * as pointerLockModule from '../Resources/functions/pointerLock.mjs';
 import * as objectsModule from '../Resources/functions/objects.mjs';
 import * as splashScreenModule from '../Resources/functions/splashScreen.mjs';
 import * as proximityModule from '../Resources/functions/proximity.mjs';
-
+import * as prisonCellModule from '../Resources/functions/prisonCell.mjs';
 
 var clock;
 var scene, camera, renderer;
@@ -16,9 +16,7 @@ var havePointerLock = pointerLockModule.checkForPointerLock();
 var controls;
 var controlsEnabled = true;
 
-var velocity = new THREE.Vector3();
 var loader = new THREE.ObjectLoader();
-var raycaster = new THREE.Raycaster();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
 var mirrorMaterial;
@@ -31,15 +29,21 @@ var cam_matrix = new THREE.Matrix4(); //needed for proximityDetection - reset of
 var collidableMeshList = [];
 var loadDone, toWakeUp = false;
 var animationLock = false; // needed to complete animations before selection next object
-var botBody, botArms, botRotateCounter, patrolStatus, botAggressive, botArmStatus, botHit, hitDirection, rotationActive;
+var botBody, botArms, botRotateCounter, patrolStatus, botArmStatus, botHit, hitDirection, rotationActive;
 
 var collided = false;
 var meshes = new Map();
 var rootCell;
 var prisonWallRoot;
 
+const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
+
 function closeStart() {
-	splashScreenModule.closeStart()
+	toWakeUp = splashScreenModule.closeStart();
+}
+
+function GetCollidableMeshList() {
+	return collidableMeshList
 }
 
 function init() { 
@@ -54,16 +58,11 @@ function init() {
 	document.body.appendChild(renderer.domElement);
 	
 	
-	THREE.DefaultLoadingManager.onLoad = function () {
-		console.log("finished loading");
-    	loadDone = true;
-    	
-	};
+
 
 	
 	//needed for controls
     clock = new THREE.Clock();
-
     scene = new THREE.Scene();
     //scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
 
@@ -149,6 +148,10 @@ function init() {
 	//showCameraHelpers();
 	*/
 
+	var rootCell = new prisonCellModule.PrisonCell(renderer, collidableMeshList)
+	rootCell.position.set(0,0,0);
+	scene.add(rootCell);
+
 	var grid = new THREE.GridHelper(500, 5);
 	prisonWallRoot = new objectsModule.PrisonWall(renderer);
 	prisonWallRoot.rotation.y += Math.PI/2;
@@ -164,6 +167,12 @@ function init() {
 	
 	createSandFloor();
 	sun();
+	THREE.DefaultLoadingManager.onLoad = function () {
+		console.log("finished loading");
+    	loadDone = true;
+    	
+	};
+
 	animate();	
 }
 
@@ -272,6 +281,7 @@ function createSandFloor() {
 	var sand = new objectsModule.Sand(renderer);
 	sand.position.set(100, -5, 100);
 	scene.add(sand);
+	collidableMeshList.push(sand);
 }
 
 
@@ -312,9 +322,15 @@ function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coo
 function animate() {
 	
 	requestAnimationFrame(animate); 
-	if (loadDone) {
+	if (toWakeUp === true) {
 
  		//updateMirrors();
+		raycaster.ray.origin.copy( controls.object.position );
+		raycaster.ray.origin.y -= 1;
+
+		const collidingMeshesList = raycaster.intersectObjects(collidableMeshList);
+
+		controlsModule.updateControls(controlsEnabled, clock, controls, collidingMeshesList);
 	    renderer.render(scene, camera);
 	    
 		proximityModule.proximityDetector();
@@ -324,14 +340,14 @@ function animate() {
 	 	//animateDrop(lastObject);
 		//patrolRobot();
  	
-		if(botAggressive == 1)
+		/*if(botAggressive == 1)
 			{
 				robotAttack();
 			}	 	
-	 	} 
-		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, velocity);
+	 	} */
+		
  		camera.updateProjectionMatrix();
-
+	}
 }
 
 

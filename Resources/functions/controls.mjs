@@ -1,25 +1,27 @@
 import * as THREE from 'three';
 import {collisionDetection} from './collision.mjs'
-
+import {showMessageContent} from './splashScreen.mjs';
 
 var moveForward,
     moveBackward,
     moveLeft,
     moveRight,
-    canJump;
+    canJump,
+	botAggressive;
+	
+var velocity = new THREE.Vector3();
+var pressedKeys = new Map();
 
 export function initControls() {
-	let raycaster;
 	document.addEventListener('keydown', onKeyDown, false);
 	document.addEventListener('keyup', onKeyUp, false);
-    raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
+	canJump = true;
 }
 
 export function onKeyDown(e) {
     switch (e.keyCode) {
 		case 32: // space
-		    if (canJump === true) velocity.y += 50;
-		    canJump = false;
+			pressedKeys.set(" ", true)
 		    break;
 		case 37: // left
     	case 38: // up
@@ -27,49 +29,45 @@ export function onKeyDown(e) {
 		case 40: // down
 		
 		case 65: // a
-			moveLeft = true; 
+			pressedKeys.set("a", true)
 			break;
 		case 66: //b
 			{
-			if(botAggressive == 0)
-			{
-				botAggressive = 1;
-			}
-			
-			else 
-			{
-				botAggressive = 0;
-			}
+				if(botAggressive == 0) {
+					botAggressive = 1;
+				} else {
+					botAggressive = 0;
+				}
 			}
 			break;
 		case 68: // d
-    		moveRight = true;
-    		break;	
+			pressedKeys.set("d", true)
+			break;
 		case 69: // e
 	 		rotate(lastObject,new THREE.Vector3(0,1,0),-5); //object,axis,degree
-    		break;
+			 break;
 		case 79: //o
 			botAggressive = 0;
 			break;
 		case 81: // q
 			rotate(lastObject,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
-    		break;
+			break;
   		case 83: // s
-    		moveBackward = true;
-    		break;		
+		  	pressedKeys.set("s", true)	
+			break;
 		case 84: //t
 	    	triggerDoor(lastObject);
-	    	switchTableLight(lastObject);	    	
-	    	break;
+	    	switchTableLight(lastObject);
+			break;    	
   		case 87: // w
-    		moveForward = true;	
-    		break;
+		  pressedKeys.set("w", true);
+		  break;	
   		case 89: //y
   			triggerDrop(lastObject);
-  			break;
+			break;
 	   	case 90: //z
 	   		zoom();
-	   		break;
+			break;
     	}
   }
   
@@ -77,82 +75,98 @@ export function onKeyDown(e) {
 
 export function onKeyUp(e) {
 	switch(e.keyCode) {
+		case 32: // space
+			pressedKeys.set(" ", false)
+			break;
 		case 37: // left
     	case 38: // up
 		case 39: // right
 	  	case 40: // down
 	  	case 65: // a
-	    	moveLeft = false;
-	    	break;
+		  pressedKeys.set("a", false)
+		  break;
 	  	case 68: // d
-	        moveRight = false;
-	        break;
+		  pressedKeys.set("d", false)
+		  break;
 	  	case 83: // s
-	    	moveBackward = false;
-	    	break;	    
+		  pressedKeys.set("s", false)
+		  break;   
 	  	case 87: // w
-	    	moveForward = false;
-	    	break;
+		  pressedKeys.set("w", false)
+		  break;
 	}
 }
 
+function calcNewVelocityPerTick(oldVelocity, deltaTick) {
+	var newVelocity = oldVelocity * deltaTick;
+	if (Math.abs(newVelocity) >= 0.02) {
+		return newVelocity;
+	} else {
+		return 0;
+	}
+}
 
-export function updateControls(controlsEnabled, clock, controls, collidableMeshList, velocity) {
+export function updateControls(controlsEnabled, clock, controls, collidingMeshesList) {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
-      	var walkingSpeed = 100.0;
-		var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
+      	var deltaMultiplicator = 100; //mass
+		var walkingSpeedImpulse = 0.05;
+		var jumpImpulse = 20;
+		var TargetY = 4;
+		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
 
-
-	    if (!collisionDetection(0, 0, toTest, collidableMeshList)) {
-	    	velocity.x -= velocity.x * 10.0 * delta;
-		    velocity.z -= velocity.z * 10.0 * delta;
-		    velocity.y -= 9.8 * 30.0 * delta;
-		    if (moveForward)	velocity.z -= walkingSpeed * delta;
-		    if (moveBackward)  velocity.z += walkingSpeed * delta;
-		    if (moveLeft) velocity.x -= walkingSpeed * delta;
-		    if (moveRight) velocity.x += walkingSpeed * delta;
-		} else {
-			//if (collided == false){
-				//collided = true;
-				/*velocity.x = -velocity.x*1.3;
-		    	velocity.z = -velocity.z*1.3;*/
-		    	if (moveForward && !collisionDetection(0, 1, toTest)) {
-		    		velocity.z -= walkingSpeed * delta;
-		    	} else {
-		    		velocity.z = 0;
-		    	}
-			    if (moveBackward && !collisionDetection(0, -1, toTest))  {
-			    	velocity.z += walkingSpeed * delta; 
-			    } else {
-		    		velocity.z = 0;
-		    	}
-			    if (moveLeft && !collisionDetection(1, 0, toTest))  {
-			    	velocity.x -= walkingSpeed * delta;
-			    } else {
-		    		velocity.x = 0;
-		    	}
-			    if (moveRight && !collisionDetection(-1, 0, toTest))  {
-			    	velocity.x += walkingSpeed * delta;
-			    } else {
-		    		velocity.x = 0;
-		    	}
-		    	velocity.y -= 9.8 * 30.0 * delta;
-			/*} else {
-				if (velocity.x == velocity.z == 0) {
-					collided = false;
-				}
-			}*/
+		if(pressedKeys.get(" ")) {
+			if (canJump === true) {
+				velocity.y += jumpImpulse;
+				canJump = false;
+			}
 		}
-	
-	    controls.object.translateX(velocity.x * delta);
-	    controls.object.translateY(velocity.y * delta);
-	    controls.object.translateZ(velocity.z * delta);
-	
-	    if (controls.object.position.y < 4) {
-	    	velocity.y = 0;
-	        controls.object.position.y = 4;
-	        canJump = true;
-	    }
+		if (pressedKeys.get("w")) {
+			velocity.z -= walkingSpeedImpulse;
+		}
+		if (pressedKeys.get("a")) {
+			velocity.x -= walkingSpeedImpulse;
+		}
+		if (pressedKeys.get("s")) {
+			velocity.z += walkingSpeedImpulse;
+		}
+		if (pressedKeys.get("d")) {
+			velocity.x += walkingSpeedImpulse;
+		}
+		var deltaMass = delta * deltaMultiplicator;
+		velocity.x = calcNewVelocityPerTick(velocity.x, deltaMass);
+		velocity.z = calcNewVelocityPerTick(velocity.z, deltaMass);
+
+		velocity.y -= 9.8 * deltaMultiplicator * delta * 0.1;
+
+		controls.moveForward(-velocity.z);
+		controls.moveRight(velocity.x);
+
+		const onObject = collidingMeshesList.length > 0;
+		if ( onObject === true ) {
+			velocity.y = Math.max( 0, velocity.y );
+			canJump = true;
+			if (collidingMeshesList[0].distance <= 0.9) {
+				controls.object.position.y += 0.1;
+			}
+		}
+		controls.object.position.y += ( velocity.y * delta );
+		
+	    //controls.object.translateX(velocity.x);
+	    //controls.object.translateY(velocity.y);
+	    //controls.object.translateZ(velocity.z);
+
+		var toDisplay =
+			"velocityX:"+ velocity.x + " positionX : " + controls.object.position.x +
+			"</br>velocityY: "+ velocity.y + " positionY : " + controls.object.position.y +
+			"</br>velocityZ: "+ velocity.z + " positionZ : " + controls.object.position.z +
+			"</br>FPS: "+ Math.round(1 / delta)
+		if ( onObject === true ) {
+			toDisplay += "</br>DistanceToIntersect: " + collidingMeshesList[0].distance;
+			toDisplay += "</br>IntersectPoint: " + collidingMeshesList[0].point.x + " " + collidingMeshesList[0].point.y  + " " + collidingMeshesList[0].point.z;
+		}
+
+		showMessageContent(toDisplay);
+
     }
-  }
+}
