@@ -2,43 +2,19 @@
 import * as THREE from 'three';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export function meshloader(objURL, matURL, callback, renderer){
-
-	/*if(meshes.has(url)){ //check if model has been loaded before
-		callback(meshes.get(url));  //return preloaded model from Map
-	}else{
-		loader = new THREE.JSONLoader();
-		loader.load(url,function ( geometry, materials ) {  //load model from json /()
-		console.log("LOADING JSON MODEL: " + url);
-		meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-		callback(new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-	});					
-	}*/
-	/*if (renderer._microCache) {
-		if(renderer._microCache.contains(url)){ //check if model has been loaded before
-			callback(renderer._microCache.get(url));  //return preloaded model from Map
-		}else{
-			loader = new OBJLoader();
-			loader.load(url,function (combinedObject) {  //load model from json /()
-				//console.log("LOADING JSON MODEL: " + url);
-				//meshes.set(url, new THREE.Mesh( geometry,new THREE.MeshFaceMaterial(materials)));
-				renderer._microCache.set(url, combinedObject);
-				callback(combinedObject);
-			});
-		}
-	} else {
-
-	}*/
-	const matLoader = new MTLLoader();
-	matLoader.load(matURL, (materials) => {
-		materials.preload();
-
-		const loader = new OBJLoader();
-		loader.setMaterials(materials);
-		loader.load(objURL, (object) => {
-			callback(object)
+export function meshloader(objURL, callback){
+	const gtlfLoader = new GLTFLoader();
+	gtlfLoader.load(objURL, (gltfObject) => {
+		const model = gltfObject.scene;
+		model.traverse((child) => {
+			if (child.isMesh) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+			};
 		});
+		callback(model);
 	});
 }
 
@@ -60,69 +36,6 @@ export function Soap()
 Soap.prototype = Object.create(THREE.Object3D.prototype);
 Soap.prototype.constructor = Soap;
 
-
-export function Toilet()
-{
-	THREE.Object3D.call( this );
-	//this.castShadow = true;
-	//this.receiveShadow = true;
-	this.name = "Klo";
-	this.userData.info = "Sauber geputzt!";
-	var scope = this;
-	meshloader( '../Prototypes/Klo/klo.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-
-}
-Toilet.prototype =  Object.create(THREE.Object3D.prototype);
-Toilet.prototype.constructor = Toilet;
-
-
-export function Sink()
-{
-	THREE.Object3D.call( this );
-
-	this.scale.x = this.scale.y = this.scale.x = 1.2;
-	//this.castShadow = true;
-	this.name = "Waschbecken";
-	this.userData.info = " ";
-
-	var scope = this;
-	meshloader('../Prototypes/Becken/becken.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-Sink.prototype  =  Object.create(THREE.Object3D.prototype);
-Sink.prototype.constructor = Sink;
-
-
-export function Book()
-{
-	THREE.Object3D.call( this );
-	this.scale.x = this.scale.y = this.scale.z = 0.3;
-	this.name = "Buch";
-	this.userData.info = "Lies Faust!";
-	this.userData.rotatable = true;
-	var scope = this;
-	meshloader('../Prototypes/Buch/buch_neu_comb.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-Book.prototype = Object.create(THREE.Object3D.prototype);
-Book.prototype.constructor = Book;
-
-
-export function Table()
-{
-	THREE.Object3D.call( this );
-
-    this.scale.x = this.scale.y = this.scale.z = 1.2;
-    this.name = "tisch";
-    //this.castShadow = true;
-    this.recieveShadow = true;
-	var scope = this;
-	meshloader('../Prototypes/Tisch/table.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-Table.prototype = Object.create(THREE.Object3D.prototype);
-Table.prototype.constructor = Table;
 
 export function Chair()
 {
@@ -151,32 +64,6 @@ export function Radiator()
 }
 Radiator.prototype = Object.create(THREE.Object3D.prototype);
 Radiator.prototype.constructor = Radiator;
-
-export function TableLamp()
-{	
-	THREE.Object3D.call( this );
-
-	var light = new THREE.PointLight(0xffff99, 4, 10 );
-	//light.shadowCameraVisible = true;
-	light.shadowDarkness = 0.95;
-	light.castShadow = true;
-	light.position.set(0,9.8,-4.7);
-	var pointLightHelper = new THREE.PointLightHelper(light, 0.8);
-	scene.add(pointLightHelper);
-	
-	this.scale.x = this.scale.y = this.scale.z = 0.15;
-    this.name = "Table Lamp";
-    this.userData.info = "Licht aus  mit T";
-   	this.userData.rotatable = true;
-   	this.userData.isTurnedOn = true;
-	this.add(light);
-
-	var scope = this;
-	meshloader('../Prototypes/TischLampe/tischlampe_neu.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-TableLamp.prototype = Object.create(THREE.Object3D.prototype);
-//TableLamp.prototype.constructor = TableLamp; //lol
 
 
 export function Mirror()
@@ -382,7 +269,7 @@ function generateLamps(){
 	
 }
 
-export class Hallway extends THREE.Object3D {
+export class Hallway extends THREE.Mesh {
 	constructor(renderer) {
         super();
 		//this.castShadow = true;
@@ -390,38 +277,38 @@ export class Hallway extends THREE.Object3D {
 	   this.scale.x = 3.85;
 	   this.scale.z = 4;
 		var scope = this;
-		meshloader('../Prototypes/Gang/gang_comb.obj', '../Prototypes/Gang/gang_comb.mtl',function(model) {
+		meshloader('../Prototypes/Gang/gang_comb.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
 }
 
-export class Tower extends THREE.Object3D {
+export class Tower extends THREE.Mesh {
 	constructor(renderer) {
         super();
 		this.scale.x = this.scale.z = this.scale.y =3.35;
 		var scope = this;
-		meshloader('../Prototypes/Turm/turm.obj', '../Prototypes/Turm/turm.mtl',function(model) {
+		meshloader('../Prototypes/Turm/turm.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
 }
 
 
-export class Sand extends THREE.Object3D {
+export class Sand extends THREE.Mesh {
 	constructor(renderer) {
         super();
 		this.receiveShadow = true;
 		this.scale.x = this.scale.z = 2;
 		//this.scale.y = 5;
 		var scope = this;
-		meshloader('../Prototypes/Sand/sand.obj', '../Prototypes/Sand/sand.mtl',function(model) {
+		meshloader('../Prototypes/Sand/sand.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
 }
 
-export class PrisonWall extends THREE.Object3D {
+export class PrisonWall extends THREE.Mesh {
 	constructor(renderer) {
         super();
 		this.castShadow = true;
@@ -430,14 +317,14 @@ export class PrisonWall extends THREE.Object3D {
 		this.userData.info = "you shall not pass!";
 		this.scale.x = this.scale.y = 4;
 		var scope = this;
-		meshloader( '../Prototypes/Schutzmauer/wall.obj', '../Prototypes/Schutzmauer/wall.mtl',function(model) {
+		meshloader( '../Prototypes/Schutzmauer/wall.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
 }
 
 
-export class JailBotBody extends THREE.Object3D {
+export class JailBotBody extends THREE.Mesh {
     constructor(renderer) {
         super();
         this.scale.x = this.scale.y = this.scale.z = 1.2;
@@ -448,8 +335,9 @@ export class JailBotBody extends THREE.Object3D {
         // this.userData.rotatable = true;
 
         const scope = this;
-        meshloader('../Prototypes/Bot/Robo_combined.obj','../Prototypes/Bot/Robo_combined.mtl', function(model) {
+        meshloader('../Prototypes/Bot/Robo_combined.glb', function(model) {
             scope.add(model);
+			//scope.material = model.material;
         }, renderer);
     }
 }

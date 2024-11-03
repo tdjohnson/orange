@@ -181,6 +181,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		if (inFrontOfObject === true) {
 			toDisplay += "</br>DistanceToIntersectFront: " + collidingMeshesListInMovementDir[0].distance;
 			toDisplay += "</br>IntersectPointFront: " + collidingMeshesListInMovementDir[0].point.x + " " + collidingMeshesListInMovementDir[0].point.y  + " " + collidingMeshesListInMovementDir[0].point.z;
+			//toDisplay += "</br>IntersectPointFront: " + collidingMeshesListInMovementDir[0]..x + " " + collidingMeshesListInMovementDir[0].point.y  + " " + collidingMeshesListInMovementDir[0].point.z;
 			//toDisplay += "</br>IntersectPointFrontNormal: " + collidingMeshesListFront[0].normal.x + " " + collidingMeshesList[0].normal.y  + " " + collidingMeshesList[0].normal.z;
 		}
 
