@@ -7,7 +7,13 @@ export class PrisonCell extends THREE.Object3D {
 
 		this.name = 'PrisonCell_' + this.id;
 		
-		var wallCell1 = new WallCell1(renderer);
+		var cellComplete = new CellComplete(renderer);
+		cellComplete.position.set(0,0,0);
+		cellComplete.rotation.y = Math.PI*-0.5;
+		this.add(cellComplete);
+		collidableMeshList.push(cellComplete);
+
+		/*var wallCell1 = new WallCell1(renderer);
 		wallCell1.position.set(0,0,0);
 		wallCell1.rotation.y = Math.PI*-0.5;
 		this.add(wallCell1);
@@ -19,7 +25,7 @@ export class PrisonCell extends THREE.Object3D {
 		this.add(floorCell);
 		collidableMeshList.push(floorCell);
 		
-		/*var wallCell2 = new WallCell2();
+		var wallCell2 = new WallCell2();
 		wallCell2.position.set(4.8,0,0);
 		wallCell2.rotation.y = Math.PI*-0.5;
 		this.add(wallCell2);
@@ -37,6 +43,7 @@ export class PrisonCell extends THREE.Object3D {
 		wallCellDoor.rotation.y = Math.PI*-0.5;;
 		this.add(wallCellDoor);
 		
+		
 		var wallCellDoorCol1 = new WallCellDoorCol1();
 		wallCellDoorCol1.position.set(-0.4,0,6.2);
 		wallCellDoorCol1.scale.z = 3.7;
@@ -45,6 +52,7 @@ export class PrisonCell extends THREE.Object3D {
 		wallCellDoorCol1.rotation.y = Math.PI*-0.5;
 		wallCellDoorCol1.visible = false;
 		this.add(wallCellDoorCol1);
+		collidableMeshList.push(wallCellDoorCol1);
 		
 		var wallCellDoorCol2 = new WallCellDoorCol2();
 		wallCellDoorCol2.position.set(-0.4,0,6.2);
@@ -54,17 +62,20 @@ export class PrisonCell extends THREE.Object3D {
 		wallCellDoorCol2.rotation.y = Math.PI*-0.5;;
 		wallCellDoorCol2.visible = false;
 		this.add(wallCellDoorCol2);
+		collidableMeshList.push(wallCellDoorCol1);*/
 		
-		var door1 = new Door1();
-		door1.position.set(4.5,3.8,14.8);
+		var door1 = new WallCellDoorCol1();
+		door1.position.set(4,4.5,14);
 		this.add(door1);
+		collidableMeshList.push(door1);
 		
-		var door2 = new Door2();
-		door2.position.set(8.2,3.8,14.4);
+		var door2 = new WallCellDoorCol2();
+		door2.position.set(8,4.5,13.5);
 		door2.userData.startPosition = door2.position.x; 
 		this.add(door2);
+		collidableMeshList.push(door2);
 		
-		var ceilingCell = new CeilingCell();
+		/*var ceilingCell = new CeilingCell();
 		ceilingCell.position.set(11.5,5.8,14.5);
 		this.add(ceilingCell);
 
@@ -128,6 +139,47 @@ export class PrisonCell extends THREE.Object3D {
 
 }
 
+const doorscaler = 1.2;
+class WallCellDoorCol1 extends THREE.Object3D {
+	constructor(renderer) {
+		super();
+		this.castShadow = true;
+		this.receiveShadow = true;
+		this.scale.multiplyScalar(doorscaler);
+		var scope = this;
+		meshloader('../Prototypes/Tuer/WallCellDoorCol1.obj', '../Prototypes/Tuer/WallCellDoorCol1.mtl',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
+}
+
+class WallCellDoorCol2 extends THREE.Object3D {
+		constructor(renderer) {
+		super();
+		var scope = this;
+		this.castShadow = true;
+		this.receiveShadow = true;
+		this.scale.multiplyScalar(doorscaler);
+		meshloader('../Prototypes/Tuer/WallCellDoorCol2.obj', '../Prototypes/Tuer/WallCellDoorCol2.mtl',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
+}
+
+
+class CellComplete extends THREE.Object3D {
+	constructor(renderer) {
+        super();
+		this.scale.multiplyScalar(3.5);
+		this.castShadow = true;
+		this.receiveShadow = true;
+		var scope = this;
+		meshloader('../Prototypes/Zelle/ZelleComplete.obj', '../Prototypes/Zelle/ZelleComplete.mtl',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
+}
+
 
 class FloorCell extends THREE.Object3D {
 	constructor(renderer) {
@@ -146,9 +198,9 @@ class FloorCell extends THREE.Object3D {
 class Bett extends THREE.Object3D {
 	constructor(renderer) {
         super();
-		this.scale.x = 0.9;
-		this.scale.y = this.scale.z = 1;
-		
+		this.scale.y = 1.5;
+		this.castShadow = true;
+		this.receiveShadow = true;
 		this.updateMatrix();
 		this.name = "Bett";
 		//this.castShadow = true;
@@ -164,8 +216,8 @@ class Bett extends THREE.Object3D {
 class WallCell1 extends THREE.Object3D {
 	constructor(renderer) {
         super();
-		//this.castShadow = true;
-		//this.receiveShadow = true;
+		this.castShadow = true;
+		this.receiveShadow = true;
 		this.scale.x = this.scale.y = 3.3;
 		this.scale.z = 2;
 		var scope = this;

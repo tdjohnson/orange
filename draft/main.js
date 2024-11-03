@@ -37,6 +37,7 @@ var rootCell;
 var prisonWallRoot;
 
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
+const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
 
 function closeStart() {
 	toWakeUp = splashScreenModule.closeStart();
@@ -54,6 +55,7 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight-30);
 	renderer.setClearColor(0xb2e1f2);
 	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 	document.body.appendChild(renderer.domElement);
 	
@@ -118,15 +120,26 @@ function init() {
 
 	controls = new PointerLockControls(camera, document.body);
 	
-	controls.object.position.set(5, 5, 8);
+	var playerHeight = 5;
+	controls.object.playerHeight = playerHeight;
+	controls.object.position.set(5, playerHeight, 8);
+	
+
 
 	scene.add(controls.object);
 
 	botBody = new objectsModule.JailBotBody(renderer);
+	collidableMeshList.push(botBody);
 
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
 	scene.add(botBody);
+
+	//add prison hallway
+	var hallway = new objectsModule.Hallway(renderer);
+	hallway.position.set(0,0,21);
+	scene.add(hallway);
+	collidableMeshList.push(hallway);
 
 /*	botArms = new JailBotArms();
 	botArms.position.set(1.25,2.5,22);
@@ -136,11 +149,6 @@ function init() {
 	botArmStatus = 0;
 	botHit = 0;
 	botAggressive = 0;
-
-	//add prison hallway
-	var hallway = new Hallway();
-	hallway.position.set(0,0,21);
-	scene.add(hallway);
 	
 	rootCell = new PrisonCell();
 	rootCell.position.set(0,0,0);
@@ -165,6 +173,8 @@ function init() {
 	
 	createSandFloor();
 	sun();
+
+
 	THREE.DefaultLoadingManager.onLoad = function () {
 		console.log("finished loading");
     	loadDone = true;
@@ -243,24 +253,28 @@ function addTowers(renderer) {
 
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
-	var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-	var dirLight2 = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	var dirLight3 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	//var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+	var dirLight = new THREE.PointLight( 0xffffff, 10, 100, 1);
+	/*var dirLight2 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	var dirLight3 = new THREE.DirectionalLight( 0xffffff, 0.5 );*/
 
-	dirLight.color.setHSL( 0.1, 1, 0.95 );
+	const sun = new THREE.AmbientLight( 0x404040, 3);
+
+
+	//dirLight.color.setHSL( 0.1, 1, 0.95 );
 	dirLight.position.set( 20, 20, 20 );
 	
-	dirLight2.color.setHSL( 0.1, 1, 0.95 );
+	/*dirLight2.color.setHSL( 0.1, 1, 0.95 );
 	dirLight2.position.set( -40, 40, 0 );
 	
 	dirLight3.color.setHSL( 0.1, 1, 0.95 );
-	dirLight3.position.set( 0, 40, -40 );
+	dirLight3.position.set( 0, 40, -40 );*/
 	
-	
+	dirLight.castShadow = true;
 	dirLight.shadowMapWidth = 2048;
 	dirLight.shadowMapHeight = 2048;
 
-	var d = 50;
+	/*var d = 50;
 
 	dirLight.shadowCameraLeft = -d;
 	dirLight.shadowCameraRight = d;
@@ -269,12 +283,17 @@ function sun(){
 
 	dirLight.shadowCameraFar = 3500;
 	dirLight.shadowBias = -0.0001;
-	//dirLight.shadowCameraVisible = true;
-	dirLight.castShadow = true;
+	dirLight.shadowCameraVisible = true;
+	
 	
 	scene.add(dirLight3);
-	scene.add(dirLight2);
-	scene.add(dirLight);			
+	scene.add(dirLight2);*/
+
+	scene.add(sun);
+	scene.add(dirLight);
+	
+	const helper = new THREE.PointLightHelper(dirLight);
+	scene.add(helper);
 	
 }
 function createSandFloor() {
@@ -326,11 +345,13 @@ function animate() {
 
  		//updateMirrors();
 		raycaster.ray.origin.copy( controls.object.position );
-		raycaster.ray.origin.y -= 1;
+		raycaster.ray.origin.y -= controls.object.playerHeight;
+		
+		raycasterFront.ray.origin.copy( controls.object.position );
+		controls.getDirection(raycasterFront.ray.direction);
+		//raycasterFront.ray.origin.y -= 1;
 
-		const collidingMeshesList = raycaster.intersectObjects(collidableMeshList);
-
-		controlsModule.updateControls(controlsEnabled, clock, controls, collidingMeshesList);
+		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront);
 	    renderer.render(scene, camera);
 	    
 		proximityModule.proximityDetector();

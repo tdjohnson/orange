@@ -178,41 +178,6 @@ export function TableLamp()
 TableLamp.prototype = Object.create(THREE.Object3D.prototype);
 //TableLamp.prototype.constructor = TableLamp; //lol
 
-export function Door1()
-{
-	THREE.Object3D.call( this );
-    this.scale.y = 1.4;
-    this.scale.x = 1.1;
-   	//this.castShadow = true;
-	//this.receiveShadow = true;
-    this.updateMatrix();
-    this.name = "Tuer1";
-	var scope = this;
-	meshloader('../Prototypes/Tuer/tuer1.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-
-
-Door1.prototype = Object.create(THREE.Object3D.prototype);
-Door1.prototype.constructor = Door1;
-
-export function Door2() {
-	THREE.Object3D.call( this );
-		//this.castShadow = true;
-		//this.receiveShadow = true;
-		this.scale.y = 1.4;
-		this.scale.x = 1.1;
-		this.name = "Tuer2";
-		this.userData.info = "geschlossen!<br/> öffne mit T";
-		this.userData.isOpen = false;
-		this.userData.isOpenable = true;
-	var scope = this;
-	meshloader('../Prototypes/Tuer/tuer2.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-Door2.prototype = Object.create(THREE.Object3D.prototype);
-Door2.prototype.constructor = Door2;
-
 
 export function Mirror()
 {	
@@ -280,22 +245,6 @@ Ceiling.prototype = Object.create(THREE.Object3D.prototype);
 Ceiling.prototype.constructor = Ceiling;
 
 
-export function Floor()
-{
-	THREE.Object3D.call( this );
-		//this.castShadow = true;
-		//this.receiveShadow = true;
-	   this.scale.x = 3.85;
-	   this.scale.z = 4;
-
-	var scope = this;
-	meshloader('../Prototypes/Gang/gang.json',function(model) {scope.add(model);});
-}
-Floor.prototype = Object.create(THREE.Object3D.prototype);
-Floor.prototype.constructor = Floor;
-
-
-
 export function WallDoor() 
 {
 	THREE.Object3D.call( this );
@@ -357,29 +306,6 @@ export function WallCellDoor()
 }
 WallCellDoor.prototype = Object.create(THREE.Object3D.prototype);
 WallCellDoor.prototype.constructor = WallCellDoor;
-
-export function WallCellDoorCol1() 
-{
-	THREE.Object3D.call( this );
-
-	var scope = this;
-	meshloader('../Prototypes/Zelle/wandFrontCol1.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-WallCellDoorCol1.prototype = Object.create(THREE.Object3D.prototype);
-WallCellDoorCol1.prototype.constructor = WallCellDoorCol1;
-
-export function WallCellDoorCol2() 
-{
-	THREE.Object3D.call( this );
-
-	var scope = this;
-	meshloader('../Prototypes/Zelle/wandFrontCol2.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-WallCellDoorCol2.prototype = Object.create(THREE.Object3D.prototype);
-WallCellDoorCol2.prototype.constructor = WallCellDoorCol2;
-
 
 
 export function CeilingCell() 
@@ -456,6 +382,20 @@ function generateLamps(){
 	
 }
 
+export class Hallway extends THREE.Object3D {
+	constructor(renderer) {
+        super();
+		//this.castShadow = true;
+		this.receiveShadow = true;
+	   this.scale.x = 3.85;
+	   this.scale.z = 4;
+		var scope = this;
+		meshloader('../Prototypes/Gang/gang_comb.obj', '../Prototypes/Gang/gang_comb.mtl',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
+}
+
 export class Tower extends THREE.Object3D {
 	constructor(renderer) {
         super();
@@ -471,7 +411,6 @@ export class Tower extends THREE.Object3D {
 export class Sand extends THREE.Object3D {
 	constructor(renderer) {
         super();
-		this.castShadow = true;
 		this.receiveShadow = true;
 		this.scale.x = this.scale.z = 2;
 		//this.scale.y = 5;
@@ -486,6 +425,7 @@ export class PrisonWall extends THREE.Object3D {
 	constructor(renderer) {
         super();
 		this.castShadow = true;
+		this.receiveShadow = true;
 		this.name = "Prisonwall";
 		this.userData.info = "you shall not pass!";
 		this.scale.x = this.scale.y = 4;
@@ -501,7 +441,8 @@ export class JailBotBody extends THREE.Object3D {
     constructor(renderer) {
         super();
         this.scale.x = this.scale.y = this.scale.z = 1.2;
-        // this.castShadow = true;
+		this.castShadow = true;
+		this.receiveShadow = true;
         this.name = "JailBotBody";
         this.userData.info = "Ab in deine Zelle!";
         // this.userData.rotatable = true;

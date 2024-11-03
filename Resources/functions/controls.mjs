@@ -8,6 +8,7 @@ var moveForward,
     moveRight,
     canJump,
 	botAggressive;
+	var hasMoved = false;
 	
 var velocity = new THREE.Vector3();
 var pressedKeys = new Map();
@@ -19,6 +20,7 @@ export function initControls() {
 }
 
 export function onKeyDown(e) {
+	hasMoved = true;
     switch (e.keyCode) {
 		case 32: // space
 			pressedKeys.set(" ", true)
@@ -99,19 +101,19 @@ export function onKeyUp(e) {
 
 function calcNewVelocityPerTick(oldVelocity, deltaTick) {
 	var newVelocity = oldVelocity * deltaTick;
-	if (Math.abs(newVelocity) >= 0.02) {
+	if (Math.abs(newVelocity) >= 0.002) {
 		return newVelocity;
 	} else {
 		return 0;
 	}
 }
 
-export function updateControls(controlsEnabled, clock, controls, collidingMeshesList) {
+export function updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront) {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
       	var deltaMultiplicator = 100; //mass
-		var walkingSpeedImpulse = 0.05;
-		var jumpImpulse = 20;
+		var walkingSpeedImpulse = 0.02;
+		var jumpImpulse = 8;
 		var TargetY = 4;
 		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
 
@@ -137,8 +139,17 @@ export function updateControls(controlsEnabled, clock, controls, collidingMeshes
 		velocity.x = calcNewVelocityPerTick(velocity.x, deltaMass);
 		velocity.z = calcNewVelocityPerTick(velocity.z, deltaMass);
 
-		velocity.y -= 9.8 * deltaMultiplicator * delta * 0.1;
+		velocity.y -= 9.8 * deltaMass * 0.05;
 
+		//velocityWorld = new
+		//raycasterFront.ray.direction = velocity.localToWorld();
+		const collidingMeshesList = raycaster.intersectObjects(collidableMeshList);
+		const collidingMeshesListInMovementDir = raycasterFront.intersectObjects(collidableMeshList);
+
+		const inFrontOfObject = collidingMeshesListInMovementDir.length > 0;
+		if ((inFrontOfObject === true) & (0 >= velocity.z) ) {
+			velocity.z = 0;
+		}
 		controls.moveForward(-velocity.z);
 		controls.moveRight(velocity.x);
 
@@ -150,7 +161,9 @@ export function updateControls(controlsEnabled, clock, controls, collidingMeshes
 				controls.object.position.y += 0.1;
 			}
 		}
-		controls.object.position.y += ( velocity.y * delta );
+		if (hasMoved === true) {
+			controls.object.position.y += ( velocity.y * delta );
+		}
 		
 	    //controls.object.translateX(velocity.x);
 	    //controls.object.translateY(velocity.y);
@@ -164,6 +177,11 @@ export function updateControls(controlsEnabled, clock, controls, collidingMeshes
 		if ( onObject === true ) {
 			toDisplay += "</br>DistanceToIntersect: " + collidingMeshesList[0].distance;
 			toDisplay += "</br>IntersectPoint: " + collidingMeshesList[0].point.x + " " + collidingMeshesList[0].point.y  + " " + collidingMeshesList[0].point.z;
+		}
+		if (inFrontOfObject === true) {
+			toDisplay += "</br>DistanceToIntersectFront: " + collidingMeshesListInMovementDir[0].distance;
+			toDisplay += "</br>IntersectPointFront: " + collidingMeshesListInMovementDir[0].point.x + " " + collidingMeshesListInMovementDir[0].point.y  + " " + collidingMeshesListInMovementDir[0].point.z;
+			//toDisplay += "</br>IntersectPointFrontNormal: " + collidingMeshesListFront[0].normal.x + " " + collidingMeshesList[0].normal.y  + " " + collidingMeshesList[0].normal.z;
 		}
 
 		showMessageContent(toDisplay);
