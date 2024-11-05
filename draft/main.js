@@ -356,11 +356,13 @@ function sendData() {
 	if(prePos != currentPos)
 	{
 		prePos = currentPos;
+		var vector = camera.getWorldDirection();
 		umps.invoke("SendData", {
 			id: playerId,
 			x: roundNum(controls.getObject().position.x),
 			y: roundNum(controls.getObject().position.y),
-			z: roundNum(controls.getObject().position.z)}
+			z: roundNum(controls.getObject().position.z),
+			a: THREE.Math.radToDeg( Math.atan2(vector.x,vector.z))}
 		);
 	};
 
