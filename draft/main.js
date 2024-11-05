@@ -29,14 +29,15 @@ var collided = false;
 var meshes = new Map();
 var rootCell;
 var prisonWallRoot;
+var playerId = self.crypto.randomUUID().split('-')[0];
 
 var umps = new signalR.HubConnectionBuilder().withUrl("http://localhost:8080/controlhub").build();
-
+var prePos = -1;
 
 function init() { 
 	
-	umps.on("ReceiveData", function (cameraData) {
-    console.log(`player x=${cameraData.x},y=${cameraData.y},z=${cameraData.z}`);
+	umps.on("ReceiveData", function (player) {
+    console.log(`player ${player.id} x=${player.x},y=${player.y},z=${player.z}`);
 	});
 
 	umps.start()
@@ -308,10 +309,8 @@ function animate() {
 	
 	requestAnimationFrame(animate); 
 	if (loadDone) {
-        umps.invoke("SendData", {
-            x: controls.getObject().position.x,
-            y: controls.getObject().position.y,
-            z: controls.getObject().position.z});
+        
+		sendData();
 
  		updateMirrors();
 	    renderer.render(scene, camera);
@@ -343,4 +342,26 @@ function zoom(){
 
 function showMessage(text){
 	document.getElementById("message").innerHTML=text;
+}
+
+function roundNum(num) {
+    return Math.round(num * 100) / 100;
+}
+
+
+function sendData() {
+
+	var currentPos = roundNum(controls.getObject().position.x) + roundNum(controls.getObject().position.y) + roundNum(controls.getObject().position.z)
+
+	if(prePos != currentPos)
+	{
+		prePos = currentPos;
+		umps.invoke("SendData", {
+			id: playerId,
+			x: roundNum(controls.getObject().position.x),
+			y: roundNum(controls.getObject().position.y),
+			z: roundNum(controls.getObject().position.z)}
+		);
+	};
+
 }
