@@ -30,8 +30,31 @@ var meshes = new Map();
 var rootCell;
 var prisonWallRoot;
 
+var umps = new signalR.HubConnectionBuilder().withUrl("http://localhost:8080/controlhub").build();
+
+
 function init() { 
 	
+	umps.on("ReceiveData", function (cameraData) {
+    console.log(`player x=${cameraData.x},y=${cameraData.y},z=${cameraData.z}`);
+	});
+
+	umps.start()
+    .then(function () {
+        console.log("Connected to UMPS");
+        console.log("Invoking SendData");
+        umps.invoke("SendData", {
+            x: 100,
+            y: 100,
+            z: 100
+    })
+    .catch(function (err) {
+        return console.error(err.toString());
+    });
+}).catch(function (err) {
+    console.error("Error connecting to UMPS: ", err);
+});
+
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.domElement.id = "scene";
 	renderer.setSize(window.innerWidth, window.innerHeight-30);
@@ -285,6 +308,10 @@ function animate() {
 	
 	requestAnimationFrame(animate); 
 	if (loadDone) {
+        umps.invoke("SendData", {
+            x: controls.getObject().position.x,
+            y: controls.getObject().position.y,
+            z: controls.getObject().position.z});
 
  		updateMirrors();
 	    renderer.render(scene, camera);
