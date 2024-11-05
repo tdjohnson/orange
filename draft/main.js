@@ -36,25 +36,20 @@ var prePos = -1;
 
 function init() { 
 	
-	umps.on("ReceiveData", function (player) {
-    console.log(`player ${player.id} x=${player.x},y=${player.y},z=${player.z}`);
-	});
-
+	/// MULTIPLAYER ///
 	umps.start()
     .then(function () {
         console.log("Connected to UMPS");
-        console.log("Invoking SendData");
-        umps.invoke("SendData", {
-            x: 100,
-            y: 100,
-            z: 100
-    })
-    .catch(function (err) {
-        return console.error(err.toString());
-    });
-}).catch(function (err) {
+ 	}).catch(function (err) {
     console.error("Error connecting to UMPS: ", err);
-});
+	});
+
+	umps.on("ReceiveData", function (player) {
+		if(player.id == playerId) return;
+		botBody.position.set(player.x,player.y,player.z);
+		console.log(`player ${player.id} x=${player.x},y=${player.y},z=${player.z}`);
+	});
+	/// MULTIPLAYER ///
 
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer.domElement.id = "scene";
@@ -320,7 +315,7 @@ function animate() {
  		
 
 	 	animateDrop(lastObject);
-		patrolRobot();
+		//patrolRobot();
  	
 		if(botAggressive == 1)
 			{
@@ -349,9 +344,11 @@ function roundNum(num) {
 }
 
 
+
+
 function sendData() {
 
-	var currentPos = roundNum(controls.getObject().position.x) + roundNum(controls.getObject().position.y) + roundNum(controls.getObject().position.z)
+	var currentPos = roundNum(controls.getObject().position.x) + roundNum(controls.getObject().position.y) + roundNum(controls.getObject().position.z) + roundNum(controls.getObject().position.a);
 
 	if(prePos != currentPos)
 	{
@@ -362,7 +359,7 @@ function sendData() {
 			x: roundNum(controls.getObject().position.x),
 			y: roundNum(controls.getObject().position.y),
 			z: roundNum(controls.getObject().position.z),
-			a: THREE.Math.radToDeg( Math.atan2(vector.x,vector.z))}
+			a: roundNum(THREE.Math.radToDeg( Math.atan2(vector.x,vector.z)))}
 		);
 	};
 
