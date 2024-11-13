@@ -14,6 +14,7 @@ var moveForward,
 	
 var velocity = new THREE.Vector3();
 var pressedKeys = new Map();
+var maxVelocity = 0.2;
 
 export function initControls() {
 	document.addEventListener('keydown', onKeyDown, false);
@@ -102,9 +103,19 @@ export function onKeyUp(e) {
 }
 
 function calcNewVelocityPerTick(oldVelocity, deltaTick) {
-	var newVelocity = oldVelocity * deltaTick;
-	if (Math.abs(newVelocity) >= 0.002) {
-		return newVelocity;
+	var isNegativeVelocity = 1;
+	if (oldVelocity < 0) {
+		isNegativeVelocity = -1;
+	}
+	var absoluteOldVelocity = Math.abs(oldVelocity);
+	var newAbsoluteVelocity = absoluteOldVelocity - (absoluteOldVelocity * deltaTick);
+	var newVelocity = newAbsoluteVelocity * isNegativeVelocity;
+	if (newAbsoluteVelocity >= 0.002) {
+		if (newAbsoluteVelocity > maxVelocity) {
+			return maxVelocity * isNegativeVelocity;
+		} else {
+			return newVelocity;
+		}
 	} else {
 		return 0;
 	}
@@ -117,8 +128,8 @@ function reduceFloatPrecision(toReduce) {
 export function updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront) {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
-      	var deltaMultiplicator = 100; //mass
-		var walkingSpeedImpulse = 0.02;
+      	var deltaMultiplicator = 10;
+		var walkingSpeedImpulse = 1;
 		var jumpImpulse = 8;
 		var TargetY = 4;
 		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
@@ -145,7 +156,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		velocity.x = calcNewVelocityPerTick(velocity.x, deltaMass);
 		velocity.z = calcNewVelocityPerTick(velocity.z, deltaMass);
 
-		velocity.y -= 9.8 * deltaMass * 0.05;
+		velocity.y -= 9.8 * delta;
 
 		//velocityWorld = new
 		//raycasterFront.ray.direction = velocity.localToWorld();
