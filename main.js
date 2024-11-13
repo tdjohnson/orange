@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
-import {MicroCache} from './Resources/functions/MicroCache.mjs';
+import {MicroCache} from './Resources/functions/microCache.mjs';
 import * as controlsModule from './Resources/functions/controls.mjs';
 import * as pointerLockModule from './Resources/functions/pointerLock.mjs';
 import * as objectsModule from './Resources/functions/objects.mjs';
@@ -375,7 +375,7 @@ function animate() {
  		
 
 	 	//animateDrop(lastObject);
-		transformModule.patrolRobot(botBody);
+		//transformModule.patrolRobot(botBody);
  	
 		/*if(botAggressive == 1)
 			{
