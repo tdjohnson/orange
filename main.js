@@ -436,18 +436,17 @@ function roundNum(num) {
 
 function sendData() {
 
-	var currentPos = roundNum(controls.getObject().position.x) + roundNum(controls.getObject().position.y) + roundNum(controls.getObject().position.z) + roundNum(controls.getObject().position.a);
+	var currentPos = roundNum(controls.object.position.x) + roundNum(controls.object.position.y) + roundNum(controls.object.position.z) + roundNum(controls.object.position.a);
 
 	if(prePos != currentPos)
 	{
 		prePos = currentPos;
-		var vector = camera.getWorldDirection();
 		umps.invoke("SendData", {
 			id: playerId,
-			x: roundNum(controls.getObject().position.x),
-			y: roundNum(controls.getObject().position.y),
-			z: roundNum(controls.getObject().position.z),
-			a: roundNum(THREE.Math.radToDeg( Math.atan2(vector.x,vector.z)))}
+			x: roundNum(controls.object.position.x),
+			y: roundNum(controls.object.position.y),
+			z: roundNum(controls.object.position.z),
+			a: 0}
 		);
 	};
 
