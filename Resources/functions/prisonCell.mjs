@@ -173,7 +173,7 @@ class TableLamp extends THREE.Mesh {
 		this.add(light);
 
 		var scope = this;
-		meshloader('../Prototypes/TischLampe/tischlampe_neu.glb',function(model) {
+		meshloader('./Prototypes/TischLampe/tischlampe_neu.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -189,7 +189,7 @@ class Book extends THREE.Mesh {
 		this.userData.rotatable = true;
 
 		var scope = this;
-		meshloader('../Prototypes/Buch/buch_neu_comb.glb',function(model) {
+		meshloader('./Prototypes/Buch/buch_neu_comb.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -201,7 +201,7 @@ class Table extends THREE.Mesh {
 		this.scale.x = this.scale.y = this.scale.z = 1.2;
 		this.name = "tisch";
 		var scope = this;
-		meshloader('../Prototypes/Tisch/table.glb',function(model) {
+		meshloader('./Prototypes/Tisch/table.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -214,7 +214,7 @@ class Toilet extends THREE.Mesh {
 		this.name = "Klo";
 		this.userData.info = "Sauber geputzt!";
 		var scope = this;
-		meshloader('../Prototypes/Klo/klo.glb',function(model) {
+		meshloader('./Prototypes/Klo/klo.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -229,7 +229,7 @@ class Sink extends THREE.Mesh {
 		this.userData.info = " ";
 
 		var scope = this;
-		meshloader('../Prototypes/Becken/becken.glb',function(model) {
+		meshloader('./Prototypes/Becken/becken.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -241,7 +241,7 @@ class WallCellDoorCol1 extends THREE.Mesh {
 		super();
 		this.scale.multiplyScalar(doorscaler);
 		var scope = this;
-		meshloader('../Prototypes/Tuer/WallCellDoorCol1.glb',function(model) {
+		meshloader('./Prototypes/Tuer/WallCellDoorCol1.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -259,7 +259,7 @@ class WallCellDoorCol2 extends THREE.Mesh {
 		this.userData.isOpen = false;
 		this.userData.Name = "Door2";
 		var scope = this;
-		meshloader('../Prototypes/Tuer/WallCellDoorCol2.glb',function(model) {
+		meshloader('./Prototypes/Tuer/WallCellDoorCol2.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -271,7 +271,7 @@ class CellComplete extends THREE.Mesh {
         super();
 		this.scale.multiplyScalar(3.5);
 		var scope = this;
-		meshloader('../Prototypes/Zelle/Zelle_neu_comb4.glb',function(model) {
+		meshloader('./Prototypes/Zelle/Zelle_neu_comb4.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -287,7 +287,7 @@ class Bett extends THREE.Mesh {
 		//this.castShadow = true;
 		//this.receiveShadow = true;
 		var scope = this;
-		meshloader('../Prototypes/Bett/Bett - Kopie.glb',function(model) {
+		meshloader('./Prototypes/Bett/Bett - Kopie.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 		//collidableMeshList.push(this);
