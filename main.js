@@ -437,11 +437,11 @@ function sendData() {
 	{
 		prePos = currentPos;
 		umps.invoke("SendData", {
-			id: playerId,
+			id: playerId.toString(),
 			x: roundNum(controls.object.position.x),
 			y: roundNum(controls.object.position.y),
 			z: roundNum(controls.object.position.z),
-			a: 0.0}
+			a: 1.1}
 		);
 	};
 
