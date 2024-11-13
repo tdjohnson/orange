@@ -446,7 +446,7 @@ function sendData() {
 			x: roundNum(controls.object.position.x),
 			y: roundNum(controls.object.position.y),
 			z: roundNum(controls.object.position.z),
-			a: 0}
+			a: 0.0}
 		);
 	};
 
