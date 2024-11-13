@@ -37,6 +37,11 @@ var prisonWallRoot;
 
 var botBody;
 
+var playerId = self.crypto.randomUUID().split('-')[0];
+
+var umps = new signalR.HubConnectionBuilder().withUrl("http://188.245.62.68:8080/controlhub").build();
+var prePos = -1;
+
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
 
@@ -49,6 +54,11 @@ function GetCollidableMeshList() {
 }
 
 function init() { 
+	
+
+
+
+
 	
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer._microCache = MicroCache();
@@ -208,6 +218,23 @@ function init() {
 	};
 	splashScreenModule.toggleClickToStart();
 	console.log(scene);
+
+	/// MULTIPLAYER ///
+	umps.start()
+    .then(function () {
+        console.log("Connected to UMPS");
+ 	}).catch(function (err) {
+    console.error("Error connecting to UMPS: ", err);
+	});
+
+	umps.on("ReceiveData", function (player) {
+		if(player.id == playerId) return;
+		botBody.position.set(player.x,player.y,player.z);
+		console.log(`player ${player.id} x=${player.x},y=${player.y},z=${player.z}`);
+	});
+	/// MULTIPLAYER ///
+
+
 	animate();	
 }
 
@@ -359,6 +386,7 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
 
+		sendData();
  		//updateMirrors();
 		raycaster.ray.origin.copy( controls.object.position );
 		raycaster.ray.origin.y -= controls.object.playerHeight;
@@ -397,6 +425,32 @@ function zoom(){
 
 function showMessage(text){
 	document.getElementById("message").innerHTML=text;
+}
+
+function roundNum(num) {
+    return Math.round(num * 100) / 100;
+}
+
+
+
+
+function sendData() {
+
+	var currentPos = roundNum(controls.getObject().position.x) + roundNum(controls.getObject().position.y) + roundNum(controls.getObject().position.z) + roundNum(controls.getObject().position.a);
+
+	if(prePos != currentPos)
+	{
+		prePos = currentPos;
+		var vector = camera.getWorldDirection();
+		umps.invoke("SendData", {
+			id: playerId,
+			x: roundNum(controls.getObject().position.x),
+			y: roundNum(controls.getObject().position.y),
+			z: roundNum(controls.getObject().position.z),
+			a: roundNum(THREE.Math.radToDeg( Math.atan2(vector.x,vector.z)))}
+		);
+	};
+
 }
 
 window.onload = init;
