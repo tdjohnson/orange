@@ -173,7 +173,7 @@ class TableLamp extends THREE.Mesh {
 		this.add(light);
 
 		var scope = this;
-		meshloader('./Prototypes/TischLampe/tischlampe_neu.glb',function(model) {
+		meshloader('./Prototypes/TischLampe/TischLampe_neu.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -287,7 +287,7 @@ class Bett extends THREE.Mesh {
 		//this.castShadow = true;
 		//this.receiveShadow = true;
 		var scope = this;
-		meshloader('./Prototypes/Bett/Bett - Kopie.glb',function(model) {
+		meshloader('./Prototypes/Bett/Bett.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 		//collidableMeshList.push(this);
