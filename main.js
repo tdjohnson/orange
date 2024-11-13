@@ -37,8 +37,8 @@ var prisonWallRoot;
 
 var botBody;
 
-var playerId = Math.floor(Math.random() * 6) + 1
-
+var playerId = Math.floor(Math.random() * 100);
+ 
 var umps = new signalR.HubConnectionBuilder().withUrl("http://188.245.62.68:8080/controlhub").build();
 var prePos = -1;
 
