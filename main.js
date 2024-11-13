@@ -37,9 +37,9 @@ var prisonWallRoot;
 
 var botBody;
 
-var playerId = Math.floor(Math.random() * 100);
+var playerId = Math.floor(Math.random() * 100).toString();
  
-var umps = new signalR.HubConnectionBuilder().withUrl("http://188.245.62.68:8080/controlhub").build();
+var umps = new signalR.HubConnectionBuilder().withUrl("http://188.245.62.68:8080/controlhub").configureLogging(signalR.LogLevel.Information).build();
 var prePos = -1;
 
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
@@ -54,11 +54,6 @@ function GetCollidableMeshList() {
 }
 
 function init() { 
-	
-
-
-
-
 	
 	renderer = new THREE.WebGLRenderer({antialias:true});
 	renderer._microCache = MicroCache();
@@ -446,7 +441,7 @@ function sendData() {
 			x: roundNum(controls.object.position.x),
 			y: roundNum(controls.object.position.y),
 			z: roundNum(controls.object.position.z),
-			a: 0}
+			a: 0.0}
 		);
 	};
 
