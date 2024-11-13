@@ -32,7 +32,7 @@ export function Soap()
 	this.userData.isDropable = true;
 	
 	var scope = this;
-	meshloader( '../Prototypes/Seife/seife.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Seife/seife.json',function(model) {scope.add(model);});
 }
 Soap.prototype = Object.create(THREE.Object3D.prototype);
 Soap.prototype.constructor = Soap;
@@ -272,7 +272,7 @@ export class PrisonWall extends THREE.Mesh {
 		this.userData.info = "you shall not pass!";
 		this.scale.x = this.scale.y = 4.6;
 		var scope = this;
-		meshloader( '../Prototypes/Schutzmauer/wall.glb',function(model) {
+		meshloader('./Prototypes/Schutzmauer/wall.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}

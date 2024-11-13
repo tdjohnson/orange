@@ -287,7 +287,7 @@ class Bett extends THREE.Mesh {
 		//this.castShadow = true;
 		//this.receiveShadow = true;
 		var scope = this;
-		meshloader('./Prototypes/Bett/Bett.glb',function(model) {
+		meshloader('./Prototypes/Bett/bett.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 		//collidableMeshList.push(this);
