@@ -28,12 +28,14 @@ var u = 0; //number of rendered mirrors
 var collidableMeshList = [];
 var loadDone, toWakeUp = false;
 var animationLock = false; // needed to complete animations before selection next object
-var botBody, botArms, botRotateCounter, patrolStatus, botArmStatus, botHit, hitDirection, rotationActive;
+
 
 var collided = false;
 var meshes = new Map();
 var rootCell;
 var prisonWallRoot;
+
+var botBody;
 
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
@@ -110,10 +112,8 @@ function init() {
 	camera.add( crosshair );
 	camera.position.z = 1;
 	
-
-	patrolStatus = 0;
-	hitDirection = 1;
-	rotationActive = 0;
+	//hitDirection = 1;
+	//rotationActive = 0;
 
 	controlsModule.initControls();
 
@@ -375,7 +375,7 @@ function animate() {
  		
 
 	 	//animateDrop(lastObject);
-		//patrolRobot();
+		transformModule.patrolRobot(botBody);
  	
 		/*if(botAggressive == 1)
 			{

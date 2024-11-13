@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 var door;
 
 // rotate object around own axis
@@ -138,7 +140,10 @@ export function animateDoors() {
 
 //y:21,3
 
-export function patrolRobot()
+var patrolStatus = 0;
+var botRotateCounter, botArmStatus, botHit, hitDirection, rotationActive;
+
+export function patrolRobot(botBody, botArms)
 {
 	//console.log("180grad");
 	//console.log(Math.PI / 180 *90);
@@ -159,7 +164,7 @@ export function patrolRobot()
 		rotationActive = 1;
 		if(botArmStatus != 0)
 		{
-			rotateBot(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
+			//t(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
 			botArmStatus = 0;
 		}
 		
@@ -203,7 +208,7 @@ export function patrolRobot()
 		rotationActive = 1;
 		if(botArmStatus != 0)
 		{
-			rotateBot(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
+			//rotateBot(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
 			botArmStatus = 0;
 		}
 		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
@@ -223,11 +228,11 @@ export function patrolRobot()
 	else if(botBody.position.x <= 43  && botBody.position.z >= 22  && botRotateCounter<18 && patrolStatus == 1)//&& bot.rotation.y >  Math.PI / -1023) //(Math.PI / 180 *180))
 	{
 		rotationActive = 1;
-		/*if(botArmStatus != 0)
+		if(botArmStatus != 0)
 		{
 			rotateBot(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
 			botArmStatus = 0;
-		}*/
+		}
 		
 		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
 		rotateBot(botArms,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
