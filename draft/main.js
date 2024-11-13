@@ -8,6 +8,8 @@ import * as objectsModule from '../Resources/functions/objects.mjs';
 import * as splashScreenModule from '../Resources/functions/splashScreen.mjs';
 import * as proximityModule from '../Resources/functions/proximity.mjs';
 import * as prisonCellModule from '../Resources/functions/prisonCell.mjs';
+import * as hallwayModule from '../Resources/functions/fullHallway.mjs';
+import * as transformModule from '../Resources/functions/transform.mjs';
 
 var clock;
 var scene, camera, renderer;
@@ -133,10 +135,6 @@ function init() {
 	scene.add(botBody);
 
 	//add prison hallway
-	var hallway = new objectsModule.Hallway(renderer);
-	hallway.position.set(0,0,21);
-	scene.add(hallway);
-	collidableMeshList.push(hallway);
 
 
 	/*var secondCell = objectsModule.meshloader('../Prototypes/Zelle/Zelle_neu_comb4.glb',function(model) {
@@ -159,15 +157,33 @@ function init() {
 	//showCameraHelpers();
 	*/
 
-	var rootCell = new prisonCellModule.PrisonCell(renderer, collidableMeshList, scene)
-	rootCell.position.set(0,0,0);
-	//go through all childs and enable shadows
-	rootCell.traverse(function(child) {
-		child.castShadow = true;
-		child.receiveShadow = true;
-	})
+	var hallwayStart = -38;
+	for (var i = 0; i < 3; i++) {
+		var hallwayOffset = hallwayStart + (48 * i);
+
+		var fullHallway = new hallwayModule.FullHallway(renderer, collidableMeshList, scene);
+		fullHallway.position.set(hallwayOffset,0,21);
+		scene.add(fullHallway);
+	}
 	
-	scene.add(rootCell);
+
+	var cellStartX = -30;
+	var cellStartZ = 0;
+	camera.position.x = cellStartX + 3;
+	camera.position.Z = cellStartZ + 3;
+	var rotationPerColumn = Math.PI;
+
+	for (var j = 0; j < 2; j++) {
+		var rotate = rotationPerColumn * j;
+		for (var i = 0; i < 6; i++) {
+			var cellOffsetX = cellStartX + (12 * i);
+			var cellOffsetZ = cellStartZ + (42 * j);
+			var rootCell = new prisonCellModule.PrisonCell(renderer, collidableMeshList, scene);
+			rootCell.position.set(cellOffsetX,0,cellOffsetZ);
+			rootCell.rotateY(rotate);
+			scene.add(rootCell);
+		}
+	}
 
 
 	var grid = new THREE.GridHelper(500, 5);
@@ -190,6 +206,7 @@ function init() {
     	loadDone = true;
     	
 	};
+	splashScreenModule.toggleClickToStart();
 	console.log(scene);
 	animate();	
 }
@@ -271,10 +288,10 @@ function sun(){
 	const sun = new THREE.AmbientLight( 0x404040, 1);
 
 	//Shadow stuff
-	dirLight.castShadow = true;
-	dirLight.shadow.radius = 200;
-	dirLight.shadow.mapSize.width = 2048;
-	dirLight.shadow.mapSize.height = 2048
+	//dirLight.castShadow = true;
+	//dirLight.shadow.radius = 200;
+	//dirLight.shadow.mapSize.width = 2048;
+	//dirLight.shadow.mapSize.height = 2048
 
 	//dirLight.color.setHSL( 0.1, 1, 0.95 );
 	dirLight.position.set( 20, 20, 20 );
@@ -289,7 +306,7 @@ function sun(){
 	scene.add(dirLight2);*/
 
 	scene.add(sun);
-	scene.add(dirLight);
+	//scene.add(dirLight);
 	
 	const helper = new THREE.PointLightHelper(dirLight);
 	scene.add(helper);
@@ -354,7 +371,7 @@ function animate() {
 	    renderer.render(scene, camera);
 	    
 		proximityModule.proximityDetector();
-	 	//animateDoors();
+		transformModule.animateDoors();
  		
 
 	 	//animateDrop(lastObject);

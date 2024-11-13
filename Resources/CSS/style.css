@@ -15,6 +15,7 @@ h1
 h1#clickStart{
 	font-size: 30px;
 	cursor: pointer;
+	visibility: hidden;
 }
 
 h1#clickStart:hover{
@@ -68,5 +69,4 @@ div#startScreen{
 	text-align:center;
 	color:orange;
 }
-
 

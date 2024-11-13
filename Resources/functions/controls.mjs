@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {collisionDetection} from './collision.mjs'
 import {showMessageContent} from './splashScreen.mjs';
+import * as transformModule from './transform.mjs';
 
 var moveForward,
     moveBackward,
@@ -8,6 +9,7 @@ var moveForward,
     moveRight,
     canJump,
 	botAggressive;
+	var lastObject;
 	var hasMoved = false;
 	
 var velocity = new THREE.Vector3();
@@ -58,8 +60,8 @@ export function onKeyDown(e) {
 		  	pressedKeys.set("s", true)	
 			break;
 		case 84: //t
-	    	triggerDoor(lastObject);
-	    	switchTableLight(lastObject);
+			transformModule.triggerDoor(lastObject);
+	    	transformModule.switchTableLight(lastObject);
 			break;    	
   		case 87: // w
 		  pressedKeys.set("w", true);
@@ -147,6 +149,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		const collidingMeshesListInMovementDir = raycasterFront.intersectObjects(collidableMeshList);
 
 		const inFrontOfObject = collidingMeshesListInMovementDir.length > 0;
+		lastObject = collidingMeshesListInMovementDir[0];
 		if ((inFrontOfObject === true) & (0 >= velocity.z) ) {
 			velocity.z = 0;
 		}

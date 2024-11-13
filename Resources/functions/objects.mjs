@@ -4,6 +4,7 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+
 export function meshloader(objURL, callback){
 	const gtlfLoader = new GLTFLoader();
 	gtlfLoader.load(objURL, (gltfObject) => {
@@ -118,20 +119,6 @@ Wall.prototype = Object.create(THREE.Object3D.prototype);
 Wall.prototype.constructor = Wall;
 
 
-export function Ceiling() {
-	THREE.Object3D.call( this );
-
-	this.scale.x = 3.82;
-	this.scale.z = 4.1;
-	this.scale.y = 3.15;
-
-	var scope = this;
-	meshloader('../Prototypes/Gang/ceiling.json',function(model) {scope.add(model);});
-}
-Ceiling.prototype = Object.create(THREE.Object3D.prototype);
-Ceiling.prototype.constructor = Ceiling;
-
-
 export function WallDoor() 
 {
 	THREE.Object3D.call( this );
@@ -209,24 +196,7 @@ CeilingCell.prototype = Object.create(THREE.Object3D.prototype);
 CeilingCell.prototype.constructor = CeilingCell;
 
 
-export function CeilingLamp() {
-	
-	THREE.Object3D.call( this );
-	//this.castShadow = true;
-	//this.receiveShadow = true;
-	this.name = "CeilingLamp";
-	var scope = this;
-	meshloader( '../Prototypes/DeckenLampe/lampe.json',function(model) {scope.add(model);});
-	
-	this.scale.x = this.scale.z = this.scale.y = 0.5;
-	//this.rotation.x = Math.PI;
-	
 
-
-}
-
-CeilingLamp.prototype = Object.create(THREE.Object3D.prototype);
-CeilingLamp.prototype.constructor = CeilingLamp;
 
 function generateLamps(){
 	var light = new THREE.PointLight(0xffff99, 1, 12);
@@ -268,21 +238,6 @@ function generateLamps(){
 	
 	
 }
-
-export class Hallway extends THREE.Mesh {
-	constructor(renderer) {
-        super();
-		//this.castShadow = true;
-		this.receiveShadow = true;
-	   this.scale.x = 3.85;
-	   this.scale.z = 4;
-		var scope = this;
-		meshloader('../Prototypes/Gang/gang_comb.glb',function(model) {
-			scope.add(model);
-		}, renderer);
-	}
-}
-
 export class Tower extends THREE.Mesh {
 	constructor(renderer) {
         super();
@@ -315,7 +270,7 @@ export class PrisonWall extends THREE.Mesh {
 		this.receiveShadow = true;
 		this.name = "Prisonwall";
 		this.userData.info = "you shall not pass!";
-		this.scale.x = this.scale.y = 4;
+		this.scale.x = this.scale.y = 4.6;
 		var scope = this;
 		meshloader( '../Prototypes/Schutzmauer/wall.glb',function(model) {
 			scope.add(model);

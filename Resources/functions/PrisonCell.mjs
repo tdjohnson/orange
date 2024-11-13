@@ -75,7 +75,7 @@ export class PrisonCell extends THREE.Mesh {
 		
 		var door2 = new WallCellDoorCol2(renderer);
 		door2.position.set(8,4.5,13.5);
-		door2.userData.startPosition = door2.position.x; 
+		door2.userData.startPosition = door2.position.x;
 		this.add(door2);
 		collidableMeshList.push(door2);
 
@@ -156,7 +156,7 @@ class TableLamp extends THREE.Mesh {
 		var light = new THREE.PointLight(0xffff99, 4, 10 );
 
 		//Shadow stuff
-		light.castShadow = true;
+		//light.castShadow = true;
 		light.shadow.radius = 200;
 		light.shadow.mapSize.width = 2048;
 		light.shadow.mapSize.height = 2048;
@@ -187,8 +187,7 @@ class Book extends THREE.Mesh {
 		this.name = "Buch";
 		this.userData.info = "Lies Faust!";
 		this.userData.rotatable = true;
-		this.castShadow = true;
-		this.recieveShadow = true;
+
 		var scope = this;
 		meshloader('../Prototypes/Buch/buch_neu_comb.glb',function(model) {
 			scope.add(model);
@@ -201,8 +200,6 @@ class Table extends THREE.Mesh {
 		super();
 		this.scale.x = this.scale.y = this.scale.z = 1.2;
 		this.name = "tisch";
-		this.castShadow = true;
-		this.recieveShadow = true;
 		var scope = this;
 		meshloader('../Prototypes/Tisch/table.glb',function(model) {
 			scope.add(model);
@@ -216,8 +213,6 @@ class Toilet extends THREE.Mesh {
 		super();
 		this.name = "Klo";
 		this.userData.info = "Sauber geputzt!";
-		this.castShadow = true;
-		this.recieveShadow = true;
 		var scope = this;
 		meshloader('../Prototypes/Klo/klo.glb',function(model) {
 			scope.add(model);
@@ -233,9 +228,6 @@ class Sink extends THREE.Mesh {
 		this.name = "Waschbecken";
 		this.userData.info = " ";
 
-		this.castShadow = true;
-		this.recieveShadow = true;
-
 		var scope = this;
 		meshloader('../Prototypes/Becken/becken.glb',function(model) {
 			scope.add(model);
@@ -248,9 +240,6 @@ class WallCellDoorCol1 extends THREE.Mesh {
 	constructor(renderer) {
 		super();
 		this.scale.multiplyScalar(doorscaler);
-		this.castShadow = true;
-		this.recieveShadow = true;
-
 		var scope = this;
 		meshloader('../Prototypes/Tuer/WallCellDoorCol1.glb',function(model) {
 			scope.add(model);
@@ -266,9 +255,9 @@ class WallCellDoorCol2 extends THREE.Mesh {
 
 		this.scale.multiplyScalar(doorscaler);
 
-		this.castShadow = true;
-		this.recieveShadow = true;
-
+		this.userData.isOpenable = true;
+		this.userData.isOpen = false;
+		this.userData.Name = "Door2";
 		var scope = this;
 		meshloader('../Prototypes/Tuer/WallCellDoorCol2.glb',function(model) {
 			scope.add(model);
@@ -281,8 +270,6 @@ class CellComplete extends THREE.Mesh {
 	constructor(renderer) {
         super();
 		this.scale.multiplyScalar(3.5);
-		this.castShadow = true;
-		this.recieveShadow = true;
 		var scope = this;
 		meshloader('../Prototypes/Zelle/Zelle_neu_comb4.glb',function(model) {
 			scope.add(model);

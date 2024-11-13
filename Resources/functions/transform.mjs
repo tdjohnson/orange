@@ -1,8 +1,7 @@
-// rotate object around own axis
-
 var door;
 
-function rotate(object, axis, degree) { 
+// rotate object around own axis
+export function rotate(object, axis, degree) { 
 	var angle = degree * Math.PI / 180;
 	if(object.userData.rotatable == true){
 	    var quaternion = new THREE.Quaternion();
@@ -12,14 +11,14 @@ function rotate(object, axis, degree) {
 }  
 
 //rotatable beim bot global undefined
-function rotateBot(object, axis, degree) { 
+export function rotateBot(object, axis, degree) { 
 	var angle = degree * Math.PI / 180;
 	    var quaternion = new THREE.Quaternion();
 	    quaternion.setFromAxisAngle(axis, angle);
 	    object.quaternion.multiply(quaternion);
 } 
 
-function triggerDrop(object) {
+export function triggerDrop(object) {
 	if (object.userData.isDropable == true) {
 		object.userData.isDropable = false;
 			if (object.userData.info.indexOf("Wirf")>-1) {
@@ -34,7 +33,7 @@ function triggerDrop(object) {
 	}
 }
 
-function animateDrop(object) {
+export function animateDrop(object) {
 	// TO DO: fix angle
 
 	if (object.userData.isDropable == false) {
@@ -66,9 +65,11 @@ function animateDrop(object) {
 	}	
 }
 
-function triggerDoor(object) {
-	if (object.userData.isOpenable == true) {
-		object.userData.isOpenable = false;
+export function triggerDoor(parentObject) {
+	if (null != parentObject.object.parent.parent) {
+		var object = parentObject.object.parent.parent;
+		if (object.userData.isOpenable === true) {
+			object.userData.isOpenable = false;
 			if (object.userData.isOpen === false) {
 				object.userData.isOpen = true;
 				object.userData.info = "offen!<br/> schließen mit T";
@@ -78,13 +79,11 @@ function triggerDoor(object) {
 				object.userData.info = "geschlossen!<br/> öffne mit T";
 				door = object;
 			}
-		doorsToAnimate = object;
-	} else {
-		
+		}
 	}
 }
 
-function switchTableLight(object) {
+export function switchTableLight(object) {
 	if(object.userData.isTurnedOn === false)
 	{
 		object.userData.info = "Licht an mit T";
@@ -101,7 +100,7 @@ function switchTableLight(object) {
 	}
 }
 
-function animateDoors() {
+export function animateDoors() {
 	
 	if (door != null) {
 		var rotFact = 1;
@@ -139,7 +138,7 @@ function animateDoors() {
 
 //y:21,3
 
-function patrolRobot()
+export function patrolRobot()
 {
 	//console.log("180grad");
 	//console.log(Math.PI / 180 *90);
@@ -239,7 +238,7 @@ function patrolRobot()
 	}
 }
 
-function robotAttack()
+export function robotAttack()
 {
 	
 	if(rotationActive != 1 && hitDirection != 0)
