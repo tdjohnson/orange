@@ -15,6 +15,7 @@ h1
 h1#clickStart{
 	font-size: 30px;
 	cursor: pointer;
+	visibility: hidden;
 }
 
 h1#clickStart:hover{
@@ -48,13 +49,24 @@ p#controls{
 
 div#message{
 	position: fixed;
-	bottom:20px;
+	bottom:400px;
 	left:0px;
 	height:30px;
 	width:100%;
 	text-align:center;
 	color:white;
 
+	font-size: 18px;
+}
+
+table#InfoOutput{
+	table-layout: fixed;
+	margin-left: auto;
+    margin-right: auto;
+	bottom:400px;
+	height:30px;
+	color:white;
+	width: 900px;
 	font-size: 18px;
 }
 
@@ -68,5 +80,4 @@ div#startScreen{
 	text-align:center;
 	color:orange;
 }
-
 

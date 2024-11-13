@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 function Hallway()
 {
 	THREE.Object3D.call( this );

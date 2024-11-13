@@ -11,9 +11,19 @@ Philipp Weidhas - philipp.weidhas@st.oth-regensburg.de
         <title>Orange</title>
         <link rel="stylesheet" type="text/css" href="../Resources/CSS/style.css"/>
     </head>
+	<script type="importmap">
+		{
+		  "imports": {
+			"three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+			"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+		  }
+		}
+	</script>
+	<script src="../Resources/functions/PrisonHallway.js" type="module"></script>
+	<script src="./main.js" type="module"></script>
     <body onload="init()">   
     	<div id="message"> </div>
-        <div id="startScreen" onclick="closeStart()">
+        <div id="startScreen">
         	<br><br><br><br>
         	<h1>Project Orange</h1>
         	<br />
@@ -28,22 +38,7 @@ Philipp Weidhas - philipp.weidhas@st.oth-regensburg.de
         		<b>b</b>	- Bot aggressive ein/aus
         	</p>
         	<br><br>
-        	<h1 id="clickStart">&gt;&gt;&gt; Click to Start &lt;&lt;&lt;</h1> 	
+			<h1 id="clickStart">&gt;&gt;&gt; Click to Start &lt;&lt;&lt;</h1> 
         </div>
-		<script src="../Resources/functions/splashScreen.js" type="text/javascript"></script>
-    	<script src="../Resources/Three/build/three.min.js" type="text/javascript"></script>    	
-    	<script src="../Resources/functions/objects.js" type="text/javascript"></script>
-    	<script src="../Resources/functions/PrisonHallway.js" type="text/javascript"></script>
-    	<script src="../Resources/functions/PrisonWall.js" type="text/javascript"></script>
-    	<script src="../Resources/functions/PrisonCell.js" type="text/javascript"></script>
-    	<script src="../Resources/functions/transform.js" type="text/javascript"></script>
-		<script src="../Resources/functions/proximity.js" type="text/javascript"></script>
-		<script src="../Resources/functions/collision.js" type="text/javascript"></script>
-		<script src="../Resources/functions/controls.js" type="text/javascript"></script>
-		<script src="../Resources/functions/pointerLock.js" type="text/javascript"></script>
-		<script src="../Resources/functions/MicroCache.js" type="text/javascript"></script>
-    	<script src="../Resources/Three/examples/js/controls/OrbitControls.js" type="text/javascript"></script>
-    	<script src="../Resources/Three/examples/js/controls/PointerLockControls.js"></script>
-        <script src="main.js" type="text/javascript" ></script>
     </body>
 </html>
