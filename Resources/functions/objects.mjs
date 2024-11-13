@@ -45,7 +45,7 @@ export function Chair()
     this.scale.x = this.scale.y = this.scale.z = 1.2;
     this.name = "chair";
 	var scope = this;
-	meshloader('../Prototypes/Stuhl/stuhl.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Stuhl/stuhl.json',function(model) {scope.add(model);});
 }
 Chair.prototype = Object.create(THREE.Object3D.prototype);
 Chair.prototype.constructor = Chair;
@@ -60,7 +60,7 @@ export function Radiator()
 	this.name = "Luefter";
 	this.userData.info = " ";
 	var scope = this;
-	meshloader('../Prototypes/Luefter/luefter.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Luefter/luefter.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
 Radiator.prototype = Object.create(THREE.Object3D.prototype);
@@ -93,7 +93,7 @@ export function Mirror()
 
 	
 	var scope = this;
-	meshloader('../Prototypes/Spiegel/SpiegelRahmen.json',function(model) {
+	meshloader('./Prototypes/Spiegel/SpiegelRahmen.json',function(model) {
 			model.rotation.y = Math.PI*0.5; 
 		scope.add(model);});
 		this.rotation.y = Math.PI*0.5; 
@@ -112,7 +112,7 @@ export function Wall() {
 	   this.scale.y = 2.85;
 
 	var scope = this;
-	meshloader('../Prototypes/Gang/wall.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Gang/wall.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
 Wall.prototype = Object.create(THREE.Object3D.prototype);
@@ -129,7 +129,7 @@ export function WallDoor()
 	    this.scale.y = 2.9;
 	    
 	var scope = this;
-	meshloader('../Prototypes/Gang/wallDoor.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Gang/wallDoor.json',function(model) {scope.add(model);});
 
 }
 WallDoor.prototype = Object.create(THREE.Object3D.prototype);
@@ -145,7 +145,7 @@ export function WallCell2()
 	this.scale.x = this.scale.y = 3.3;
 	this.scale.z = 2;
 	var scope = this;
-	meshloader('../Prototypes/Zelle/wand.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Zelle/wand.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
 WallCell2.prototype = Object.create(THREE.Object3D.prototype);
@@ -161,7 +161,7 @@ export function WallCellWindow()
 	this.scale.z = 3.3;
    
 	var scope = this;
-	meshloader('../Prototypes/Zelle/wandFenster.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Zelle/wandFenster.json',function(model) {scope.add(model);});
 	collidableMeshList.push(this);
 }
 WallCellWindow.prototype = Object.create(THREE.Object3D.prototype);
@@ -175,7 +175,7 @@ export function WallCellDoor()
    	//this.castShadow = true;
 	//this.receiveShadow = true;
 	var scope = this;
-	meshloader('../Prototypes/Zelle/wandFront.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Zelle/wandFront.json',function(model) {scope.add(model);});
 	
 }
 WallCellDoor.prototype = Object.create(THREE.Object3D.prototype);
@@ -190,7 +190,7 @@ export function CeilingCell()
     //object.scale.y = 3.15;
     this.rotation.y = Math.PI/2;
 	var scope = this;
-	meshloader('../Prototypes/Zelle/dach.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Zelle/dach.json',function(model) {scope.add(model);});
 }
 CeilingCell.prototype = Object.create(THREE.Object3D.prototype);
 CeilingCell.prototype.constructor = CeilingCell;
@@ -243,7 +243,7 @@ export class Tower extends THREE.Mesh {
         super();
 		this.scale.x = this.scale.z = this.scale.y =3.35;
 		var scope = this;
-		meshloader('../Prototypes/Turm/turm.glb',function(model) {
+		meshloader('./Prototypes/Turm/turm.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -257,7 +257,7 @@ export class Sand extends THREE.Mesh {
 		this.scale.x = this.scale.z = 2;
 		//this.scale.y = 5;
 		var scope = this;
-		meshloader('../Prototypes/Sand/sand.glb',function(model) {
+		meshloader('./Prototypes/Sand/sand.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -290,7 +290,7 @@ export class JailBotBody extends THREE.Mesh {
         // this.userData.rotatable = true;
 
         const scope = this;
-        meshloader('../Prototypes/Bot/Robo_combined.glb', function(model) {
+        meshloader('./Prototypes/Bot/Robo_combined.glb', function(model) {
             scope.add(model);
 			//scope.material = model.material;
         }, renderer);
@@ -307,7 +307,7 @@ export function JailBotArms()
 		this.userData.info = " ";
 		this.userData.rotatable = true;
 	var scope = this;
-	meshloader('../Prototypes/Bot/bot_arms.json',function(model) {scope.add(model);});
+	meshloader('./Prototypes/Bot/bot_arms.json',function(model) {scope.add(model);});
 }
 JailBotArms.prototype = Object.create(THREE.Object3D.prototype);
 JailBotArms.prototype.constructor = JailBotArms;

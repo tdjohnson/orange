@@ -137,7 +137,7 @@ function init() {
 	//add prison hallway
 
 
-	/*var secondCell = objectsModule.meshloader('../Prototypes/Zelle/Zelle_neu_comb4.glb',function(model) {
+	/*var secondCell = objectsModule.meshloader('./Prototypes/Zelle/Zelle_neu_comb4.glb',function(model) {
 		scene.add(hallway);
 	});
 	console.log(secondCell);

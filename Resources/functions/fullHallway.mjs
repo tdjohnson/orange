@@ -33,7 +33,7 @@ export class CeilingLamp extends THREE.Mesh {
 		this.name = "CeilingLamp";
 		var scope = this;
 
-		meshloader('../Prototypes/DeckenLampe/lampe_comb.glb',function(model) {
+		meshloader('./Prototypes/DeckenLampe/lampe_comb.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
@@ -46,7 +46,7 @@ export class Hallway extends THREE.Mesh {
 		this.receiveShadow = true;
 	   this.scale.x = this.scale.y = this.scale.z = 4;
 		var scope = this;
-		meshloader('../Prototypes/Gang/gang_comb.glb',function(model) {
+		meshloader('./Prototypes/Gang/gang_comb.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
