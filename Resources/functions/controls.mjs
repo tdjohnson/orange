@@ -110,6 +110,10 @@ function calcNewVelocityPerTick(oldVelocity, deltaTick) {
 	}
 }
 
+function reduceFloatPrecision(toReduce) {
+	return toReduce.toFixed(4);
+}
+
 export function updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront) {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
@@ -173,21 +177,20 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 	    //controls.object.translateZ(velocity.z);
 
 		var toDisplay =
-			"velocityX:"+ velocity.x + " positionX : " + controls.object.position.x +
-			"</br>velocityY: "+ velocity.y + " positionY : " + controls.object.position.y +
-			"</br>velocityZ: "+ velocity.z + " positionZ : " + controls.object.position.z +
-			"</br>FPS: "+ Math.round(1 / delta)
+			"<table id='InfoOutput'>"+
+			"<tr><td>velocityX:</td><td>"+ reduceFloatPrecision(velocity.x) + "</td><td>positionX:</td><td>" + reduceFloatPrecision(controls.object.position.x) + "</td><td></td><td></td><td></td></tr>" +
+			"<tr><td>velocityY:</td><td> "+ reduceFloatPrecision(velocity.y) + "</td><td>positionY:</td><td>" + reduceFloatPrecision(controls.object.position.y) + "</td></tr>" +
+			"<tr><td>velocityZ:</td><td> "+ reduceFloatPrecision(velocity.z) + "</td><td>positionZ:</td><td>" + reduceFloatPrecision(controls.object.position.z) + "</td></tr>" +
+			"<tr><td>FPS:</td><td>"+ Math.round(1 / delta)+ "</td></tr>";
 		if ( onObject === true ) {
-			toDisplay += "</br>DistanceToIntersect: " + collidingMeshesList[0].distance;
-			toDisplay += "</br>IntersectPoint: " + collidingMeshesList[0].point.x + " " + collidingMeshesList[0].point.y  + " " + collidingMeshesList[0].point.z;
+			toDisplay += "<tr><td>IntersDisFloor:</td><td>" + reduceFloatPrecision(collidingMeshesList[0].distance) +"</td></tr>";
+			toDisplay += "<tr><td>IntersPntFloor:</td><td>X:</td><td>" + reduceFloatPrecision(collidingMeshesList[0].point.x) + "</td><td>Y:</td><td>" + reduceFloatPrecision(collidingMeshesList[0].point.y) + "</td><td>Z:</td><td>" + reduceFloatPrecision(collidingMeshesList[0].point.z)+"</td></tr>";
 		}
 		if (inFrontOfObject === true) {
-			toDisplay += "</br>DistanceToIntersectFront: " + collidingMeshesListInMovementDir[0].distance;
-			toDisplay += "</br>IntersectPointFront: " + collidingMeshesListInMovementDir[0].point.x + " " + collidingMeshesListInMovementDir[0].point.y  + " " + collidingMeshesListInMovementDir[0].point.z;
-			//toDisplay += "</br>IntersectPointFront: " + collidingMeshesListInMovementDir[0]..x + " " + collidingMeshesListInMovementDir[0].point.y  + " " + collidingMeshesListInMovementDir[0].point.z;
-			//toDisplay += "</br>IntersectPointFrontNormal: " + collidingMeshesListFront[0].normal.x + " " + collidingMeshesList[0].normal.y  + " " + collidingMeshesList[0].normal.z;
+			toDisplay += "<tr><td>IntersDisFront:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].distance) +"</td></tr>";
+			toDisplay += "<tr><td>IntersPntFront:</td><td>X:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].point.x) + "</td><td>Y:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].point.y) + "</td><td>Z:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].point.z)+"</td></tr>";
 		}
-
+		toDisplay += "</table>";
 		showMessageContent(toDisplay);
 
     }

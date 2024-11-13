@@ -59,6 +59,17 @@ div#message{
 	font-size: 18px;
 }
 
+table#InfoOutput{
+	table-layout: fixed;
+	margin-left: auto;
+    margin-right: auto;
+	bottom:400px;
+	height:30px;
+	color:white;
+	width: 900px;
+	font-size: 18px;
+}
+
 div#startScreen{
 	position: fixed;
 	top:0;
