@@ -12,6 +12,7 @@ import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 
 import * as UMPS from 'umps';
+
 var clock;
 var scene, camera, renderer;
 var geometry, material, mesh;
@@ -412,8 +413,8 @@ function roundNum(num) {
 function sendData() {
 
 	var currentPos = roundNum(controls.object.position.x) + roundNum(controls.object.position.y) + roundNum(controls.object.position.z) + roundNum(controls.object.position.a);
-
-	if(prePos != currentPos)
+	var prePos = 0;
+	if(UMPS.prePos != currentPos)
 	{
 		prePos = currentPos;
 		UMPS.hub.invoke("SendData", {
