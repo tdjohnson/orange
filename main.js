@@ -11,6 +11,7 @@ import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 
+import * as UMPS from 'umps';
 var clock;
 var scene, camera, renderer;
 var geometry, material, mesh;
@@ -36,11 +37,6 @@ var rootCell;
 var prisonWallRoot;
 
 var botBody;
-
-var playerId = Math.floor(Math.random() * 100).toString();
- 
-var umps = new signalR.HubConnectionBuilder().withUrl("http://188.245.62.68:8080/controlhub").configureLogging(signalR.LogLevel.Information).build();
-var prePos = -1;
 
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
@@ -213,22 +209,6 @@ function init() {
 	};
 	splashScreenModule.toggleClickToStart();
 	console.log(scene);
-
-	/// MULTIPLAYER ///
-	umps.start()
-    .then(function () {
-        console.log("Connected to UMPS");
- 	}).catch(function (err) {
-    console.error("Error connecting to UMPS: ", err);
-	});
-
-	umps.on("ReceiveData", function (player) {
-		if(player.id == playerId) return;
-		botBody.position.set(player.x,player.y,player.z);
-		console.log(`player ${player.id} x=${player.x},y=${player.y},z=${player.z}`);
-	});
-	/// MULTIPLAYER ///
-
 
 	animate();	
 }
@@ -436,7 +416,7 @@ function sendData() {
 	if(prePos != currentPos)
 	{
 		prePos = currentPos;
-		umps.invoke("SendData", {
+		UMPS.hub.invoke("SendData", {
 			id: playerId.toString(),
 			x: roundNum(controls.object.position.x),
 			y: roundNum(controls.object.position.y),
