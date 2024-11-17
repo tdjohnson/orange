@@ -11,7 +11,20 @@ import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 
+import * as signalR from 'signalR';
 import * as UMPS from 'umps';
+
+var umps = new UMPS.UMPS();
+
+umps.hub.on("ReceiveData", function (player) {
+	if(player.id == umps.GetPlayerId()) return;
+	botBody.position.set(player.x,player.y,player.z);
+	var newDir = new THREE.Vector3(player.xd,player.yd,player.zd);
+	var pos = new THREE.Vector3();
+	pos.addVectors(newDir, botBody.position);
+	botBody.lookAt(pos);
+});
+
 
 var clock;
 var scene, camera, renderer;
@@ -362,7 +375,6 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
 
-		sendData();
  		//updateMirrors();
 		raycaster.ray.origin.copy( controls.object.position );
 		raycaster.ray.origin.y -= controls.object.playerHeight;
@@ -370,6 +382,8 @@ function animate() {
 		raycasterFront.ray.origin.copy( controls.object.position );
 		controls.getDirection(raycasterFront.ray.direction);
 		//raycasterFront.ray.origin.y -= 1;
+
+		umps.SendData(controls.object.position,controls.getDirection(raycasterFront.ray.direction));
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront);
 	    renderer.render(scene, camera);
@@ -391,7 +405,6 @@ function animate() {
 	}
 }
 
-
 function zoom(){
 	if(camera.zoom == 4)
 		camera.zoom = 1;
@@ -403,32 +416,5 @@ function showMessage(text){
 	document.getElementById("message").innerHTML=text;
 }
 
-function roundNum(num) {
-    return Math.round(num * 100) / 100;
-}
-
-
-
-
-function sendData() {
-
-	var currentPos = roundNum(controls.object.position.x) + roundNum(controls.object.position.y) + roundNum(controls.object.position.z) + roundNum(controls.object.position.a);
-	var prePos = 0;
-	if(UMPS.prePos != currentPos)
-	{
-		prePos = currentPos;
-		UMPS.hub.invoke("SendData", {
-			id: playerId.toString(),
-			x: roundNum(controls.object.position.x),
-			y: roundNum(controls.object.position.y),
-			z: roundNum(controls.object.position.z),
-			a: 1.1}
-		);
-	};
-
-}
-
 window.onload = init;
 window.onclick = closeStart;
-
-
