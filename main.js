@@ -11,6 +11,21 @@ import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 
+import * as signalR from 'signalR';
+import * as UMPS from 'umps';
+
+var umps = new UMPS.UMPS();
+
+umps.hub.on("ReceiveData", function (player) {
+	if(player.id == umps.GetPlayerId()) return;
+	botBody.position.set(player.x,player.y,player.z);
+	var newDir = new THREE.Vector3(player.xd,player.yd,player.zd);
+	var pos = new THREE.Vector3();
+	pos.addVectors(newDir, botBody.position);
+	botBody.lookAt(pos);
+});
+
+
 var clock;
 var scene, camera, renderer;
 var geometry, material, mesh;
@@ -36,11 +51,6 @@ var rootCell;
 var prisonWallRoot;
 
 var botBody;
-
-var playerId = Math.floor(Math.random() * 100).toString();
- 
-var umps = new signalR.HubConnectionBuilder().withUrl("http://188.245.62.68:8080/controlhub").configureLogging(signalR.LogLevel.Information).build();
-var prePos = -1;
 
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
@@ -214,22 +224,6 @@ function init() {
 	splashScreenModule.toggleClickToStart();
 	console.log(scene);
 
-	/// MULTIPLAYER ///
-	umps.start()
-    .then(function () {
-        console.log("Connected to UMPS");
- 	}).catch(function (err) {
-    console.error("Error connecting to UMPS: ", err);
-	});
-
-	umps.on("ReceiveData", function (player) {
-		if(player.id == playerId) return;
-		botBody.position.set(player.x,player.y,player.z);
-		console.log(`player ${player.id} x=${player.x},y=${player.y},z=${player.z}`);
-	});
-	/// MULTIPLAYER ///
-
-
 	animate();	
 }
 
@@ -381,7 +375,6 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
 
-		sendData();
  		//updateMirrors();
 		raycaster.ray.origin.copy( controls.object.position );
 		raycaster.ray.origin.y -= controls.object.playerHeight;
@@ -389,6 +382,8 @@ function animate() {
 		raycasterFront.ray.origin.copy( controls.object.position );
 		controls.getDirection(raycasterFront.ray.direction);
 		//raycasterFront.ray.origin.y -= 1;
+
+		umps.SendData(controls.object.position,controls.getDirection(raycasterFront.ray.direction));
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront);
 	    renderer.render(scene, camera);
@@ -410,7 +405,6 @@ function animate() {
 	}
 }
 
-
 function zoom(){
 	if(camera.zoom == 4)
 		camera.zoom = 1;
@@ -422,32 +416,5 @@ function showMessage(text){
 	document.getElementById("message").innerHTML=text;
 }
 
-function roundNum(num) {
-    return Math.round(num * 100) / 100;
-}
-
-
-
-
-function sendData() {
-
-	var currentPos = roundNum(controls.object.position.x) + roundNum(controls.object.position.y) + roundNum(controls.object.position.z) + roundNum(controls.object.position.a);
-
-	if(prePos != currentPos)
-	{
-		prePos = currentPos;
-		umps.invoke("SendData", {
-			id: playerId.toString(),
-			x: roundNum(controls.object.position.x),
-			y: roundNum(controls.object.position.y),
-			z: roundNum(controls.object.position.z),
-			a: 1.1}
-		);
-	};
-
-}
-
 window.onload = init;
 window.onclick = closeStart;
-
-
