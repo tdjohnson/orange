@@ -15,15 +15,33 @@ import * as signalR from 'signalR';
 import * as UMPS from 'umps';
 
 var umps = new UMPS.UMPS();
-
+var players = [];
 umps.hub.on("ReceiveData", function (player) {
 	if(player.id == umps.GetPlayerId()) return;
-	botBody.position.set(player.x,player.y,player.z);
-	var newDir = new THREE.Vector3(player.xd,player.yd,player.zd);
-	var pos = new THREE.Vector3();
-	pos.addVectors(newDir, botBody.position);
-	botBody.lookAt(pos);
+	
+	var existingPlayer = players.find(p => p.id === player.id);
+    if (existingPlayer) {
+		existingPlayer.body.position.set(player.x,player.y,player.z);
+		var newDir = new THREE.Vector3(player.xd,player.yd,player.zd);
+		var pos = new THREE.Vector3();
+		pos.addVectors(newDir, existingPlayer.body.position);
+		existingPlayer.body.lookAt(pos);
+    }else{
+		var newPlayer = {};
+		newPlayer.body = botBody.clone();
+		newPlayer.id = player.id;
+		newPlayer.body.position.set(player.x, player.y, player.z);
+		var newDir = new THREE.Vector3(player.xd,player.yd,player.zd);
+		var pos = new THREE.Vector3();
+		pos.addVectors(newDir, newPlayer.body.position);
+		newPlayer.body.lookAt(pos);
+		players.push(newPlayer);
+		collidableMeshList.push(newPlayer.body);
+		scene.add(newPlayer.body);
+	}
 });
+
+
 
 
 var clock;
@@ -54,6 +72,7 @@ var botBody;
 
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
+
 
 function closeStart() {
 	toWakeUp = splashScreenModule.closeStart();
@@ -143,11 +162,10 @@ function init() {
 	scene.add(controls.object);
 
 	botBody = new objectsModule.JailBotBody(renderer);
-	collidableMeshList.push(botBody);
-
+	/* 	collidableMeshList.push(botBody);
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
-	scene.add(botBody);
+	scene.add(botBody); */
 
 	//add prison hallway
 
