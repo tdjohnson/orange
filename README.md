@@ -4,7 +4,7 @@ This project ist based on a 3D scene made with three.js for an academic group pr
 We now want to develop the project further just for fun.
 
 ToDos:
-* build multiplayer
+* build multiplayer -> 2024/11 Update: Added multiplayer support with version [2.0.0](https://github.com/tdjohnson/umps](https://github.com/tdjohnson/orange/releases/tag/2.0.0)) 
 * create player characters
 * add much more interactions
 * extend game world
