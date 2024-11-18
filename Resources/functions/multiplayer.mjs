@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import * as objectsModule from './objects.mjs';
 import * as signalR from 'signalR';
 import * as UMPS from 'umps';
 
@@ -18,23 +17,23 @@ export class Multiplayer extends THREE.Mesh {
 
     init() {
         this.umps.hub.on("ReceiveData", (player) => {
-            if (player.id == this.GetPlayerId()) return;
+            if (player.id === this.playerId) return;
 
-            var existingPlayer = this.players.find(p => p.id === player.id);
+            const existingPlayer = this.players.find(p => p.id === player.id);
             if (existingPlayer) {
-                this.UpdatePlayer(player);
+                this.updatePlayer(existingPlayer, player);
             } else {
-                this.AddNewPlayer(player);
+                this.addNewPlayer(player);
             }
         });
     }
 
-    GetPlayerId() {
+    getPlayerId() {
         return this.playerId;
     }
  
-    SendData(pos, dir) {
-        var player = {
+    sendData(pos, dir) {
+        const player = {
             id: this.playerId,
             x: pos.x,
             y: pos.y,
@@ -46,28 +45,21 @@ export class Multiplayer extends THREE.Mesh {
         this.umps.hub.invoke("SendData", player);
     }
 
-    AddNewPlayer(player) {
-        var newPlayer = {};
-        newPlayer.body = this.botBody.clone();
-        newPlayer.id = player.id;
-        newPlayer.body.position.set(player.x, player.y, player.z);
-        var newDir = new THREE.Vector3(player.xd, player.yd, player.zd);
-        var pos = new THREE.Vector3();
-        pos.addVectors(newDir, newPlayer.body.position);
-        newPlayer.body.lookAt(pos);
+    addNewPlayer(player) {
+        const newPlayer = {
+            id: player.id,
+            body: this.botBody.clone()
+        };
+        this.updatePlayer(newPlayer, player);
         this.players.push(newPlayer);
         this.collidableMeshList.push(newPlayer.body);
         this.scene.add(newPlayer.body);
     }
 
-    UpdatePlayer(player) {
-        var existingPlayer = this.players.find(p => p.id === player.id);
-        if (existingPlayer) {
-            existingPlayer.body.position.set(player.x, player.y, player.z);
-            var newDir = new THREE.Vector3(player.xd, player.yd, player.zd);
-            var pos = new THREE.Vector3();
-            pos.addVectors(newDir, existingPlayer.body.position);
-            existingPlayer.body.lookAt(pos);
-        }
+    updatePlayer(existingPlayer, playerData) {
+        existingPlayer.body.position.set(playerData.x, playerData.y, playerData.z);
+        const newDir = new THREE.Vector3(playerData.xd, playerData.yd, playerData.zd);
+        const pos = new THREE.Vector3().addVectors(newDir, existingPlayer.body.position);
+        existingPlayer.body.lookAt(pos);
     }
 }

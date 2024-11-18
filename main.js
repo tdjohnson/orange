@@ -368,7 +368,7 @@ function animate() {
 		controls.getDirection(raycasterFront.ray.direction);
 		//raycasterFront.ray.origin.y -= 1;
 
-		multiplayer.SendData(controls.object.position,controls.getDirection(raycasterFront.ray.direction));
+		multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront);
 	    renderer.render(scene, camera);
