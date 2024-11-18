@@ -14,10 +14,9 @@ import * as multiplayerModule from './Resources/functions/multiplayer.mjs';
 
 // MULTIPLAYER 
 var multiplayer = new multiplayerModule.Multiplayer(renderer, collidableMeshList, scene);
-var myId = multiplayer.GetPlayerId();
 var players = [];
 multiplayer.umps.hub.on("ReceiveData", function (player) {
-	if(player.id == myId) return;
+	if(player.id == multiplayer.GetPlayerId()) return;
 	
 	var existingPlayer = players.find(p => p.id === player.id);
     if (existingPlayer) {
@@ -26,7 +25,7 @@ multiplayer.umps.hub.on("ReceiveData", function (player) {
 		var pos = new THREE.Vector3();
 		pos.addVectors(newDir, existingPlayer.body.position);
 		existingPlayer.body.lookAt(pos);
-    }else{
+    } else {
 		var newPlayer = {};
 		newPlayer.body = botBody.clone();
 		newPlayer.id = player.id;
