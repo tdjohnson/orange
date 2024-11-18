@@ -1,15 +1,17 @@
 import * as THREE from 'three';
 import * as signalR from 'signalR';
 import * as UMPS from 'umps';
+import * as objectsModule from './objects.mjs';
 
 export class Multiplayer extends THREE.Mesh {
-	constructor(collidableMeshList, scene, botBody) {
+	constructor(renderer, collidableMeshList, scene) {
         super();
         this.umps = new UMPS.UMPS();
 		this.name = 'Multiplayer_' + this.id;
+        this.renderer = renderer;
         this.collidableMeshList = collidableMeshList;
         this.scene = scene;
-        this.botBody = botBody;
+        this.botBody = new objectsModule.JailBotBody(renderer);
         this.playerId = this.umps.GetPlayerId();
         this.players = [];
     }
@@ -68,7 +70,7 @@ export class Multiplayer extends THREE.Mesh {
         const context = canvas.getContext('2d');
         context.font = 'Bold 60px Arial';
         context.fillStyle = 'white';
-        context.fillText(playerId, 0,60);
+        context.fillText(playerId, 0, 60);
 
         const texture = new THREE.CanvasTexture(canvas);
         const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });

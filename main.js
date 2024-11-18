@@ -36,9 +36,6 @@ var meshes = new Map();
 var rootCell;
 var prisonWallRoot;
 
-var botBody;
-
-
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
 
@@ -124,9 +121,7 @@ function init() {
 
 	scene.add(controls.object);
 
-	botBody = new objectsModule.JailBotBody(renderer);
-
-	multiplayer = new Multiplayer(collidableMeshList, scene, botBody);
+	multiplayer = new Multiplayer(renderer, collidableMeshList, scene);
 	multiplayer.init();
 
 	/* 	collidableMeshList.push(botBody);
