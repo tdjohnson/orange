@@ -58,11 +58,11 @@ export class Multiplayer extends THREE.Mesh {
         this.scene.add(newPlayer.body);
     }
 
-    updatePlayer(existingPlayer, playerData) {
-        existingPlayer.body.position.set(playerData.x, playerData.y, playerData.z);
+    updatePlayer(player, playerData) {
+        player.body.position.set(playerData.x, playerData.y, playerData.z);
         const newDir = new THREE.Vector3(playerData.xd, playerData.yd, playerData.zd);
-        const pos = new THREE.Vector3().addVectors(newDir, existingPlayer.body.position);
-        existingPlayer.body.lookAt(pos);
+        const pos = new THREE.Vector3().addVectors(newDir, player.body.position);
+        player.body.lookAt(pos);
     }
 
     addPlayerIdText(body, playerId) {
@@ -74,9 +74,9 @@ export class Multiplayer extends THREE.Mesh {
 
         const texture = new THREE.CanvasTexture(canvas);
         const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-        const planeGeometry = new THREE.PlaneGeometry(1, 0.5); // Adjust size as needed
+        const planeGeometry = new THREE.PlaneGeometry(1, 0.5);
         const plane = new THREE.Mesh(planeGeometry, material);
-        plane.position.set(1, 1.2, 0); // Adjust position as needed
+        plane.position.set(1, 1.2, 0);
         body.add(plane);
     }
 }
