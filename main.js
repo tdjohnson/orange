@@ -12,6 +12,21 @@ import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 
+import * as signalR from 'signalR';
+import * as UMPS from 'umps';
+
+var umps = new UMPS.UMPS();
+
+umps.hub.on("ReceiveData", function (player) {
+	if(player.id == umps.GetPlayerId()) return;
+	botBody.position.set(player.x,player.y,player.z);
+	var newDir = new THREE.Vector3(player.xd,player.yd,player.zd);
+	var pos = new THREE.Vector3();
+	pos.addVectors(newDir, botBody.position);
+	botBody.lookAt(pos);
+});
+
+
 var clock;
 var scene, camera, renderer;
 var geometry, material, mesh;
