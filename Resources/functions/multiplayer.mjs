@@ -11,7 +11,7 @@ export class Multiplayer extends THREE.Mesh {
         this.renderer = renderer;
         this.collidableMeshList = collidableMeshList;
         this.scene = scene;
-        this.botBody = new objectsModule.JailBotBody(renderer);
+        this.playerBody = new objectsModule.JailBotBody(renderer);
         this.playerId = this.umps.GetPlayerId();
         this.players = [];
     }
@@ -49,7 +49,7 @@ export class Multiplayer extends THREE.Mesh {
     addNewPlayer(player) {
         const newPlayer = {
             id: player.id,
-            body: this.botBody.clone()
+            body: this.playerBody.clone()
         };
         this.addPlayerIdText(newPlayer.body, player.id);
         this.updatePlayer(newPlayer, player);
@@ -65,7 +65,7 @@ export class Multiplayer extends THREE.Mesh {
         existingPlayer.body.lookAt(pos);
     }
 
-    addPlayerIdText(botBody, playerId) {
+    addPlayerIdText(body, playerId) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         context.font = 'Bold 60px Arial';
@@ -77,6 +77,6 @@ export class Multiplayer extends THREE.Mesh {
         const planeGeometry = new THREE.PlaneGeometry(1, 0.5); // Adjust size as needed
         const plane = new THREE.Mesh(planeGeometry, material);
         plane.position.set(1, 1.2, 0); // Adjust position as needed
-        botBody.add(plane);
+        body.add(plane);
     }
 }
