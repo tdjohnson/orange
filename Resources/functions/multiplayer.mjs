@@ -3,11 +3,10 @@ import * as signalR from 'signalR';
 import * as UMPS from 'umps';
 
 export class Multiplayer extends THREE.Mesh {
-	constructor(renderer, collidableMeshList, scene, botBody) {
+	constructor(collidableMeshList, scene, botBody) {
         super();
         this.umps = new UMPS.UMPS();
 		this.name = 'Multiplayer_' + this.id;
-        this.renderer = renderer;
         this.collidableMeshList = collidableMeshList;
         this.scene = scene;
         this.botBody = botBody;

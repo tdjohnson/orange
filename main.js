@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 import {MicroCache} from './Resources/functions/microCache.mjs';
+import {Multiplayer} from './Resources/functions/multiplayer.mjs';
 import * as controlsModule from './Resources/functions/controls.mjs';
 import * as pointerLockModule from './Resources/functions/pointerLock.mjs';
 import * as objectsModule from './Resources/functions/objects.mjs';
@@ -10,7 +11,6 @@ import * as proximityModule from './Resources/functions/proximity.mjs';
 import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
-import * as multiplayerModule from './Resources/functions/multiplayer.mjs';
 
 var clock;
 var scene, camera, renderer;
@@ -126,7 +126,7 @@ function init() {
 
 	botBody = new objectsModule.JailBotBody(renderer);
 
-	multiplayer = new multiplayerModule.Multiplayer(renderer, collidableMeshList, scene, botBody); // Pass botBody to constructor
+	multiplayer = new Multiplayer(collidableMeshList, scene, botBody);
 	multiplayer.init();
 
 	/* 	collidableMeshList.push(botBody);
