@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 import {MicroCache} from './Resources/functions/microCache.mjs';
+import {Multiplayer} from './Resources/functions/multiplayer.mjs';
 import * as controlsModule from './Resources/functions/controls.mjs';
 import * as pointerLockModule from './Resources/functions/pointerLock.mjs';
 import * as objectsModule from './Resources/functions/objects.mjs';
@@ -11,27 +12,13 @@ import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 
-import * as signalR from 'signalR';
-import * as UMPS from 'umps';
-
-var umps = new UMPS.UMPS();
-
-umps.hub.on("ReceiveData", function (player) {
-	if(player.id == umps.GetPlayerId()) return;
-	botBody.position.set(player.x,player.y,player.z);
-	var newDir = new THREE.Vector3(player.xd,player.yd,player.zd);
-	var pos = new THREE.Vector3();
-	pos.addVectors(newDir, botBody.position);
-	botBody.lookAt(pos);
-});
-
-
 var clock;
 var scene, camera, renderer;
 var geometry, material, mesh;
 var havePointerLock = pointerLockModule.checkForPointerLock();
 var controls;
 var controlsEnabled = true;
+var multiplayer;
 
 var loader = new THREE.ObjectLoader();
 var isOpenable = true; //for animating door
@@ -44,13 +31,10 @@ var collidableMeshList = [];
 var loadDone, toWakeUp = false;
 var animationLock = false; // needed to complete animations before selection next object
 
-
 var collided = false;
 var meshes = new Map();
 var rootCell;
 var prisonWallRoot;
-
-var botBody;
 
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
@@ -75,17 +59,12 @@ function init() {
 
 	document.body.appendChild(renderer.domElement);
 	
-	
-
-
-	
 	//needed for controls
     clock = new THREE.Clock();
     scene = new THREE.Scene();
     //scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
     
     var material = new THREE.LineBasicMaterial({ color: 0xAAFFAA });
 
@@ -142,12 +121,13 @@ function init() {
 
 	scene.add(controls.object);
 
-	botBody = new objectsModule.JailBotBody(renderer);
-	collidableMeshList.push(botBody);
+	multiplayer = new Multiplayer(renderer, collidableMeshList, scene);
+	multiplayer.init();
 
+	/* 	collidableMeshList.push(botBody);
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
-	scene.add(botBody);
+	scene.add(botBody); */
 
 	//add prison hallway
 
@@ -383,7 +363,7 @@ function animate() {
 		controls.getDirection(raycasterFront.ray.direction);
 		//raycasterFront.ray.origin.y -= 1;
 
-		umps.SendData(controls.object.position,controls.getDirection(raycasterFront.ray.direction));
+		multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront);
 	    renderer.render(scene, camera);
