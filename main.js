@@ -12,41 +12,13 @@ import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 import * as multiplayerModule from './Resources/functions/multiplayer.mjs';
 
-// MULTIPLAYER 
-var multiplayer = new multiplayerModule.Multiplayer(renderer, collidableMeshList, scene);
-var players = [];
-multiplayer.umps.hub.on("ReceiveData", function (player) {
-	if(player.id == multiplayer.GetPlayerId()) return;
-	
-	var existingPlayer = players.find(p => p.id === player.id);
-    if (existingPlayer) {
-		existingPlayer.body.position.set(player.x,player.y,player.z);
-		var newDir = new THREE.Vector3(player.xd,player.yd,player.zd);
-		var pos = new THREE.Vector3();
-		pos.addVectors(newDir, existingPlayer.body.position);
-		existingPlayer.body.lookAt(pos);
-    } else {
-		var newPlayer = {};
-		newPlayer.body = botBody.clone();
-		newPlayer.id = player.id;
-		newPlayer.body.position.set(player.x, player.y, player.z);
-		var newDir = new THREE.Vector3(player.xd,player.yd,player.zd);
-		var pos = new THREE.Vector3();
-		pos.addVectors(newDir, newPlayer.body.position);
-		newPlayer.body.lookAt(pos);
-		players.push(newPlayer);
-		collidableMeshList.push(newPlayer.body);
-		scene.add(newPlayer.body);
-	}
-});
-// MULTIPLAYER 
-
 var clock;
 var scene, camera, renderer;
 var geometry, material, mesh;
 var havePointerLock = pointerLockModule.checkForPointerLock();
 var controls;
 var controlsEnabled = true;
+var multiplayer;
 
 var loader = new THREE.ObjectLoader();
 var isOpenable = true; //for animating door
@@ -59,7 +31,6 @@ var collidableMeshList = [];
 var loadDone, toWakeUp = false;
 var animationLock = false; // needed to complete animations before selection next object
 
-
 var collided = false;
 var meshes = new Map();
 var rootCell;
@@ -67,9 +38,9 @@ var prisonWallRoot;
 
 var botBody;
 
+
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
-
 
 function closeStart() {
 	toWakeUp = splashScreenModule.closeStart();
@@ -91,17 +62,12 @@ function init() {
 
 	document.body.appendChild(renderer.domElement);
 	
-	
-
-
-	
 	//needed for controls
     clock = new THREE.Clock();
     scene = new THREE.Scene();
     //scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
     
     var material = new THREE.LineBasicMaterial({ color: 0xAAFFAA });
 
@@ -159,6 +125,10 @@ function init() {
 	scene.add(controls.object);
 
 	botBody = new objectsModule.JailBotBody(renderer);
+
+	multiplayer = new multiplayerModule.Multiplayer(renderer, collidableMeshList, scene, botBody); // Pass botBody to constructor
+	multiplayer.init();
+
 	/* 	collidableMeshList.push(botBody);
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
