@@ -10,14 +10,14 @@ import * as proximityModule from './Resources/functions/proximity.mjs';
 import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
+import * as multiplayerModule from './Resources/functions/multiplayer.mjs';
 
-import * as signalR from 'signalR';
-import * as UMPS from 'umps';
-
-var umps = new UMPS.UMPS();
+// MULTIPLAYER 
+var multiplayer = new multiplayerModule.Multiplayer(renderer, collidableMeshList, scene);
+var myId = multiplayer.GetPlayerId();
 var players = [];
-umps.hub.on("ReceiveData", function (player) {
-	if(player.id == umps.GetPlayerId()) return;
+multiplayer.umps.hub.on("ReceiveData", function (player) {
+	if(player.id == myId) return;
 	
 	var existingPlayer = players.find(p => p.id === player.id);
     if (existingPlayer) {
@@ -40,9 +40,7 @@ umps.hub.on("ReceiveData", function (player) {
 		scene.add(newPlayer.body);
 	}
 });
-
-
-
+// MULTIPLAYER 
 
 var clock;
 var scene, camera, renderer;
@@ -401,7 +399,7 @@ function animate() {
 		controls.getDirection(raycasterFront.ray.direction);
 		//raycasterFront.ray.origin.y -= 1;
 
-		umps.SendData(controls.object.position,controls.getDirection(raycasterFront.ray.direction));
+		multiplayer.SendData(controls.object.position,controls.getDirection(raycasterFront.ray.direction));
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront);
 	    renderer.render(scene, camera);

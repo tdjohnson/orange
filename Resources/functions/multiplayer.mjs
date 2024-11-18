@@ -3,26 +3,27 @@ import * as objectsModule from './objects.mjs';
 import * as signalR from 'signalR';
 import * as UMPS from 'umps';
 
-export var umps = new UMPS.UMPS();
-var players = [];
-var botBody;
-var renderer;
 
 var collidableMeshList = [];
 var scene;
 export class Multiplayer extends THREE.Mesh {
 	constructor(renderer, collidableMeshList, scene) {
         super();
+        this.umps = new UMPS.UMPS();
 		this.name = 'Multiplayer_' + this.id;
         this.renderer = renderer;
         this.collidableMeshList = collidableMeshList;
         this.scene = scene; // Ensure scene is assigned to the instance
 
     }
+
+    GetPlayerId() {
+        return this.umps.GetPlayerId();
+    }
  
     SendData(pos, dir) {
             var player = {
-                id: umps.GetPlayerId(),
+                id: this.umps.GetPlayerId(),
                 x: pos.x,
                 y: pos.y,
                 z: pos.z,
@@ -30,7 +31,7 @@ export class Multiplayer extends THREE.Mesh {
                 yd: dir.y,
                 zd: dir.z
             };
-            umps.hub.invoke("SendData", player);
+            this.umps.hub.invoke("SendData", player);
         };
 
 }
