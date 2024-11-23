@@ -11,22 +11,16 @@ h1
 	font-size: 32px;
 	padding-bottom:20px;
 }
-
-h1#clickStart{
-	font-size: 30px;
-	cursor: pointer;
-	visibility: hidden;
-}
-
-h1#clickStart:hover{
-	color:#a60000;
-	cursor: pointer;
-}
-
 h2
 {
 	font-size: 14px;
 }
+
+h3
+{
+	font-size: 20px;
+}
+
 canvas
 {
 	width: 100%;
@@ -80,4 +74,22 @@ div#startScreen{
 	text-align:center;
 	color:orange;
 }
+
+.modeButton {
+    font-size: 24px;
+    font-weight: bold;
+	color:orange;
+    text-align: center;
+    cursor: pointer;
+    background-color: black;
+    padding: 10px;
+    border: none;
+    margin: 5px;
+}
+
+.modeButton:hover {
+    background-color: orange;
+	color:black;
+}
+
 
