@@ -19,7 +19,6 @@ h2
 h3
 {
 	font-size: 20px;
-	color: dimgray
 }
 
 canvas
@@ -89,7 +88,8 @@ div#startScreen{
 }
 
 .modeButton:hover {
-    background-color: dimgray;
+    background-color: orange;
+	color:black;
 }
 
 

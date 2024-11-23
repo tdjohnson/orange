@@ -197,7 +197,6 @@ function init() {
     	loadDone = true;
     	
 	};
-	console.log(scene);
 
 	animate();	
 }
