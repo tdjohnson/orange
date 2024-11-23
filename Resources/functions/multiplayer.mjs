@@ -4,7 +4,7 @@ import * as UMPS from 'umps';
 import * as objectsModule from './objects.mjs';
 
 export class Multiplayer extends THREE.Mesh {
-	constructor(renderer, collidableMeshList, scene) {
+     constructor(renderer, collidableMeshList, scene) {
         super();
         this.umps = new UMPS.UMPS();
 		this.name = 'Multiplayer_' + this.id;
@@ -15,7 +15,7 @@ export class Multiplayer extends THREE.Mesh {
         this.playerId = this.umps.GetPlayerId();
         this.players = [];
     }
-
+    
     init() {
         this.umps.hub.on("ReceiveData", (player) => {
             if (player.id === this.playerId) return;
@@ -43,7 +43,11 @@ export class Multiplayer extends THREE.Mesh {
             yd: dir.y,
             zd: dir.z
         };
-        this.umps.hub.invoke("SendData", player);
+        if (this.umps.hub.connection.q === "Connected") {
+            this.umps.hub.invoke("SendData", player).catch(err => {
+                console.error("Error sending data: ", err);
+            })
+        };
     }
 
     addNewPlayer(player) {

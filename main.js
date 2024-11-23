@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 import {MicroCache} from './Resources/functions/microCache.mjs';
-import {Multiplayer} from './Resources/functions/multiplayer.mjs';
 import * as controlsModule from './Resources/functions/controls.mjs';
 import * as pointerLockModule from './Resources/functions/pointerLock.mjs';
 import * as objectsModule from './Resources/functions/objects.mjs';
@@ -121,9 +120,6 @@ function init() {
 
 	scene.add(controls.object);
 
-	multiplayer = new Multiplayer(renderer, collidableMeshList, scene);
-	multiplayer.init();
-
 	/* 	collidableMeshList.push(botBody);
 	botBody.position.set(1.25,2.5,22);
 	botBody.rotation.y =  Math.PI*0.5;
@@ -201,7 +197,6 @@ function init() {
     	loadDone = true;
     	
 	};
-	splashScreenModule.toggleClickToStart();
 	console.log(scene);
 
 	animate();	
@@ -363,7 +358,9 @@ function animate() {
 		controls.getDirection(raycasterFront.ray.direction);
 		//raycasterFront.ray.origin.y -= 1;
 
-		multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
+		if (multiplayer) {
+			multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
+		}
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront);
 	    renderer.render(scene, camera);
@@ -395,6 +392,22 @@ function zoom(){
 function showMessage(text){
 	document.getElementById("message").innerHTML=text;
 }
+
+export function startSingleplayer() {
+    console.log("Starting Singleplayer mode...");
+}
+
+export function startMultiplayer() {
+    console.log("Starting Multiplayer mode...");
+    import('./Resources/functions/multiplayer.mjs').then(module => {
+        multiplayer = new module.Multiplayer(renderer, collidableMeshList, scene);
+        multiplayer.init();
+    });
+}
+
+// Make the functions globally accessible
+window.startSingleplayer = startSingleplayer;
+window.startMultiplayer = startMultiplayer;
 
 window.onload = init;
 window.onclick = closeStart;
