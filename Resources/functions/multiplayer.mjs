@@ -61,7 +61,7 @@ export class Multiplayer extends THREE.Mesh {
                 };
 
                 lastServerSync = currentTime;
-                console.log(lastServerSync);
+                //console.log(lastServerSync);
             }
         }
     }
