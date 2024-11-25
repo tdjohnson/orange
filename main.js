@@ -39,8 +39,7 @@ const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
 var raycasterCamera;
 
-const serverTickinMS = 50;
-var lastServerSync = 0;
+
 
 function closeStart() {
 	toWakeUp = splashScreenModule.closeStart();
@@ -377,16 +376,7 @@ function animate() {
 		raycasterCamera.ray.direction = vector;
 
 		if (multiplayer) {
-			var currentTime = performance.now();
-			if (lastServerSync === 0) {
-				lastServerSync = currentTime;
-			} else {
-				if ((currentTime - lastServerSync) > serverTickinMS) {
-					multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
-					lastServerSync = currentTime;
-					//console.log(lastServerSync);
-				}
-			}
+			multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
 		}
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);

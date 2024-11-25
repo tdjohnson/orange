@@ -3,6 +3,10 @@ import * as signalR from 'signalR';
 import * as UMPS from 'umps';
 import * as objectsModule from './objects.mjs';
 
+const serverTickinMS = 500;
+var lastServerSync = 0;
+
+
 export class Multiplayer extends THREE.Mesh {
      constructor(renderer, collidableMeshList, scene) {
         super();
@@ -34,20 +38,32 @@ export class Multiplayer extends THREE.Mesh {
     }
  
     sendData(pos, dir) {
-        const player = {
-            id: this.playerId,
-            x: pos.x,
-            y: pos.y,
-            z: pos.z,
-            xd: dir.x,
-            yd: dir.y,
-            zd: dir.z
-        };
-        if (this.umps.hub.connection.q === "Connected") {
-            this.umps.hub.invoke("SendData", player).catch(err => {
-                console.error("Error sending data: ", err);
-            })
-        };
+
+        var currentTime = performance.now();
+        if (lastServerSync === 0) {
+            lastServerSync = currentTime;
+        } else {
+            if ((currentTime - lastServerSync) > serverTickinMS) {
+    
+                const player = {
+                    id: this.playerId,
+                    x: pos.x,
+                    y: pos.y,
+                    z: pos.z,
+                    xd: dir.x,
+                    yd: dir.y,
+                    zd: dir.z
+                };
+                if (this.umps.hub.connection.q === "Connected") {
+                    this.umps.hub.invoke("SendData", player).catch(err => {
+                        console.error("Error sending data: ", err);
+                    })
+                };
+
+                lastServerSync = currentTime;
+                console.log(lastServerSync);
+            }
+        }
     }
 
     addNewPlayer(player) {
@@ -63,7 +79,9 @@ export class Multiplayer extends THREE.Mesh {
     }
 
     updatePlayer(player, playerData) {
-        player.body.position.set(playerData.x, playerData.y, playerData.z);
+        //dirty player height hack, might break in the future
+        player.body.position.set(playerData.x, playerData.y - this.scene.children[0].playerHeight, playerData.z);
+        
         const newDir = new THREE.Vector3(playerData.xd, playerData.yd, playerData.zd);
         const pos = new THREE.Vector3().addVectors(newDir, player.body.position);
         player.body.lookAt(pos);
