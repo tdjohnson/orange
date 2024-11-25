@@ -20,24 +20,6 @@ export function meshloader(objURL, callback){
 }
 
 
-export function Soap()
-{
-	THREE.Object3D.call( this );
-
-	this.name = 'soap_' + this.id;
-	//this.castShadow = true;
-	this.scale.x = this.scale.y = this.scale.z = 0.1;
-	this.userData.info = "Wirf mich runter mit Y!";
-	this.userData.rotatable = true;
-	this.userData.isDropable = true;
-	
-	var scope = this;
-	meshloader('./Prototypes/Seife/seife.json',function(model) {scope.add(model);});
-}
-Soap.prototype = Object.create(THREE.Object3D.prototype);
-Soap.prototype.constructor = Soap;
-
-
 export function Chair()
 {
 	THREE.Object3D.call( this );

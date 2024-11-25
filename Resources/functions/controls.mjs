@@ -14,7 +14,7 @@ var moveForward,
 	
 var velocity = new THREE.Vector3();
 var pressedKeys = new Map();
-var maxVelocity = 0.2;
+var maxVelocity = 0.1;
 
 export function initControls() {
 	document.addEventListener('keydown', onKeyDown, false);
@@ -61,14 +61,15 @@ export function onKeyDown(e) {
 		  	pressedKeys.set("s", true)	
 			break;
 		case 84: //t
-			transformModule.triggerDoor(lastObject);
-	    	transformModule.switchTableLight(lastObject);
+			//transformModule.triggerDoor(lastObject);
+	    	//transformModule.switchTableLight(lastObject);
+			transformModule.triggerObject(lastObject);
 			break;    	
   		case 87: // w
 		  pressedKeys.set("w", true);
 		  break;	
   		case 89: //y
-  			triggerDrop(lastObject);
+		 	transformModule.triggerDrop(lastObject);
 			break;
 	   	case 90: //z
 	   		zoom();
@@ -125,12 +126,12 @@ function reduceFloatPrecision(toReduce) {
 	return toReduce.toFixed(4);
 }
 
-export function updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront) {
+export function updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera) {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
-      	var deltaMultiplicator = 8;
-		var walkingSpeedImpulse = 0.5;
-		var jumpImpulse = 17;
+      	var deltaMultiplicator = 12;
+		var walkingSpeedImpulse = 0.01;
+		var jumpImpulse = 14;
 		var TargetY = 4;
 		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
 
@@ -162,9 +163,14 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		//raycasterFront.ray.direction = velocity.localToWorld();
 		const collidingMeshesList = raycaster.intersectObjects(collidableMeshList);
 		const collidingMeshesListInMovementDir = raycasterFront.intersectObjects(collidableMeshList);
+		const collidingMeshesListCameraRay = raycasterCamera.intersectObjects(collidableMeshList);
+
+		if (collidingMeshesListCameraRay.length > 0) {
+			//console.log(collidingMeshesListCameraRay[0]);
+			lastObject = collidingMeshesListCameraRay;
+		}
 
 		const inFrontOfObject = collidingMeshesListInMovementDir.length > 0;
-		lastObject = collidingMeshesListInMovementDir[0];
 		if ((inFrontOfObject === true) & (0 >= velocity.z) ) {
 			velocity.z = 0;
 		}
@@ -201,7 +207,10 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 			toDisplay += "<tr><td>IntersDisFront:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].distance) +"</td></tr>";
 			toDisplay += "<tr><td>IntersPntFront:</td><td>X:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].point.x) + "</td><td>Y:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].point.y) + "</td><td>Z:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].point.z)+"</td></tr>";
 		}
-		toDisplay += "</table>";
+		toDisplay += "</table>" +
+		raycasterCamera.ray.origin.x + " " + raycasterCamera.ray.origin.y + " " + raycasterCamera.ray.origin.z + "</br>" +
+		raycasterCamera.ray.direction.x + " " + raycasterCamera.ray.direction.y + " " + raycasterCamera.ray.direction.z + "</br>";
+
 		showMessageContent(toDisplay);
 
     }

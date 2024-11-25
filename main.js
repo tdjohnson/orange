@@ -37,6 +37,10 @@ var prisonWallRoot;
 
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
+var raycasterCamera;
+
+const serverTickinMS = 50;
+var lastServerSync = 0;
 
 function closeStart() {
 	toWakeUp = splashScreenModule.closeStart();
@@ -163,6 +167,15 @@ function init() {
 	camera.position.x = cellStartX + 3;
 	camera.position.Z = cellStartZ + 3;
 	var rotationPerColumn = Math.PI;
+
+
+	var vector = new THREE.Vector3(0, 0, -1);
+	vector = camera.localToWorld(vector);
+	vector.sub(camera.position); // Now vector is a unit vector with the same direction as the camera
+
+	raycasterCamera = new THREE.Raycaster( camera.position, vector, 0, 3);
+
+
 
 	for (var j = 0; j < 2; j++) {
 		var rotate = rotationPerColumn * j;
@@ -357,18 +370,33 @@ function animate() {
 		controls.getDirection(raycasterFront.ray.direction);
 		//raycasterFront.ray.origin.y -= 1;
 
+		var vector = new THREE.Vector3(0, 0, -1);
+		vector = camera.localToWorld(vector);
+		vector.sub(camera.position); // Now vector is a unit vector with the same direction as the camera
+
+		raycasterCamera.ray.direction = vector;
+
 		if (multiplayer) {
-			multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
+			var currentTime = performance.now();
+			if (lastServerSync === 0) {
+				lastServerSync = currentTime;
+			} else {
+				if ((currentTime - lastServerSync) > serverTickinMS) {
+					multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
+					lastServerSync = currentTime;
+					//console.log(lastServerSync);
+				}
+			}
 		}
 
-		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront);
+		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
 	    renderer.render(scene, camera);
 	    
 		proximityModule.proximityDetector();
 		transformModule.animateDoors();
  		
 
-	 	//animateDrop(lastObject);
+		transformModule.animateDrop();
 		//transformModule.patrolRobot(botBody);
  	
 		/*if(botAggressive == 1)

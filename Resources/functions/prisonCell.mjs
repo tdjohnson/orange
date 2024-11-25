@@ -85,6 +85,12 @@ export class PrisonCell extends THREE.Mesh {
 		this.add(sink);
 		collidableMeshList.push(sink);
 
+		
+		var soap = new Soap(renderer);
+		soap.position.set(0.85,4.5,10);
+		this.add(soap);
+		collidableMeshList.push(soap);
+
 		var toilet = new Toilet(renderer);
 		toilet.position.set(2.5,0,5);
 		toilet.rotation.y =  Math.PI*0.5;
@@ -110,15 +116,10 @@ export class PrisonCell extends THREE.Mesh {
 		tablelamp.rotation.y =  Math.PI;
 		this.add(tablelamp);
 
-		/*var soap = new Soap();
-		soap.position.set(0.5,2.5,12);
-		this.add(soap);
 		
 		
 		
-		
-		
-		var chair = new Chair();
+		/*var chair = new Chair();
 		chair.position.set(9,-0.3, 9.8);
 		chair.rotation.y =  Math.PI/180*-90;
 		this.add(chair);
@@ -149,6 +150,23 @@ export class PrisonCell extends THREE.Mesh {
 
 }
 
+class Soap extends THREE.Mesh {
+	constructor(renderer) {
+		super();
+
+		this.scale.x = this.scale.y = this.scale.z = 0.15;
+		this.userData.info = "Wirf mich runter mit Y!";
+		this.userData.rotatable = true;
+		this.userData.isDropable = true;
+		this.userData.name = "soap"
+		this.userData.isTriggerable = true;
+		var scope = this;
+		meshloader('./Prototypes/Seife/seife.glb',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
+}
+
 
 class TableLamp extends THREE.Mesh {
 	constructor(renderer, scene) {
@@ -170,6 +188,7 @@ class TableLamp extends THREE.Mesh {
 		this.userData.info = "Licht aus  mit T";
 		this.userData.rotatable = true;
 		this.userData.isTurnedOn = true;
+		this.userData.isTriggerable = true;
 		this.add(light);
 
 		var scope = this;
@@ -213,6 +232,7 @@ class Toilet extends THREE.Mesh {
 		super();
 		this.name = "Klo";
 		this.userData.info = "Sauber geputzt!";
+		this.userData.isTriggerable = true;
 		var scope = this;
 		meshloader('./Prototypes/Klo/klo.glb',function(model) {
 			scope.add(model);
@@ -257,7 +277,8 @@ class WallCellDoorCol2 extends THREE.Mesh {
 
 		this.userData.isOpenable = true;
 		this.userData.isOpen = false;
-		this.userData.Name = "Door2";
+		this.userData.name = "Door2";
+		this.userData.isTriggerable = true;
 		var scope = this;
 		meshloader('./Prototypes/Tuer/WallCellDoorCol2.glb',function(model) {
 			scope.add(model);

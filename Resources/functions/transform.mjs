@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 var door;
+var soap;
 
 // rotate object around own axis
 export function rotate(object, axis, degree) { 
@@ -18,14 +19,48 @@ export function rotateBot(object, axis, degree) {
 	    var quaternion = new THREE.Quaternion();
 	    quaternion.setFromAxisAngle(axis, angle);
 	    object.quaternion.multiply(quaternion);
-} 
+}
+
+
+
+export function triggerObject(intersectArray) {
+	/*intersectArray.forEach(element => {
+		console.log(element.object.parent.parent);
+	});*/
+	//we need to traverse all parentObjects, as actual objects with usereData can be hidden deep in the object tree
+	var currentObj = intersectArray[0].object;
+	//console.log(currentObj);
+	var correctObject;
+	var foundParent = false;
+	while (!foundParent) {
+		if (Object.hasOwn(currentObj, 'userData')) {
+			if (Object.hasOwn(currentObj.userData, 'isTriggerable')) {
+				console.log(currentObj.userData);
+				correctObject = currentObj;
+				foundParent = true;
+			}
+		}
+		currentObj = currentObj.parent;
+	}
+	switch (correctObject.userData.name) {
+		case "soap": {
+			triggerDrop(correctObject);
+			break;
+		}
+		case "Door2": {
+			triggerDoor(correctObject);
+			break;
+		}
+	}
+}
 
 export function triggerDrop(object) {
 	if (object.userData.isDropable == true) {
 		object.userData.isDropable = false;
+		soap = object;
 			if (object.userData.info.indexOf("Wirf")>-1) {
 				object.userData.info = "Heb mich auf";
-					
+				
 			} else if(object.userData.info.indexOf("Heb")>-1) {
 	
 				object.userData.info = "Wirf mich runter mit Y!";
@@ -35,41 +70,9 @@ export function triggerDrop(object) {
 	}
 }
 
-export function animateDrop(object) {
-	// TO DO: fix angle
-
-	if (object.userData.isDropable == false) {
-			animationLock = true; // lock raycaster //not nice...shame on you
-		if (object.userData.info.indexOf("Heb")>-1) {
-			if(object.position.z > 11.6){
-					object.position.z -= 0.05;
-			}
-			else{
-				if (object.position.y > 0.1){
-					object.position.y -= 0.1;
-					
-					if(object.position.z > 11 && object.position.z < 11.6){
-						object.position.z -= 0.05;
-					}
-					
-					rotate(object, new THREE.Vector3(1,0,0),-8);
-					
-				}else{
-					animationLock = false; // unlock raycaster //not nice...shame on you
-				}
-			}
-		}
-		else
-			object.userData.isDropable = true;
-	}
-	else {
-		
-	}	
-}
-
-export function triggerDoor(parentObject) {
-	if (null != parentObject.object.parent.parent) {
-		var object = parentObject.object.parent.parent;
+export function triggerDoor(object) {
+	//if (null != parentObject.object.parent.parent) {
+		//var object = parentObject.object.parent.parent;
 		if (object.userData.isOpenable === true) {
 			object.userData.isOpenable = false;
 			if (object.userData.isOpen === false) {
@@ -82,7 +85,7 @@ export function triggerDoor(parentObject) {
 				door = object;
 			}
 		}
-	}
+    //}
 }
 
 export function switchTableLight(object) {
@@ -101,6 +104,40 @@ export function switchTableLight(object) {
 		object.userData.isTurnedOn = false;
 	}
 }
+
+export function animateDrop() {
+	// TO DO: fix angle
+	if (soap != null) {
+		if (soap.userData.isDropable == false) {
+				//animationLock = true; // lock raycaster //not nice...shame on you
+			if (soap.userData.info.indexOf("Heb")>-1) {
+				if(soap.position.z > 11.6){
+					soap.position.z -= 0.05;
+				}
+				else{
+					if (soap.position.y > 0.1){
+						soap.position.y -= 0.1;
+						
+						if(soap.position.z > 11 && soap.position.z < 11.6){
+							soap.position.z -= 0.05;
+						}
+						
+						rotate(soap, new THREE.Vector3(1,0,0),-8);
+						
+					}else{
+						//animationLock = false; // unlock raycaster //not nice...shame on you
+					}
+				}
+			}
+			else
+			soap.userData.isDropable = true;
+		}
+		else {
+			
+		}
+	}	
+}
+
 
 export function animateDoors() {
 	
