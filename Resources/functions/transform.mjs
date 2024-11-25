@@ -35,7 +35,7 @@ export function triggerObject(intersectArray) {
 	while (!foundParent) {
 		if (Object.hasOwn(currentObj, 'userData')) {
 			if (Object.hasOwn(currentObj.userData, 'isTriggerable')) {
-				console.log(currentObj.userData);
+				console.log(currentObj);
 				correctObject = currentObj;
 				foundParent = true;
 			}
