@@ -3,7 +3,7 @@ import * as signalR from 'signalR';
 import * as UMPS from 'umps';
 import * as objectsModule from './objects.mjs';
 
-const serverTickinMS = 500;
+const serverTickinMS = 60; //Only every x Milliseconds will the client report its position to server, so server is not flooded with messages
 var lastServerSync = 0;
 
 
@@ -81,7 +81,7 @@ export class Multiplayer extends THREE.Mesh {
     updatePlayer(player, playerData) {
         //dirty player height hack, might break in the future
         player.body.position.set(playerData.x, playerData.y - this.scene.children[0].playerHeight, playerData.z);
-        
+
         const newDir = new THREE.Vector3(playerData.xd, playerData.yd, playerData.zd);
         const pos = new THREE.Vector3().addVectors(newDir, player.body.position);
         player.body.lookAt(pos);
