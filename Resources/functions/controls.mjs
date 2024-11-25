@@ -129,8 +129,8 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
       	var deltaMultiplicator = 8;
-		var walkingSpeedImpulse = 1;
-		var jumpImpulse = 14;
+		var walkingSpeedImpulse = 0.5;
+		var jumpImpulse = 17;
 		var TargetY = 4;
 		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
 
