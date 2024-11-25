@@ -131,7 +131,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		var delta = clock.getDelta();
       	var deltaMultiplicator = 12;
 		var walkingSpeedImpulse = 0.01;
-		var jumpImpulse = 14;
+		var jumpImpulse = 17;
 		var TargetY = 4;
 		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
 
