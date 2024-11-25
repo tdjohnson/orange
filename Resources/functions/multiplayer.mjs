@@ -3,7 +3,7 @@ import * as signalR from 'signalR';
 import * as UMPS from 'umps';
 import * as objectsModule from './objects.mjs';
 
-const serverTickinMS = 60; //Only every x Milliseconds will the client report its position to server, so server is not flooded with messages
+const serverTickinMS = 20; //Only every x Milliseconds will the client report its position to server, so server is not flooded with messages
 var lastServerSync = 0;
 
 
