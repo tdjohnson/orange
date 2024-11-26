@@ -7,7 +7,7 @@ import * as pointerLockModule from './Resources/functions/pointerLock.mjs';
 import * as objectsModule from './Resources/functions/objects.mjs';
 import * as splashScreenModule from './Resources/functions/splashScreen.mjs';
 import * as proximityModule from './Resources/functions/proximity.mjs';
-import * as prisonCellModule from './Resources/functions/PrisonCell.mjs';
+import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 
