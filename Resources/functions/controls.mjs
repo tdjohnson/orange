@@ -135,6 +135,8 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		var TargetY = 4;
 		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
 
+		//add BBcollision
+
 		if(pressedKeys.get(" ")) {
 			if (canJump === true) {
 				velocity.y += jumpImpulse;
