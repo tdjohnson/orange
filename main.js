@@ -7,7 +7,7 @@ import * as pointerLockModule from './Resources/functions/pointerLock.mjs';
 import * as objectsModule from './Resources/functions/objects.mjs';
 import * as splashScreenModule from './Resources/functions/splashScreen.mjs';
 import * as proximityModule from './Resources/functions/proximity.mjs';
-import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
+import * as prisonCellModule from './Resources/functions/PrisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 
@@ -38,6 +38,8 @@ var prisonWallRoot;
 const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
 var raycasterCamera;
+
+var playerBoundingBox;
 
 
 
@@ -120,6 +122,9 @@ function init() {
 	controls.object.position.set(5, playerHeight, 8);
 	
 
+	playerBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+	playerBoundingBox.setFromObject(controls.object);
+
 
 	scene.add(controls.object);
 
@@ -164,7 +169,7 @@ function init() {
 	var cellStartX = -30;
 	var cellStartZ = 0;
 	camera.position.x = cellStartX + 3;
-	camera.position.Z = cellStartZ + 3;
+	camera.position.z = cellStartZ + 3;
 	var rotationPerColumn = Math.PI;
 
 
@@ -198,9 +203,9 @@ function init() {
 	pointerLockModule.initPointerLock(havePointerLock);
 
 
-	scene.add(grid); 
-	
-	createSandFloor();
+	scene.add(grid);
+	addRamps(renderer);
+	addSandFloor(renderer);
 	sun();
 
 
@@ -227,6 +232,22 @@ function cloning(n) {
 		newCell.position.set(j*11.55,0,41.5);
 		scene.add(newCell);
 	}
+}
+
+function addRamps(renderer) {
+	var ramp1 = new objectsModule.Ramp(renderer);
+	ramp1.position.set(-35,-2.5,12);
+	scene.add(ramp1);
+	collidableMeshList.push(ramp1);
+
+	var ramp2 = new objectsModule.Ramp(renderer);
+	ramp2.rotateY(Math.PI);
+	ramp2.position.set(35,-2.5,30);
+	scene.add(ramp2);
+	collidableMeshList.push(ramp2);
+
+
+
 }
 
 
@@ -314,7 +335,7 @@ function sun(){
 	scene.add(helper);
 	
 }
-function createSandFloor() {
+function addSandFloor(renderer) {
 	var sand = new objectsModule.Sand(renderer);
 	sand.position.set(100, -5, 100);
 	scene.add(sand);

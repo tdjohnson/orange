@@ -20,35 +20,6 @@ export function meshloader(objURL, callback){
 }
 
 
-export function Chair()
-{
-	THREE.Object3D.call( this );
-
-    this.scale.x = this.scale.y = this.scale.z = 1.2;
-    this.name = "chair";
-	var scope = this;
-	meshloader('./Prototypes/Stuhl/stuhl.json',function(model) {scope.add(model);});
-}
-Chair.prototype = Object.create(THREE.Object3D.prototype);
-Chair.prototype.constructor = Chair;
-
-
-export function Radiator()
-{
-	THREE.Object3D.call( this );
-	this.scale.x = 1.2;
-	this.scale.y = 0.7;
-	this.scale.z = 0.5;
-	this.name = "Luefter";
-	this.userData.info = " ";
-	var scope = this;
-	meshloader('./Prototypes/Luefter/luefter.json',function(model) {scope.add(model);});
-	collidableMeshList.push(this);
-}
-Radiator.prototype = Object.create(THREE.Object3D.prototype);
-Radiator.prototype.constructor = Radiator;
-
-
 export function Mirror()
 {	
 	THREE.Object3D.call( this );
@@ -244,6 +215,22 @@ export class Sand extends THREE.Mesh {
 		}, renderer);
 	}
 }
+
+export class Ramp extends THREE.Mesh {
+	constructor(renderer) {
+        super();
+		this.receiveShadow = true;
+		//this.scale.x = this.scale.z = 2;
+		//this.scale.y = 5;
+		var rampScaler = 3;
+		this.scale.multiplyScalar(rampScaler);
+		var scope = this;
+		meshloader('./Prototypes/Sand/ramp.glb',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
+}
+
 
 export class PrisonWall extends THREE.Mesh {
 	constructor(renderer) {

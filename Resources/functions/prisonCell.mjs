@@ -80,14 +80,14 @@ export class PrisonCell extends THREE.Mesh {
 		collidableMeshList.push(door2);
 
 		var sink = new Sink(renderer);
-		sink.position.set(1.2,4.5,11);
+		sink.position.set(1.2,4.5,12);
 		sink.rotation.y = Math.PI*0.5;
 		this.add(sink);
 		collidableMeshList.push(sink);
 
 		
 		var soap = new Soap(renderer);
-		soap.position.set(0.85,4.5,10);
+		soap.position.set(0.85,4.5,11);
 		this.add(soap);
 		collidableMeshList.push(soap);
 
@@ -96,8 +96,18 @@ export class PrisonCell extends THREE.Mesh {
 		toilet.rotation.y =  Math.PI*0.5;
 		this.add(toilet);
 		collidableMeshList.push(toilet);
+
+		const toiletBB = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+		toiletBB.setFromObject(toilet);
 		
 		
+		
+		var radiator = new Radiator(renderer);
+		radiator.position.set(0.8,6,10);
+		radiator.rotation.y =  Math.PI/180*90;
+		this.add(radiator);
+
+
 		//Table Stuff
 		var table = new Table(renderer);
 		table.position.set(10,0,12.8);
@@ -115,22 +125,13 @@ export class PrisonCell extends THREE.Mesh {
 		tablelamp.position.set(10, 2.2, 8.5);
 		tablelamp.rotation.y =  Math.PI;
 		this.add(tablelamp);
-
 		
-		
-		
-		/*var chair = new Chair();
+		var chair = new Chair(renderer);
 		chair.position.set(9,-0.3, 9.8);
 		chair.rotation.y =  Math.PI/180*-90;
 		this.add(chair);
-		
-		var radiator = new Radiator();
-		radiator.position.set(1,5.6,9.4);
-		radiator.rotation.y =  Math.PI/180*90;
-		this.add(radiator);
-		
+		collidableMeshList.push(chair);
 
-		*/
 		
 		var bed = new Bett(renderer);
 		bed.position.set(9,0,4.3);
@@ -148,6 +149,19 @@ export class PrisonCell extends THREE.Mesh {
 		*/
 	}
 
+}
+
+class Chair extends THREE.Mesh {
+	constructor(renderer) {
+		super();
+
+		this.scale.x = this.scale.y = this.scale.z = 1.2;
+		this.name = "chair";
+		var scope = this;
+		meshloader('./Prototypes/Stuhl/stuhl_neu.glb',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
 }
 
 class Soap extends THREE.Mesh {
@@ -221,6 +235,22 @@ class Table extends THREE.Mesh {
 		this.name = "tisch";
 		var scope = this;
 		meshloader('./Prototypes/Tisch/table.glb',function(model) {
+			scope.add(model);
+		}, renderer);
+	}
+}
+
+
+class Radiator extends THREE.Mesh {
+	constructor(renderer) {
+		super();
+		this.scale.x = 1.2;
+		this.scale.y = 0.7;
+		this.scale.z = 0.5;
+		this.name = "Luefter";
+		this.userData.info = " ";
+		var scope = this;
+		meshloader('./Prototypes/Luefter/luefter.glb',function(model) {
 			scope.add(model);
 		}, renderer);
 	}
