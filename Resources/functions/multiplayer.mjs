@@ -12,7 +12,11 @@ var lastMovementTime = 0;
 var lastPosition = new THREE.Vector3();
 var lastDirection = new THREE.Vector3();
 
-const round = (num) => Math.round(num * 1000) / 1000;
+const roundVector = (v) => new THREE.Vector3(
+    Math.round(v.x * 1000) / 1000,
+    Math.round(v.y * 1000) / 1000,
+    Math.round(v.z * 1000) / 1000
+);
 
 export class Multiplayer extends THREE.Mesh {
      constructor(renderer, collidableMeshList, scene) {
@@ -55,19 +59,19 @@ export class Multiplayer extends THREE.Mesh {
         } else {
             if ((currentTime - lastServerSync) > serverTickinMS) {
                
-                const roundedPos = new THREE.Vector3(round(pos.x), round(pos.y), round(pos.z));
-                const roundedDir = new THREE.Vector3(round(dir.x), round(dir.y), round(dir.z));
+                const rPos = roundVector(pos);
+                const rDir = roundVector(dir);
 
-                if (forceSend || !roundedPos.equals(lastPosition) || !roundedDir.equals(lastDirection)) {
+                if (forceSend || !rPos.equals(lastPosition) || !rDir.equals(lastDirection)) {
 
                     const player = {
                         id: this.playerId,
-                        x: roundedPos.x,
-                        y: roundedPos.y,
-                        z: roundedPos.z,
-                        xd: roundedDir.x,
-                        yd: roundedDir.y,
-                        zd: roundedDir.z
+                        x: rPos.x,
+                        y: rPos.y,
+                        z: rPos.z,
+                        xd: rDir.x,
+                        yd: rDir.y,
+                        zd: rDir.z
                     };
                     if (this.umps.hub.connection.q === "Connected") {
                         this.umps.hub.invoke("SendData", player).catch(err => {
@@ -76,8 +80,8 @@ export class Multiplayer extends THREE.Mesh {
                     }
 
                     lastServerSync = currentTime;
-                    lastPosition.copy(roundedPos);
-                    lastDirection.copy(roundedDir);
+                    lastPosition.copy(rPos);
+                    lastDirection.copy(rDir);
                 }
             }
         }
