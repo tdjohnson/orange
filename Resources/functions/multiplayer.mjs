@@ -5,7 +5,18 @@ import * as objectsModule from './objects.mjs';
 
 const serverTickinMS = 20; //Only every x Milliseconds will the client report its position to server, so server is not flooded with messages
 var lastServerSync = 0;
+const idleCheckInterval = 1000;
+const idleThreshold = 1;
+const idleTimeout = 60000;
+var lastMovementTime = 0;
+var lastPosition = new THREE.Vector3();
+var lastDirection = new THREE.Vector3();
 
+const roundVector = (v) => new THREE.Vector3(
+    Math.round(v.x * 1000) / 1000,
+    Math.round(v.y * 1000) / 1000,
+    Math.round(v.z * 1000) / 1000
+);
 
 export class Multiplayer extends THREE.Mesh {
      constructor(renderer, collidableMeshList, scene) {
@@ -31,39 +42,52 @@ export class Multiplayer extends THREE.Mesh {
                 this.addNewPlayer(player);
             }
         });
+
+        this.playerLastUpdate = {};
+        setInterval(() => this.checkIdle(), idleCheckInterval);
     }
 
     getPlayerId() {
         return this.playerId;
     }
  
-    sendData(pos, dir) {
-
+    sendData(pos, dir, forceSend = false) {
+       
         var currentTime = performance.now();
         if (lastServerSync === 0) {
             lastServerSync = currentTime;
         } else {
             if ((currentTime - lastServerSync) > serverTickinMS) {
-    
-                const player = {
-                    id: this.playerId,
-                    x: pos.x,
-                    y: pos.y,
-                    z: pos.z,
-                    xd: dir.x,
-                    yd: dir.y,
-                    zd: dir.z
-                };
-                if (this.umps.hub.connection.q === "Connected") {
-                    this.umps.hub.invoke("SendData", player).catch(err => {
-                        console.error("Error sending data: ", err);
-                    })
-                };
+               
+                const rPos = roundVector(pos);
+                const rDir = roundVector(dir);
 
-                lastServerSync = currentTime;
-                //console.log(lastServerSync);
+                if (forceSend || !rPos.equals(lastPosition) || !rDir.equals(lastDirection)) {
+
+                    const player = {
+                        id: this.playerId,
+                        x: rPos.x,
+                        y: rPos.y,
+                        z: rPos.z,
+                        xd: rDir.x,
+                        yd: rDir.y,
+                        zd: rDir.z
+                    };
+                    if (this.umps.hub.connection.q === "Connected") {
+                        this.umps.hub.invoke("SendData", player).catch(err => {
+                            console.error("Error sending data: ", err);
+                        });
+                    }
+
+                    lastServerSync = currentTime;
+                    lastPosition.copy(rPos);
+                    lastDirection.copy(rDir);
+                }
             }
         }
+
+        lastMovementTime = performance.now();
+        this.playerLastUpdate[this.playerId] = lastMovementTime;
     }
 
     addNewPlayer(player) {
@@ -76,6 +100,7 @@ export class Multiplayer extends THREE.Mesh {
         this.players.push(newPlayer);
         this.collidableMeshList.push(newPlayer.body);
         this.scene.add(newPlayer.body);
+        this.playerLastUpdate[player.id] = performance.now();
     }
 
     updatePlayer(player, playerData) {
@@ -85,6 +110,7 @@ export class Multiplayer extends THREE.Mesh {
         const newDir = new THREE.Vector3(playerData.xd, playerData.yd, playerData.zd);
         const pos = new THREE.Vector3().addVectors(newDir, player.body.position);
         player.body.lookAt(pos);
+        this.playerLastUpdate[player.id] = performance.now();
     }
 
     addPlayerIdText(body, playerId) {
@@ -100,5 +126,21 @@ export class Multiplayer extends THREE.Mesh {
         const plane = new THREE.Mesh(planeGeometry, material);
         plane.position.set(1, 1.2, 0);
         body.add(plane);
+    }
+
+    checkIdle() {
+        const currentTime = performance.now();
+        if ((performance.now() - lastMovementTime) >= idleThreshold) {
+            this.sendData(lastPosition, lastDirection, true);
+        }
+
+        this.players = this.players.filter(player => {
+            if ((currentTime - this.playerLastUpdate[player.id]) > idleTimeout) {
+                this.scene.remove(player.body);
+                this.collidableMeshList = this.collidableMeshList.filter(mesh => mesh !== player.body);
+                return false;
+            }
+            return true;
+        });
     }
 }
