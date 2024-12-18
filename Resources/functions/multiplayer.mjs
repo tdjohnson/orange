@@ -11,6 +11,8 @@ var lastMovementTime = 0;
 var lastPosition = new THREE.Vector3();
 var lastDirection = new THREE.Vector3();
 
+const round = (num) => Math.round(num * 1000) / 1000;
+
 export class Multiplayer extends THREE.Mesh {
      constructor(renderer, collidableMeshList, scene) {
         super();
@@ -50,24 +52,22 @@ export class Multiplayer extends THREE.Mesh {
             lastServerSync = currentTime;
         } else {
             if ((currentTime - lastServerSync) > serverTickinMS) {
-    
                 const player = {
                     id: this.playerId,
-                    x: pos.x,
-                    y: pos.y,
-                    z: pos.z,
-                    xd: dir.x,
-                    yd: dir.y,
-                    zd: dir.z
+                    x: round(pos.x),
+                    y: round(pos.y),
+                    z: round(pos.z),
+                    xd: round(dir.x),
+                    yd: round(dir.y),
+                    zd: round(dir.z)
                 };
                 if (this.umps.hub.connection.q === "Connected") {
                     this.umps.hub.invoke("SendData", player).catch(err => {
                         console.error("Error sending data: ", err);
-                    })
-                };
+                    });
+                }
 
                 lastServerSync = currentTime;
-                //console.log(lastServerSync);
             }
         }
 
