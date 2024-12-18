@@ -5,7 +5,11 @@ import * as objectsModule from './objects.mjs';
 
 const serverTickinMS = 20; //Only every x Milliseconds will the client report its position to server, so server is not flooded with messages
 var lastServerSync = 0;
-
+const idleCheckInterval = 1000;
+const idleThreshold = 5000;
+var lastMovementTime = 0;
+var lastPosition = new THREE.Vector3();
+var lastDirection = new THREE.Vector3();
 
 export class Multiplayer extends THREE.Mesh {
      constructor(renderer, collidableMeshList, scene) {
@@ -31,6 +35,8 @@ export class Multiplayer extends THREE.Mesh {
                 this.addNewPlayer(player);
             }
         });
+
+        setInterval(() => this.checkIdle(), idleCheckInterval);
     }
 
     getPlayerId() {
@@ -64,6 +70,10 @@ export class Multiplayer extends THREE.Mesh {
                 //console.log(lastServerSync);
             }
         }
+
+        lastMovementTime = performance.now();
+        lastPosition.copy(pos);
+        lastDirection.copy(dir);
     }
 
     addNewPlayer(player) {
@@ -100,5 +110,12 @@ export class Multiplayer extends THREE.Mesh {
         const plane = new THREE.Mesh(planeGeometry, material);
         plane.position.set(1, 1.2, 0);
         body.add(plane);
+    }
+
+    checkIdle() {
+        const currentTime = performance.now();
+        if (currentTime - lastMovementTime > idleThreshold) {
+            this.sendData(lastPosition, lastDirection);
+        }
     }
 }
