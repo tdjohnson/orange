@@ -174,8 +174,9 @@ function init() {
 
 	var cellStartX = -30;
 	var cellStartZ = 0;
-	camera.position.x = cellStartX + 3;
-	camera.position.z = cellStartZ + 3;
+	var cameraPositionInCellOfset = 3;
+	camera.position.x = cellStartX + cameraPositionInCellOfset;
+	camera.position.z = cellStartZ + cameraPositionInCellOfset;
 	var rotationPerColumn = Math.PI;
 
 
@@ -185,17 +186,31 @@ function init() {
 
 	raycasterCamera = new THREE.Raycaster( camera.position, vector, 0, 3);
 
+	var cellRowCount = 2;
+	var cellsPerRow = 6;
 
+	var totalCellcount = cellRowCount * cellsPerRow;
 
-	for (var j = 0; j < 2; j++) {
+	var startCell = Math.floor(Math.random() * totalCellcount);
+	console.log("StartCell: "+startCell);
+
+	var currentCell = 0;
+	for (var j = 0; j < cellRowCount; j++) {
 		var rotate = rotationPerColumn * j;
-		for (var i = 0; i < 6; i++) {
+		for (var i = 0; i < cellsPerRow; i++) {
 			var cellOffsetX = cellStartX + (12 * i);
 			var cellOffsetZ = cellStartZ + (42 * j);
 			var rootCell = new prisonCellModule.PrisonCell(renderer, collidableMeshList, scene);
 			rootCell.position.set(cellOffsetX,0,cellOffsetZ);
 			rootCell.rotateY(rotate);
 			scene.add(rootCell);
+
+			currentCell++;
+			console.log("CurrentCell: "+ currentCell);
+			if (currentCell == startCell) {
+				camera.position.x = cellOffsetX + cameraPositionInCellOfset;
+				camera.position.z = cellStartZ + cameraPositionInCellOfset;
+			}
 		}
 	}
 
