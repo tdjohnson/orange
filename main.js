@@ -21,6 +21,7 @@ var controlsEnabled = true;
 var multiplayer;
 var playerBody;
 var collidingObjects;
+var collidableObjects;
 
 var gameMode;
 
@@ -133,7 +134,7 @@ function init() {
 	controls.object.position.set(5, playerHeight, 8);
 	playerBody = new objectsModule.JailBotBody(renderer);
 	controls.getObject().add(playerBody);
-	//playerBody.position(0, -1, 0);
+	playerBody.position.set(0, 0.5, 1); 
 
 	playerBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
 	playerBoundingBox.setFromObject(controls.object);
@@ -217,6 +218,7 @@ function init() {
 			if (currentCell == startCell) {
 				camera.position.x = cellOffsetX + cameraPositionInCellOfset;
 				camera.position.z = cellStartZ + cameraPositionInCellOfset;
+				//camera.position.y = 99990;
 			}
 		}
 	}
@@ -409,15 +411,12 @@ function animate() {
 
 	if(gameMode != null && playerBody != null)
 	{
-
-
 		collidingObjects = collisionDetection(playerBody, collidableMeshList);
-
-
-		console.log("GEILES STUECK");
+		console.log("Colision detected with:");
 		console.log(collidingObjects);
 
 	}
+
 
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
@@ -437,6 +436,7 @@ function animate() {
 
 		if (multiplayer) {
 			multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
+			//multiplayer.adjustAudioVolume();
 		}
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);

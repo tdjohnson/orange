@@ -29,6 +29,7 @@ export class Multiplayer extends THREE.Mesh {
         this.playerBody = new objectsModule.JailBotBody(renderer);
         this.playerId = this.umps.GetPlayerId();
         this.players = [];
+
     }
     
     init() {
@@ -45,7 +46,18 @@ export class Multiplayer extends THREE.Mesh {
 
         this.playerLastUpdate = {};
         setInterval(() => this.checkIdle(), idleCheckInterval);
+
+
+
     }
+
+  
+  
+  
+  
+  
+  
+
 
     getPlayerId() {
         return this.playerId;
@@ -143,6 +155,7 @@ export class Multiplayer extends THREE.Mesh {
             if ((currentTime - this.playerLastUpdate[player.id]) > idleTimeout) {
                 this.scene.remove(player.body);
                 this.collidableMeshList = this.collidableMeshList.filter(mesh => mesh !== player.body);
+                                
                 return false;
             }
             return true;
