@@ -170,6 +170,11 @@ export function animateDoors() {
 	}
 }
 
+export function animateBullets(bulletList) {
+	
+
+}
+
 
 //Ausdehnung
 

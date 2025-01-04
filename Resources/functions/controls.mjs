@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {collisionDetection} from './collision.mjs'
 import {showMessageContent} from './splashScreen.mjs';
 import * as transformModule from './transform.mjs';
+import * as bulletControl from './bulletControl.mjs';
 
 var moveForward,
     moveBackward,
@@ -16,19 +17,40 @@ var velocity = new THREE.Vector3();
 var pressedKeys = new Map();
 var maxVelocity = 0.2;
 
+var renderScene;
+var currentBody;
 
-
-export function initControls() {
+export function initControls(currentRenderScene) {
 	document.addEventListener('keydown', onKeyDown, false);
 	document.addEventListener('keyup', onKeyUp, false);
+	document.addEventListener("mousedown", onMouseDown, false);
+	document.addEventListener("mouseup", onMouseUp, false);
 	canJump = true;
+	renderScene = currentRenderScene;
+}
+
+export function onMouseDown(e) {
+	//console.log(e.button);
+	switch (e.button) {
+		case 0: //left mouse click
+				pressedKeys.set("LMB", true);
+				bulletControl.addBullet(renderScene);
+	}
+}
+
+export function onMouseUp(e) {
+	//console.log(e.button);
+	switch (e.button) {
+		case 0: //left mouse click
+				pressedKeys.set("LMB", false);
+	}
 }
 
 export function onKeyDown(e) {
 	hasMoved = true;
     switch (e.keyCode) {
 		case 32: // space
-			pressedKeys.set(" ", true)
+			pressedKeys.set(" ", true);
 		    break;
 		case 37: // left
     	case 38: // up
@@ -36,7 +58,7 @@ export function onKeyDown(e) {
 		case 40: // down
 		
 		case 65: // a
-			pressedKeys.set("a", true)
+			pressedKeys.set("a", true);
 			break;
 		case 66: //b
 			{
@@ -48,7 +70,7 @@ export function onKeyDown(e) {
 			}
 			break;
 		case 68: // d
-			pressedKeys.set("d", true)
+			pressedKeys.set("d", true);
 			break;
 		case 69: // e
 	 		rotate(lastObject,new THREE.Vector3(0,1,0),-5); //object,axis,degree
@@ -60,7 +82,7 @@ export function onKeyDown(e) {
 			rotate(lastObject,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
 			break;
   		case 83: // s
-		  	pressedKeys.set("s", true)	
+		  	pressedKeys.set("s", true);
 			break;
 		case 84: //t
 			//transformModule.triggerDoor(lastObject);
@@ -83,24 +105,26 @@ export function onKeyDown(e) {
 
 export function onKeyUp(e) {
 	switch(e.keyCode) {
+		case 1: // left mouse button
+			pressedKeys.set("LMB", false);
 		case 32: // space
-			pressedKeys.set(" ", false)
+			pressedKeys.set(" ", false);
 			break;
 		case 37: // left
     	case 38: // up
 		case 39: // right
 	  	case 40: // down
 	  	case 65: // a
-		  pressedKeys.set("a", false)
+		  pressedKeys.set("a", false);
 		  break;
 	  	case 68: // d
-		  pressedKeys.set("d", false)
+		  pressedKeys.set("d", false);
 		  break;
 	  	case 83: // s
-		  pressedKeys.set("s", false)
+		  pressedKeys.set("s", false);
 		  break;   
 	  	case 87: // w
-		  pressedKeys.set("w", false)
+		  pressedKeys.set("w", false);
 		  break;
 	}
 }

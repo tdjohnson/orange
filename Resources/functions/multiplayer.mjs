@@ -12,6 +12,7 @@ var lastMovementTime = 0;
 var lastPosition = new THREE.Vector3();
 var lastDirection = new THREE.Vector3();
 
+
 const roundVector = (v) => new THREE.Vector3(
     Math.round(v.x * 1000) / 1000,
     Math.round(v.y * 1000) / 1000,

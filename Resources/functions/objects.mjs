@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as bulletControl from './bulletControl.mjs';
 
 var performanceBoost = true;
 
@@ -216,7 +217,6 @@ export class Tower extends THREE.Mesh {
 		}, renderer);
 	}
 }
-
 
 export class Sand extends THREE.Mesh {
 	constructor(renderer) {

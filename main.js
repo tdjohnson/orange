@@ -10,6 +10,7 @@ import * as proximityModule from './Resources/functions/proximity.mjs';
 import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
+import * as bulletControl from './Resources/functions/bulletControl.mjs';
 
 var clock;
 var scene, camera, renderer;
@@ -119,7 +120,7 @@ function init() {
 	//hitDirection = 1;
 	//rotationActive = 0;
 
-	controlsModule.initControls();
+	controlsModule.initControls(scene);
 
 	controls = new PointerLockControls(camera, document.body);
 	
@@ -229,6 +230,8 @@ function init() {
 	addSandFloor(renderer);
 	sun();
 
+	bulletControl.setPositionReference(camera);
+	bulletControl.setSceneReference(scene);
 
 	THREE.DefaultLoadingManager.onLoad = function () {
 		console.log("finished loading");
@@ -429,6 +432,7 @@ function animate() {
  		
 
 		transformModule.animateDrop();
+		transformModule.animateBullets(bulletControl.getBulletArray());
 		//transformModule.patrolRobot(botBody);
  	
 		/*if(botAggressive == 1)
