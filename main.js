@@ -46,6 +46,28 @@ objectsModule.setPerformanceOptimization(performanceBoostGlobal);
 prisonCellModule.setPerformanceOptimization(performanceBoostGlobal);
 hallwayModule.setPerformanceOptimization(performanceBoostGlobal);
 
+async function retrieveServerList() {
+    const response = await fetch("https://umps.tdj23.com/api/Server/GetServers");
+
+    if (response.ok) {
+		var server_list = await response.json();
+        return server_list;
+    } else {
+		console.log(response);
+        throw new Error('Retrieving server list failed.');
+    }
+}
+
+function createServerListDropdown(server_list) {
+	const select = document.getElementById("serverSelector")
+	server_list.forEach(element => {
+		let option = new Option(element.name, element.id)
+		select.add(option, undefined);
+	});
+
+	select.selectedIndex = 0;
+}
+
 
 function closeStart() {
 	toWakeUp = splashScreenModule.closeStart();
@@ -454,7 +476,7 @@ function showMessage(text){
 
 function showWelcomeMessage(player_name){
 	console.log("Hello " + player_name + "!");
-	document.getElementById("welcomeMessage").innerHTML="<h1>Hello " + player_name + "!</h1><br>The game starts in 3 seconds!";
+	document.getElementById("welcomeMessage").innerHTML="<h1>Hello " + player_name + "!</h1><br>The game starts in 2 seconds!";
 	document.getElementById("welcomeMessage").style.display="block";
 }
 
@@ -462,40 +484,67 @@ function removeWelcomeMessage(){
 	document.getElementById("welcomeMessage").style.display="none";
 }
 
-function loadMultiplayer(player_name){
+function loadMultiplayer(player_name, selected_server){
 	console.log("Loading multiplayer...");
 	closeStart();
 	init();
 	import('./Resources/functions/multiplayer.mjs').then(module => {
-		multiplayer = new module.Multiplayer(renderer, collidableMeshList, scene, player_name);
+		multiplayer = new module.Multiplayer(renderer, collidableMeshList, scene, player_name, selected_server);
 		multiplayer.init();
 	});
 }
 
 export function startSingleplayer() {
     console.log("Starting Singleplayer mode...");
+	closeStart();
 	init();
 }
 
 export function startMultiplayerWithName() {
 	var player_name = document.getElementById("player_name").value;
+	var selected_server_id = document.getElementById("serverSelector").value;
 	if(player_name === "" || player_name === null){
 		alert("Please type in a name for your player!");
 		return;
 	}else{
 		document.getElementById("userDetails").style.display = "none";
-		showWelcomeMessage(player_name);
-		setTimeout(() => {
-			removeWelcomeMessage();
-			loadMultiplayer(player_name);
-		}, 3000);
+		console.log("Selected Server ID: " + selected_server_id)
+
+		retrieveServerList().then((result) => {
+			var server_list = result;
+			var selected_server = server_list.find(obj => {
+				return obj.id === selected_server_id;
+			});
+			showWelcomeMessage(player_name);
+			setTimeout(() => {
+				loadMultiplayer(player_name, selected_server.defaultUrl);
+				removeWelcomeMessage();
+			}, 2000);
+		});
 	}
 }
 
 export function startMultiplayer() {
     console.log("Starting Multiplayer mode...");
+	// show Config dialogue
 	document.getElementById("userDetails").style.display = "block";
+
+	console.log("Getting server list...");
+
+	retrieveServerList().then((result) => {
+		var server_list = result;
+		console.log("Working on server list: " + JSON.stringify(server_list));
+		createServerListDropdown(server_list);
+	});
+
+
 	console.log("Selecting User Details");
+	// add listener to allow pressing of enter for starting game
+	document.getElementById("player_name").addEventListener("keydown", function(event) {
+		event.preventDefault();
+		if (event.key === "Enter")
+			document.getElementById("start_multiplayer_button").click();
+	});
 }
 
 

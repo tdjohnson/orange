@@ -17,7 +17,7 @@ Philipp Weidhas - philipp.weidhas@st.oth-regensburg.de
 		  "imports": {
 			"three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
 			"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/",
-			"umps": "https://tdjohnson.github.io/umps/client/umps.module.js",
+			"umps": "https://localhost:9090/umps.module.js",
 			"signalR": "https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"
 		  }
 		}
@@ -28,10 +28,23 @@ Philipp Weidhas - philipp.weidhas@st.oth-regensburg.de
     	<div id="message"></div>
 		<div id="welcomeMessage" style="display:none;margin:0 auto;"></div>
 		<div id="userDetails" style="display:none;margin:0 auto;">
-        	<h1>Choose your username</h1>
+			<h1>Configure Experience</h1>
+			<h2>Choose server:</h2>
+			<select name="server" id="serverSelector" class="orangeDropdown">
+			</select>
+			<br>
+			<br>
+			<br>
+			<br>
+        	<h2>Choose your username:</h2>
 			<input type="text" class="userInput" id="player_name" name="player_name" placeholder="soaplifter" value="soaplifter" minlength="2" maxlength="100" size="20">
-			<br><br>
-			<button id="start" class="modeButton" onclick="startMultiplayerWithName()">Start Game</button>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<button id="start_multiplayer_button" class="modeButton" onclick="startMultiplayerWithName()">Start Game</button>
         </div>
         <div id="startScreen">
         	<br><br><br><br>
