@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
+import {collisionDetection} from './Resources/functions/collision.mjs'
 import {MicroCache} from './Resources/functions/microCache.mjs';
 import * as controlsModule from './Resources/functions/controls.mjs';
 import * as pointerLockModule from './Resources/functions/pointerLock.mjs';
@@ -19,6 +20,11 @@ var havePointerLock = pointerLockModule.checkForPointerLock();
 var controls;
 var controlsEnabled = true;
 var multiplayer;
+var playerBody;
+var collidingObjects;
+var collidableObjects;
+
+var gameMode;
 
 var loader = new THREE.ObjectLoader();
 var isOpenable = true; //for animating door
@@ -127,7 +133,9 @@ function init() {
 	var playerHeight = 5;
 	controls.object.playerHeight = playerHeight;
 	controls.object.position.set(5, playerHeight, 8);
-	
+	playerBody = new objectsModule.JailBotBody(renderer);
+	controls.getObject().add(playerBody);
+	playerBody.position.set(0, 0.5, 1); 
 
 	playerBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
 	playerBoundingBox.setFromObject(controls.object);
@@ -211,6 +219,7 @@ function init() {
 			if (currentCell == startCell) {
 				camera.position.x = cellOffsetX + cameraPositionInCellOfset;
 				camera.position.z = cellStartZ + cameraPositionInCellOfset;
+				//camera.position.y = 99990;
 			}
 		}
 	}
@@ -408,7 +417,16 @@ function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coo
 
 
 function animate() {
-	
+
+	if(gameMode != null && playerBody != null)
+	{
+		collidingObjects = collisionDetection(playerBody, collidableMeshList);
+		console.log("Colision detected with:");
+		console.log(collidingObjects);
+
+	}
+
+
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
 
@@ -428,6 +446,7 @@ function animate() {
 
 		if (multiplayer) {
 			multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
+			//multiplayer.adjustAudioVolume();
 		}
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
@@ -490,6 +509,7 @@ function loadMultiplayer(player_name){
 }
 
 export function startSingleplayer() {
+	gameMode = "SinglePlayer";
     console.log("Starting Singleplayer mode...");
 	closeStart();
 	init();
@@ -511,6 +531,7 @@ export function startMultiplayerWithName() {
 }
 
 export function startMultiplayer() {
+	gameMode = "MultiPlayer";
     console.log("Starting Multiplayer mode...");
 	document.getElementById("userDetails").style.display = "block";
 	console.log("Selecting User Details");

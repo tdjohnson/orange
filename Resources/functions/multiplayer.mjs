@@ -32,6 +32,7 @@ export class Multiplayer extends THREE.Mesh {
         this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
         //this.playerName = "Multi_" + this.playerId;
         this.players = [];
+
     }
     
     init() {
@@ -48,11 +49,27 @@ export class Multiplayer extends THREE.Mesh {
 
         this.playerLastUpdate = {};
         setInterval(() => this.checkIdle(), idleCheckInterval);
+
+
+
     }
+
+  
+  
+  
+  
+  
+  
+
 
     getPlayerId() {
         return this.playerId;
     }
+
+    getCurrentPlayerBody() {
+        this.playerBody;
+    }
+
  
     sendData(pos, dir, forceSend = false) {
        
@@ -150,6 +167,7 @@ export class Multiplayer extends THREE.Mesh {
             if ((currentTime - this.playerLastUpdate[player.id]) > idleTimeout) {
                 this.scene.remove(player.body);
                 this.collidableMeshList = this.collidableMeshList.filter(mesh => mesh !== player.body);
+                                
                 return false;
             }
             return true;
