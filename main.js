@@ -462,7 +462,7 @@ function removeWelcomeMessage(){
 	document.getElementById("welcomeMessage").style.display="none";
 }
 
-function loadMultiplayer(){
+function loadMultiplayer(player_name){
 	console.log("Loading multiplayer...");
 	closeStart();
 	init();
@@ -487,7 +487,7 @@ export function startMultiplayerWithName() {
 		showWelcomeMessage(player_name);
 		setTimeout(() => {
 			removeWelcomeMessage();
-			loadMultiplayer();
+			loadMultiplayer(player_name);
 		}, 3000);
 	}
 }

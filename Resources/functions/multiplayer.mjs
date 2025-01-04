@@ -28,8 +28,8 @@ export class Multiplayer extends THREE.Mesh {
         this.scene = scene;
         this.playerBody = new objectsModule.JailBotBody(renderer);
         this.playerId = this.umps.GetPlayerId();
-        //this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
-        this.playerName = "Multi_" + this.playerId;
+        this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
+        //this.playerName = "Multi_" + this.playerId;
         this.players = [];
     }
     
@@ -93,18 +93,24 @@ export class Multiplayer extends THREE.Mesh {
     }
 
     addNewPlayer(player) {
-        const newPlayer = {
-            id: player.id,
-            // name: this.umps.GetPlayerName(player.id),
-            name: "Multi_" + player.id,
-            body: this.playerBody.clone(),
-        };
-        this.addPlayerIdText(newPlayer.body, newPlayer.id, newPlayer.id);
-        this.updatePlayer(newPlayer, player);
-        this.players.push(newPlayer);
-        this.collidableMeshList.push(newPlayer.body);
-        this.scene.add(newPlayer.body);
-        this.playerLastUpdate[player.id] = performance.now();
+        var requested_player_name = ""
+        this.umps.GetPlayerName(player.id).then( (result) => {
+            requested_player_name = result;
+            const newPlayer = {
+                id: player.id,
+                name: requested_player_name,
+                // name: "Multi_" + player.id,
+                body: this.playerBody.clone(),
+            };
+            console.log(newPlayer)
+            this.addPlayerIdText(newPlayer.body, newPlayer.id, newPlayer.name);
+            this.updatePlayer(newPlayer, player);
+            this.players.push(newPlayer);
+            this.collidableMeshList.push(newPlayer.body);
+            this.scene.add(newPlayer.body);
+            this.playerLastUpdate[player.id] = performance.now();
+        });
+        
     }
 
     updatePlayer(player, playerData) {
@@ -122,7 +128,7 @@ export class Multiplayer extends THREE.Mesh {
         const context = canvas.getContext('2d');
         context.font = 'Bold 60px Arial';
         context.fillStyle = 'white';
-        var nameString = playerName + "(" + playerId + ")";
+        var nameString = playerName;
         context.fillText(nameString, 0, 60);
 
         const texture = new THREE.CanvasTexture(canvas);
