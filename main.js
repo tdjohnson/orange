@@ -504,6 +504,3 @@ window.startSingleplayer = startSingleplayer;
 window.startMultiplayer = startMultiplayer;
 window.startMultiplayerWithName = startMultiplayerWithName;
 window.init = init;
-
-//window.onload = init;
-//window.onclick = closeStart;
