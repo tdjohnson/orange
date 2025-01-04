@@ -1,14 +1,18 @@
 import * as THREE from 'three';
 import {meshloader} from './objects.mjs';
 
+const performanceBoost = true;
+
 export class PrisonCell extends THREE.Mesh {
 	constructor(renderer, collidableMeshList, scene) {
         super();
 
 		this.name = 'PrisonCell_' + this.id;
 
-		this.castShadow = true;
-		this.recieveShadow = true;
+		if (!performanceBoost) {
+			this.castShadow = true;
+			this.receiveShadow = true;
+		}
 		
 		var cellComplete = new CellComplete(renderer);
 		cellComplete.position.set(0,0,0);
@@ -188,14 +192,16 @@ class TableLamp extends THREE.Mesh {
 		var light = new THREE.PointLight(0xffff99, 4, 10 );
 
 		//Shadow stuff
-		//light.castShadow = true;
-		light.shadow.radius = 200;
-		light.shadow.mapSize.width = 2048;
-		light.shadow.mapSize.height = 2048;
+		if (!performanceBoost) {
+			light.shadow.radius = 200;
+			light.shadow.mapSize.width = 2048;
+			light.shadow.mapSize.height = 2048;
 
-		light.position.set(0,9.8,-4.7);
-		var pointLightHelper = new THREE.PointLightHelper(light, 0.8);
-		scene.add(pointLightHelper);
+			light.position.set(0,9.8,-4.7);
+			var pointLightHelper = new THREE.PointLightHelper(light, 0.8);
+			scene.add(pointLightHelper);
+		}
+		
 		
 		this.scale.x = this.scale.y = this.scale.z = 0.15;
 		this.name = "Table Lamp";
@@ -335,8 +341,10 @@ class Bett extends THREE.Mesh {
 		this.scale.y = 1.5;
 		this.updateMatrix();
 		this.name = "Bett";
-		//this.castShadow = true;
-		//this.receiveShadow = true;
+		if (!performanceBoost) {
+			this.castShadow = true;
+			this.receiveShadow = true;
+		}
 		var scope = this;
 		meshloader('./Prototypes/Bett/bett.glb',function(model) {
 			scope.add(model);

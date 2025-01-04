@@ -4,6 +4,7 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+const performanceBoost = true;
 
 export function meshloader(objURL, callback){
 	const gtlfLoader = new GLTFLoader();
@@ -11,8 +12,10 @@ export function meshloader(objURL, callback){
 		const model = gltfObject.scene;
 		model.traverse((child) => {
 			if (child.isMesh) {
-				child.castShadow = true;
-				child.receiveShadow = true;
+				if (!performanceBoost) {
+					child.castShadow = true;
+					child.receiveShadow = true;
+				}
 			};
 		});
 		callback(model);
@@ -24,8 +27,9 @@ export function Mirror()
 {	
 	THREE.Object3D.call( this );
 
-
-	//this.castShadow = true;
+	if (!performanceBoost) {
+		this.castShadow = true;
+	}
 	this.scale.x = this.scale.y = this.scale.z = 1.1;
 	
 	var mmaterial = new THREE.WebGLRenderTarget( 500, 500, { format: THREE.RGBFormat } );
@@ -75,9 +79,10 @@ Wall.prototype.constructor = Wall;
 export function WallDoor() 
 {
 	THREE.Object3D.call( this );
-
-		//this.castShadow = true;
-		//this.receiveShadow = true;
+		if (!performanceBoost) {
+			this.castShadow = true;
+			this.receiveShadow = true;
+		}
 	    this.scale.x = this.scale.z = 4;
 	    this.scale.y = 2.9;
 	    
@@ -92,9 +97,10 @@ WallDoor.prototype.constructor = WallDoor;
 export function WallCell2() 
 {
 	THREE.Object3D.call( this );
-
-	//this.castShadow = true;
-	//this.receiveShadow = true;
+	if (!performanceBoost) {
+		this.castShadow = true;
+		this.receiveShadow = true;
+	}
 	this.scale.x = this.scale.y = 3.3;
 	this.scale.z = 2;
 	var scope = this;
@@ -107,9 +113,10 @@ WallCell2.prototype.constructor = WallCell2;
 export function WallCellWindow() 
 {
 	THREE.Object3D.call( this );
-	
-	//this.castShadow = true;
-	//this.receiveShadow = true;
+	if (!performanceBoost) {
+		this.castShadow = true;
+		this.receiveShadow = true;
+	}
 	this.scale.x = this.scale.y = 3.3;
 	this.scale.z = 3.3;
    
@@ -124,9 +131,10 @@ WallCellWindow.prototype.constructor = WallCellWindow;
 export function WallCellDoor() 
 {
 	THREE.Object3D.call( this );
-
-   	//this.castShadow = true;
-	//this.receiveShadow = true;
+	if (!performanceBoost) {
+		this.castShadow = true;
+		this.receiveShadow = true;
+	}
 	var scope = this;
 	meshloader('./Prototypes/Zelle/wandFront.json',function(model) {scope.add(model);});
 	
@@ -153,7 +161,10 @@ CeilingCell.prototype.constructor = CeilingCell;
 
 function generateLamps(){
 	var light = new THREE.PointLight(0xffff99, 1, 12);
-	light.castShadow = true;
+	if (!performanceBoost) {
+		this.castShadow = true;
+		this.receiveShadow = true;
+	}
 	light.position.set(9.4, 7.8, 21);
 	scene.add(light);
 	
@@ -206,7 +217,9 @@ export class Tower extends THREE.Mesh {
 export class Sand extends THREE.Mesh {
 	constructor(renderer) {
         super();
-		this.receiveShadow = true;
+		if (!performanceBoost) {
+			this.receiveShadow = true;
+		}
 		this.scale.x = this.scale.z = 2;
 		//this.scale.y = 5;
 		var scope = this;
@@ -219,7 +232,9 @@ export class Sand extends THREE.Mesh {
 export class Ramp extends THREE.Mesh {
 	constructor(renderer) {
         super();
-		this.receiveShadow = true;
+		if (!performanceBoost) {
+			this.receiveShadow = true;
+		}
 		//this.scale.x = this.scale.z = 2;
 		//this.scale.y = 5;
 		var rampScaler = 3;
@@ -235,8 +250,10 @@ export class Ramp extends THREE.Mesh {
 export class PrisonWall extends THREE.Mesh {
 	constructor(renderer) {
         super();
-		this.castShadow = true;
-		this.receiveShadow = true;
+		if (!performanceBoost) {
+			this.castShadow = true;
+			this.receiveShadow = true;
+		}
 		this.name = "Prisonwall";
 		this.userData.info = "you shall not pass!";
 		this.scale.x = this.scale.y = 4.6;
@@ -252,8 +269,10 @@ export class JailBotBody extends THREE.Mesh {
     constructor(renderer) {
         super();
         this.scale.x = this.scale.y = this.scale.z = 1.2;
-		this.castShadow = true;
-		this.receiveShadow = true;
+		if (!performanceBoost) {
+			this.castShadow = true;
+			this.receiveShadow = true;
+		}
         this.name = "JailBotBody";
         this.userData.info = "Ab in deine Zelle!";
         // this.userData.rotatable = true;
@@ -271,7 +290,10 @@ export function JailBotArms()
 	THREE.Object3D.call( this );
 
 		this.scale.x = this.scale.y = this.scale.z = 1.2;
-		//this.castShadow = true;
+		if (!performanceBoost) {
+			this.castShadow = true;
+			this.receiveShadow = true;
+		}
 		this.name = "JailBotArms";
 		this.userData.info = " ";
 		this.userData.rotatable = true;
