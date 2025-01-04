@@ -456,21 +456,55 @@ function showMessage(text){
 	document.getElementById("message").innerHTML=text;
 }
 
+function showWelcomeMessage(player_name){
+	console.log("Hello " + player_name + "!");
+	document.getElementById("welcomeMessage").innerHTML="<h1>Hello " + player_name + "!</h1><br>The game starts in 3 seconds!";
+	document.getElementById("welcomeMessage").style.display="block";
+}
+
+function removeWelcomeMessage(){
+	document.getElementById("welcomeMessage").style.display="none";
+}
+
+function loadMultiplayer(player_name){
+	console.log("Loading multiplayer...");
+	closeStart();
+	init();
+	import('./Resources/functions/multiplayer.mjs').then(module => {
+		multiplayer = new module.Multiplayer(renderer, collidableMeshList, scene, player_name);
+		multiplayer.init();
+	});
+}
+
 export function startSingleplayer() {
     console.log("Starting Singleplayer mode...");
+	init();
+}
+
+export function startMultiplayerWithName() {
+	var player_name = document.getElementById("player_name").value;
+	if(player_name === "" || player_name === null){
+		alert("Please type in a name for your player!");
+		return;
+	}else{
+		document.getElementById("userDetails").style.display = "none";
+		showWelcomeMessage(player_name);
+		setTimeout(() => {
+			removeWelcomeMessage();
+			loadMultiplayer(player_name);
+		}, 3000);
+	}
 }
 
 export function startMultiplayer() {
     console.log("Starting Multiplayer mode...");
-    import('./Resources/functions/multiplayer.mjs').then(module => {
-        multiplayer = new module.Multiplayer(renderer, collidableMeshList, scene);
-        multiplayer.init();
-    });
+	document.getElementById("userDetails").style.display = "block";
+	console.log("Selecting User Details");
 }
+
 
 // Make the functions globally accessible
 window.startSingleplayer = startSingleplayer;
 window.startMultiplayer = startMultiplayer;
-
-window.onload = init;
-window.onclick = closeStart;
+window.startMultiplayerWithName = startMultiplayerWithName;
+window.init = init;
