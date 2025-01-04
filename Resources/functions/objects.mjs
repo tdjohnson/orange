@@ -4,7 +4,11 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const performanceBoost = true;
+var performanceBoost = true;
+
+export function setPerformanceOptimization(newValue) {
+	performanceBoost = newValue;
+}
 
 export function meshloader(objURL, callback){
 	const gtlfLoader = new GLTFLoader();

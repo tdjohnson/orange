@@ -1,7 +1,11 @@
 import * as THREE from 'three';
 import {meshloader} from './objects.mjs';
 
-const performanceBoost = true;
+var performanceBoost = true;
+export function setPerformanceOptimization(newValue) {
+	performanceBoost = newValue;
+}
+
 
 export class PrisonCell extends THREE.Mesh {
 	constructor(renderer, collidableMeshList, scene) {
