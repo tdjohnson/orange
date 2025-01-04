@@ -228,10 +228,11 @@ function init() {
 	scene.add(grid);
 	addRamps(renderer);
 	addSandFloor(renderer);
+	addBullets(renderer);
+
 	sun();
 
 	bulletControl.setPositionReference(camera);
-	bulletControl.setSceneReference(scene);
 
 	THREE.DefaultLoadingManager.onLoad = function () {
 		console.log("finished loading");
@@ -366,6 +367,11 @@ function addSandFloor(renderer) {
 	collidableMeshList.push(sand);
 }
 
+function addBullets(renderer) {
+	var bullet = new bulletControl.Bullet(renderer);
+	bullet.position.set(20, 20, 20);
+	scene.add(bullet);	
+}
 
 function showCameraHelpers(){
 	//scene.add( new THREE.CameraHelper(camera)); //main camera
@@ -406,13 +412,13 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
 
- 		//updateMirrors();
+ 		/*updateMirrors();
 		raycaster.ray.origin.copy( controls.object.position );
 		raycaster.ray.origin.y -= controls.object.playerHeight;
 		
 		raycasterFront.ray.origin.copy( controls.object.position );
 		controls.getDirection(raycasterFront.ray.direction);
-		//raycasterFront.ray.origin.y -= 1;
+		//raycasterFront.ray.origin.y -= 1;*/
 
 		var vector = new THREE.Vector3(0, 0, -1);
 		vector = camera.localToWorld(vector);
@@ -432,6 +438,13 @@ function animate() {
  		
 
 		transformModule.animateDrop();
+		bulletControl.getBulletArray().forEach(singleBullet => {
+			if(null == scene.getObjectByName(singleBullet.getName())) {
+				//console.log(singleBullet);
+				scene.add(singleBullet);
+			}
+		});
+		
 		transformModule.animateBullets(bulletControl.getBulletArray());
 		//transformModule.patrolRobot(botBody);
  	
@@ -478,6 +491,7 @@ function loadMultiplayer(player_name){
 
 export function startSingleplayer() {
     console.log("Starting Singleplayer mode...");
+	closeStart();
 	init();
 }
 

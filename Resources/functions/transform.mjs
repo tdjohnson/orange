@@ -171,8 +171,14 @@ export function animateDoors() {
 }
 
 export function animateBullets(bulletList) {
+	var speed = 1;
 	
-
+	bulletList.forEach(singleBullet => {
+		var direction = new THREE.Vector3(0, 0, 1);
+		direction.applyQuaternion(singleBullet.quaternion);
+		singleBullet.position.add(direction.multiplyScalar(speed));
+		//console.log("Added: " + (direction.multiplyScalar(speed)))
+	});
 }
 
 

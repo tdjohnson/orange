@@ -17,16 +17,18 @@ var velocity = new THREE.Vector3();
 var pressedKeys = new Map();
 var maxVelocity = 0.2;
 
-var renderScene;
+var renderer;
+var scene;
 var currentBody;
 
-export function initControls(currentRenderScene) {
+export function initControls(currentRender, currentScene) {
 	document.addEventListener('keydown', onKeyDown, false);
 	document.addEventListener('keyup', onKeyUp, false);
 	document.addEventListener("mousedown", onMouseDown, false);
 	document.addEventListener("mouseup", onMouseUp, false);
 	canJump = true;
-	renderScene = currentRenderScene;
+	renderer = currentRender;
+	scene = currentScene;
 }
 
 export function onMouseDown(e) {
@@ -34,14 +36,14 @@ export function onMouseDown(e) {
 	switch (e.button) {
 		case 0: //left mouse click
 				pressedKeys.set("LMB", true);
-				bulletControl.addBullet(renderScene);
+				bulletControl.addBullet(renderer, scene);
 	}
 }
 
 export function onMouseUp(e) {
 	//console.log(e.button);
 	switch (e.button) {
-		case 0: //left mouse click
+		case 0: //left mouse click end
 				pressedKeys.set("LMB", false);
 	}
 }
