@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 import {meshloader} from './objects.mjs';
 
+
+const performanceBoost = true;
+
+
 export class FullHallway extends THREE.Mesh {
     constructor(renderer, collidableMeshList, scene) {
         super();
@@ -14,11 +18,13 @@ export class FullHallway extends THREE.Mesh {
 		ceilingLamp.position.set(0,9.5,0);
 		ceilingLamp.rotation.x = Math.PI;
 		this.add(ceilingLamp);
-
-		var light = new THREE.PointLight(0xffff99, 100);
-		//light.castShadow = true;
-		light.position.set(0,8,0);
-		this.add(light);
+		if (!performanceBoost) {
+			var light = new THREE.PointLight(0xffff99, 100);
+			//light.castShadow = true;
+			light.position.set(0,8,0);
+			this.add(light);
+		}
+		
 
 
     }
@@ -42,8 +48,10 @@ export class CeilingLamp extends THREE.Mesh {
 export class Hallway extends THREE.Mesh {
 	constructor(renderer) {
         super();
-		//this.castShadow = true;
-		this.receiveShadow = true;
+		if (!performanceBoost) {
+			this.castShadow = true;
+			this.receiveShadow = true;
+		}
 	   this.scale.x = this.scale.y = this.scale.z = 4;
 		var scope = this;
 		meshloader('./Prototypes/Gang/gang_comb.glb',function(model) {

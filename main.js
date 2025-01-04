@@ -40,7 +40,7 @@ const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vecto
 var raycasterCamera;
 
 var playerBoundingBox;
-
+const performanceBoost = true;
 
 
 function closeStart() {
@@ -58,9 +58,11 @@ function init() {
 	renderer.domElement.id = "scene";
 	renderer.setSize(window.innerWidth, window.innerHeight-30);
 	renderer.setClearColor(0xb2e1f2);
-	renderer.shadowMap.enabled = true;
-	//renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
+	if (!performanceBoost) {
+		renderer.shadowMap.enabled = true;
+		//renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	}
+	
 	document.body.appendChild(renderer.domElement);
 	
 	//needed for controls
