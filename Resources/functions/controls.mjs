@@ -14,7 +14,7 @@ var moveForward,
 	
 var velocity = new THREE.Vector3();
 var pressedKeys = new Map();
-var maxVelocity = 0.1;
+var maxVelocity = 0.2;
 
 
 
@@ -111,7 +111,7 @@ function calcNewVelocityPerTick(oldVelocity, deltaTick) {
 		isNegativeVelocity = -1;
 	}
 	var absoluteOldVelocity = Math.abs(oldVelocity);
-	var newAbsoluteVelocity = absoluteOldVelocity - (absoluteOldVelocity * deltaTick);
+	var newAbsoluteVelocity = absoluteOldVelocity - (absoluteOldVelocity * deltaTick * 10);
 	var newVelocity = newAbsoluteVelocity * isNegativeVelocity;
 	if (newAbsoluteVelocity >= 0.002) {
 		if (newAbsoluteVelocity > maxVelocity) {
@@ -132,7 +132,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
       	var mass = 10;
-		var walkingSpeedImpulse = 0.01;
+		var walkingSpeedImpulse = 0.1;
 		var jumpImpulse = 14;
 		var TargetY = 4;
 		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);

@@ -189,10 +189,11 @@ class Soap extends THREE.Mesh {
 class TableLamp extends THREE.Mesh {
 	constructor(renderer, scene) {
 		super();
-		var light = new THREE.PointLight(0xffff99, 4, 10 );
+		
 
 		//Shadow stuff
 		if (!performanceBoost) {
+			var light = new THREE.PointLight(0xffff99, 4, 10 );
 			light.shadow.radius = 200;
 			light.shadow.mapSize.width = 2048;
 			light.shadow.mapSize.height = 2048;
@@ -200,6 +201,8 @@ class TableLamp extends THREE.Mesh {
 			light.position.set(0,9.8,-4.7);
 			var pointLightHelper = new THREE.PointLightHelper(light, 0.8);
 			scene.add(pointLightHelper);
+
+			this.add(light)
 		}
 		
 		
@@ -209,7 +212,7 @@ class TableLamp extends THREE.Mesh {
 		this.userData.rotatable = true;
 		this.userData.isTurnedOn = true;
 		this.userData.isTriggerable = true;
-		this.add(light);
+		;
 
 		var scope = this;
 		meshloader('./Prototypes/TischLampe/TischLampe_neu.glb',function(model) {
