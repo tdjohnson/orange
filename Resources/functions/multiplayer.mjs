@@ -21,14 +21,15 @@ const roundVector = (v) => new THREE.Vector3(
 export class Multiplayer extends THREE.Mesh {
      constructor(renderer, collidableMeshList, scene, player_name) {
         super();
-        this.id = player_name;
         this.umps = new UMPS.UMPS();
-		this.name = this.id;
+		this.name = player_name;
         this.renderer = renderer;
         this.collidableMeshList = collidableMeshList;
         this.scene = scene;
         this.playerBody = new objectsModule.JailBotBody(renderer);
         this.playerId = this.umps.GetPlayerId();
+        //this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
+        this.playerName = "Multi_" + this.playerId;
         this.players = [];
     }
     
@@ -94,9 +95,11 @@ export class Multiplayer extends THREE.Mesh {
     addNewPlayer(player) {
         const newPlayer = {
             id: player.id,
-            body: this.playerBody.clone()
+            // name: this.umps.GetPlayerName(player.id),
+            name: "Multi_" + player.id,
+            body: this.playerBody.clone(),
         };
-        this.addPlayerIdText(newPlayer.body, player.id);
+        this.addPlayerIdText(newPlayer.body, newPlayer.id, newPlayer.id);
         this.updatePlayer(newPlayer, player);
         this.players.push(newPlayer);
         this.collidableMeshList.push(newPlayer.body);
@@ -114,12 +117,13 @@ export class Multiplayer extends THREE.Mesh {
         this.playerLastUpdate[player.id] = performance.now();
     }
 
-    addPlayerIdText(body, playerId) {
+    addPlayerIdText(body, playerId, playerName) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         context.font = 'Bold 60px Arial';
         context.fillStyle = 'white';
-        context.fillText(playerId, 0, 60);
+        var nameString = playerName + "(" + playerId + ")";
+        context.fillText(nameString, 0, 60);
 
         const texture = new THREE.CanvasTexture(canvas);
         const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });

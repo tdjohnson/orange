@@ -478,7 +478,7 @@ export function startSingleplayer() {
 }
 
 export function startMultiplayerWithName() {
-	player_name = document.getElementById("player_name").value;
+	var player_name = document.getElementById("player_name").value;
 	if(player_name === "" || player_name === null){
 		alert("Please type in a name for your player!");
 		return;
