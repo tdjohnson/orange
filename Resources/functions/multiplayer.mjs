@@ -50,6 +50,11 @@ export class Multiplayer extends THREE.Mesh {
     getPlayerId() {
         return this.playerId;
     }
+
+    getCurrentPlayerBody() {
+        this.playerBody;
+    }
+
  
     sendData(pos, dir, forceSend = false) {
        
