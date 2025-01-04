@@ -463,7 +463,7 @@ function removeWelcomeMessage(){
 }
 
 function loadMultiplayer(){
-	console.log("loading multiplayer");
+	console.log("Loading multiplayer...");
 	closeStart();
 	init();
 	import('./Resources/functions/multiplayer.mjs').then(module => {
