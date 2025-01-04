@@ -40,7 +40,7 @@ const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vecto
 var raycasterCamera;
 
 var playerBoundingBox;
-var performanceBoostGlobal = false;
+var performanceBoostGlobal = true;
 
 objectsModule.setPerformanceOptimization(performanceBoostGlobal);
 prisonCellModule.setPerformanceOptimization(performanceBoostGlobal);
