@@ -206,7 +206,7 @@ function init() {
 			scene.add(rootCell);
 
 			currentCell++;
-			console.log("CurrentCell: "+ currentCell);
+			//console.log("CurrentCell: "+ currentCell);
 			if (currentCell == startCell) {
 				camera.position.x = cellOffsetX + cameraPositionInCellOfset;
 				camera.position.z = cellStartZ + cameraPositionInCellOfset;
