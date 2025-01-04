@@ -537,14 +537,7 @@ export function startMultiplayer() {
 		createServerListDropdown(server_list);
 	});
 
-
 	console.log("Selecting User Details");
-	// add listener to allow pressing of enter for starting game
-	document.getElementById("player_name").addEventListener("keydown", function(event) {
-		event.preventDefault();
-		if (event.key === "Enter")
-			document.getElementById("start_multiplayer_button").click();
-	});
 }
 
 
