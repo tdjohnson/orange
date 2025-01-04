@@ -19,10 +19,11 @@ const roundVector = (v) => new THREE.Vector3(
 );
 
 export class Multiplayer extends THREE.Mesh {
-     constructor(renderer, collidableMeshList, scene) {
+     constructor(renderer, collidableMeshList, scene, player_name) {
         super();
+        this.id = player_name;
         this.umps = new UMPS.UMPS();
-		this.name = 'Multiplayer_' + this.id;
+		this.name = this.id;
         this.renderer = renderer;
         this.collidableMeshList = collidableMeshList;
         this.scene = scene;
