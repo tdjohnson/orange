@@ -32,16 +32,16 @@ div
 	padding: 10px;
 }
 
-p#credits{
+p#credits {
 	color: white;
 }
 
-p#controls{
+p#controls {
 	text-align:left !important;
 	margin-left:40%;
 }
 
-div#message{
+div#message {
 	position: fixed;
 	bottom:400px;
 	left:0px;
@@ -53,7 +53,7 @@ div#message{
 	font-size: 18px;
 }
 
-table#InfoOutput{
+table#InfoOutput {
 	table-layout: fixed;
 	margin-left: auto;
     margin-right: auto;
@@ -64,7 +64,7 @@ table#InfoOutput{
 	font-size: 18px;
 }
 
-div#startScreen{
+div#startScreen {
 	position: fixed;
 	top:0;
 	left:0;
@@ -73,6 +73,30 @@ div#startScreen{
 	background-color:black;
 	text-align:center;
 	color:orange;
+}
+
+div#userDetails {
+	position: fixed;
+	top:0;
+	left:0;
+	height:100%;
+	width:100%;
+	background-color:black;
+	text-align:center;
+	color:orange;
+	z-index: 300;
+}
+
+div#welcomeMessage {
+	position: fixed;
+	top:0;
+	left:0;
+	height:100%;
+	width:100%;
+	background-color:black;
+	text-align:center;
+	color:orange;
+	z-index: 300;
 }
 
 .modeButton {
@@ -92,4 +116,16 @@ div#startScreen{
 	color:black;
 }
 
+.userInput {
+	background-color: orange;
+	color: black;
+	border: none;
+	font-weight: bold;
+	text-align: center;
+	font-size: large;
+}
+
+.userInput::placeholder {
+	color: black;
+}
 
