@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {collisionDetection} from './collision.mjs'
 import {showMessageContent} from './splashScreen.mjs';
 import * as transformModule from './transform.mjs';
+import {sendEvent} from '../../main.js';
 
 var moveForward,
     moveBackward,
@@ -70,9 +71,12 @@ export function onKeyDown(e) {
   		case 87: // w
 		  pressedKeys.set("w", true);
 		  break;	
-  		case 89: //y
-		 	transformModule.triggerDrop(lastObject);
+  		case 88: // x
+			pressedKeys.set("x", true);
 			break;
+		case 89: //y
+			transformModule.triggerDrop(lastObject);
+		   break;
 	   	case 90: //z
 	   		zoom();
 			break;
@@ -102,6 +106,9 @@ export function onKeyUp(e) {
 	  	case 87: // w
 		  pressedKeys.set("w", false)
 		  break;
+  		case 88: // x
+			pressedKeys.set("x", false);
+			break;
 	}
 }
 
@@ -154,6 +161,9 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		}
 		if (pressedKeys.get("d")) {
 			velocity.x += walkingSpeedImpulse;
+		}
+		if (pressedKeys.get("x")) {
+			sendEvent("x","1","2");
 		}
 		//var deltaMass = delta * mass;
 		velocity.x = calcNewVelocityPerTick(velocity.x, delta);

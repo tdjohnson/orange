@@ -52,7 +52,24 @@ export class Multiplayer extends THREE.Mesh {
     getPlayerId() {
         return this.playerId;
     }
- 
+
+
+
+
+    sendEvent(type, source, destination) {
+        const event = {
+            type: type,
+            source: source,
+            destination: destination
+        };
+        console.log("Sending event: ", this.umps.hub.connectionx);
+        if (this.umps.hub.connection.q === "Connected") {
+            this.umps.hub.invoke("SendEvent", event).catch(err => {
+                console.error("Error sending event: ", err);
+            });
+        }
+    }
+
     sendData(pos, dir, forceSend = false) {
        
         var currentTime = performance.now();

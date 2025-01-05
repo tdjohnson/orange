@@ -420,8 +420,14 @@ function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coo
 }
 
 
-function animate() {
-	
+export function sendEvent(type, source, destination) {
+	if (multiplayer) {
+		multiplayer.sendEvent(type, source, destination);
+	}
+}
+
+function animate()
+	{
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
 
