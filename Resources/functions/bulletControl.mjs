@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {meshloader} from './objects.mjs';
 import {collisionDetection} from './collision.mjs'
+import { events2main } from '../../main.js';
 
 
 const BulletArray = [];
@@ -30,6 +31,11 @@ export function updateCollidableMeshList(newMeshList) {
     collidableMeshList = newMeshList;
 }
 
+function shoot(destination){
+    console.log("You shot: " + destination);
+    events2main("hit", destination);
+}
+
 
 export function addBullet(renderer) {
     var newBullet = new Bullet(renderer);
@@ -50,10 +56,9 @@ export function addBullet(renderer) {
     //intersectArray[0] contains the first object that is intersected when a bullet is shot.
     //If this is a jailBotBody, you shot a player
     if(intersectArray.length > 0) {
-        console.log(intersectArray[0].object.name);
         if(intersectArray[0].object.name == "Body") {
             var playerIDshot = intersectArray[0].object.parent.parent.playerid;
-            console.log(playerIDshot);
+            shoot(playerIDshot);
         }
     }
 

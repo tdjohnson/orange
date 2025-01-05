@@ -114,7 +114,7 @@ export class Multiplayer extends THREE.Mesh {
         const event = {
             type: type,
             source: this.playerId,
-            destination: this.playerId
+            destination: destination
         };
         if (this.umps.hub.connection.q === "Connected") {
             this.umps.hub.invoke("SendEvent", event).catch(err => {
