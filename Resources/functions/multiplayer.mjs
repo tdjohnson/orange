@@ -6,7 +6,7 @@ import * as objectsModule from './objects.mjs';
 const serverTickinMS = 20; //Only every x Milliseconds will the client report its position to server, so server is not flooded with messages
 var lastServerSync = 0;
 const idleCheckInterval = 1000;
-const idleThreshold = 1;
+const idleThreshold = 100000000;
 const idleTimeout = 60000;
 var lastMovementTime = 0;
 var lastPosition = new THREE.Vector3();
@@ -29,10 +29,12 @@ export class Multiplayer extends THREE.Mesh {
         this.playerBody = new objectsModule.JailBotBody(renderer);
         this.playerId = this.umps.GetPlayerId();
         this.players = [];
-
+        this.peers = {}; // To store WebRTC peers
+        this.audioStreams = {}; // To manage audio streams
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
     
-    init() {
+    async init() {
         this.umps.hub.on("ReceiveData", (player) => {
             if (player.id === this.playerId) return;
 
@@ -47,16 +49,82 @@ export class Multiplayer extends THREE.Mesh {
         this.playerLastUpdate = {};
         setInterval(() => this.checkIdle(), idleCheckInterval);
 
-
+        // Setup audio input for current player
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (!stream) {
+            console.error("Failed to capture local audio stream.");
+            return;
+        }
+        this.localAudioStream = stream;
+        console.log("Local audio stream captured:", stream);
+        console.log("Audiostream local: " + this.localAudioStream);
+        this.umps.hub.on('ReceiveSignal', this.handleSignal.bind(this));
+        this.sendSignal(); // Send initial signal to establish voice connections
 
     }
 
-  
-  
-  
-  
-  
-  
+    sendSignal() {
+        const signalData = { id: this.playerId };
+        console.log("send Signal");
+
+        this.umps.hub.invoke('SendSignal', signalData).catch(err => console.error('Error sending signal:', err));
+    }
+
+    handleSignal(signalData) {
+        const { fromId, signal } = signalData;
+        console.log("handle signal");
+        if (!this.peers[fromId]) {
+            const peer = new SimplePeer({
+                initiator: fromId > this.playerId, // Prevent collision in initiator role
+                trickle: false,
+                stream: this.localAudioStream,
+            });
+
+            peer.on('signal', (data) => {
+                console.log("Sending WebRTC signal to:", fromId);
+                this.umps.hub.invoke('SendSignal', { toId: fromId, signal: data });
+            });
+            
+            peer.on('stream', (remoteStream) => {
+                console.log("Received remote audio stream from:", fromId);
+                this.setupRemoteAudio(fromId, remoteStream);
+            });
+
+            this.peers[fromId] = peer;
+        }
+
+        this.peers[fromId].signal(signal);
+    }
+
+    setupRemoteAudio(playerId, stream) {        
+        const audioSource = this.audioContext.createMediaStreamSource(stream);
+        const gainNode = this.audioContext.createGain();
+        audioSource.connect(gainNode).connect(this.audioContext.destination);
+        this.audioStreams[playerId] = { stream, gainNode };
+    }
+
+    adjustAudioVolume() {
+        const currentPlayerPosition = this.playerBody.position;
+        console.log("ajdust audio");
+
+        this.players.forEach((player) => {
+            console.log("players known");
+            console.log(player);
+            if (player.id !== this.playerId && this.audioStreams[player.id]) {
+                const distance = currentPlayerPosition.distanceTo(player.body.position);
+                const maxDistance = 1000;
+                const minDistance = 1;
+
+                let volume = 0;
+                if (distance < maxDistance) {
+                    volume = 1 - (distance - minDistance) / (maxDistance - minDistance);
+                    volume = Math.max(0, Math.min(volume, 1)); // Clamp volume between 0 and 1
+                }
+
+                this.audioStreams[player.id].gainNode.gain.value = volume;
+            }
+        });
+    }
 
 
     getPlayerId() {
@@ -155,6 +223,17 @@ export class Multiplayer extends THREE.Mesh {
             if ((currentTime - this.playerLastUpdate[player.id]) > idleTimeout) {
                 this.scene.remove(player.body);
                 this.collidableMeshList = this.collidableMeshList.filter(mesh => mesh !== player.body);
+
+                // Clean up audio resources
+                if (this.peers[player.id]) {
+                    this.peers[player.id].destroy();
+                    delete this.peers[player.id];
+                }
+                if (this.audioStreams[player.id]) {
+                    this.audioStreams[player.id].gainNode.disconnect();
+                    delete this.audioStreams[player.id];
+                }
+
                                 
                 return false;
             }

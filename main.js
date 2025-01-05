@@ -436,7 +436,7 @@ function animate() {
 
 		if (multiplayer) {
 			multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
-			//multiplayer.adjustAudioVolume();
+			multiplayer.adjustAudioVolume();
 		}
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
