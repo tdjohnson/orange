@@ -44,11 +44,18 @@ export function addBullet(renderer) {
     BulletArray.push(newBullet);
 
     var intersectArray = raycasterFront.intersectObjects(collidableMeshList);
-    console.log(intersectArray);
-    console.log(raycasterFront);
+    //console.log(intersectArray);
+    //console.log(raycasterFront);
 
     //intersectArray[0] contains the first object that is intersected when a bullet is shot.
     //If this is a jailBotBody, you shot a player
+    if(intersectArray.length > 0) {
+        console.log(intersectArray[0].object.name);
+        if(intersectArray[0].object.name == "Body") {
+            var playerIDshot = intersectArray[0].object.parent.parent.playerid;
+            console.log(playerIDshot);
+        }
+    }
 
 }
 
