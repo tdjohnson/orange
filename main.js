@@ -485,7 +485,7 @@ function animate() {
 				scene.add(singleBullet);
 			}
 		});
-		
+		bulletControl.updateCollidableMeshList(collidableMeshList);
 		transformModule.animateBullets(bulletControl.getBulletArray());
 		//transformModule.patrolRobot(botBody);
  	
