@@ -53,6 +53,10 @@ objectsModule.setPerformanceOptimization(performanceBoostGlobal);
 prisonCellModule.setPerformanceOptimization(performanceBoostGlobal);
 hallwayModule.setPerformanceOptimization(performanceBoostGlobal);
 
+export function events2main(type, destination){
+	multiplayer.sendEvent(type, destination);
+}
+
 async function retrieveServerList() {
     const response = await fetch("https://umps.tdj23.com/api/Server/GetServers");
 

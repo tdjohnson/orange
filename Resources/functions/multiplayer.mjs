@@ -49,7 +49,7 @@ export class Multiplayer extends THREE.Mesh {
         });
 
         // handle event messages
-        this.umps.hub.on("Event", (event) => {
+        this.umps.hub.on("ReceiveEvent", (event) => {
             if (event.type === "hit"){
                 if (event.destination === this.playerId){
                     console.log("You got hit!");
@@ -60,18 +60,7 @@ export class Multiplayer extends THREE.Mesh {
 
         this.playerLastUpdate = {};
         setInterval(() => this.checkIdle(), idleCheckInterval);
-
-
-
     }
-
-  
-  
-  
-  
-  
-  
-
 
     getPlayerId() {
         return this.playerId;
@@ -121,14 +110,14 @@ export class Multiplayer extends THREE.Mesh {
         this.playerLastUpdate[this.playerId] = lastMovementTime;
     }
 
-    sendEvent(type, source, destination){
+    sendEvent(type, destination){
         const event = {
             type: type,
-            source: source,
-            destination: destination
+            source: this.playerId,
+            destination: this.playerId
         };
         if (this.umps.hub.connection.q === "Connected") {
-            this.umps.hub.invoke("SendEvent", player).catch(err => {
+            this.umps.hub.invoke("SendEvent", event).catch(err => {
                 console.error("Error sending event: ", err);
             });
         }
@@ -141,7 +130,6 @@ export class Multiplayer extends THREE.Mesh {
             const newPlayer = {
                 id: player.id,
                 name: requested_player_name,
-                // name: "Multi_" + player.id,
                 body: this.playerBody.clone(),
             };
             newPlayer.body.playerid = player.id;

@@ -317,7 +317,3 @@ export function robotAttack()
 		}
 	}	
 }
-
-export function shoot(){
-	
-}
