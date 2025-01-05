@@ -203,7 +203,6 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		velocity.x = calcNewVelocityPerTick(velocity.x, delta);
 		velocity.z = calcNewVelocityPerTick(velocity.z, delta);
 
-		console.log(velocity.y)
 		velocity.y -= 9.8 * delta * mass;
 
 		//velocityWorld = new
@@ -219,7 +218,8 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 			lastObject = collidingMeshesListCameraRay;
 		}
 
-		const inFrontOfObject = collidingMeshesListInMovementDir.length > 0;
+		//const inFrontOfObject = collidingMeshesListInMovementDir.length > 0;
+		const inFrontOfObject = false;
 		if ((inFrontOfObject === true) & (0 >= velocity.z) ) {
 			velocity.z = 0;
 		}
@@ -227,6 +227,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		controls.moveRight(velocity.x);
 
 		const onObject = collidingMeshesList.length > 0;
+		//const onObject = false;
 		if ( onObject === true ) {
 			velocity.y = Math.max( 0, velocity.y );
 			canJump = true;
@@ -237,9 +238,10 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 			
 		}
 		if (hasMoved === true) {
+
 			controls.object.position.y += ( velocity.y * delta );
 		}
-		
+		console.log(hasMoved);
 	    //controls.object.translateX(velocity.x);
 	    //controls.object.translateY(velocity.y);
 	    //controls.object.translateZ(velocity.z);
