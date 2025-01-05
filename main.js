@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
+import {collisionDetection} from './Resources/functions/collision.mjs'
 import {MicroCache} from './Resources/functions/microCache.mjs';
 import * as controlsModule from './Resources/functions/controls.mjs';
 import * as pointerLockModule from './Resources/functions/pointerLock.mjs';
@@ -10,6 +11,7 @@ import * as proximityModule from './Resources/functions/proximity.mjs';
 import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
+import * as bulletControl from './Resources/functions/bulletControl.mjs';
 
 var clock;
 var scene, camera, renderer;
@@ -18,6 +20,11 @@ var havePointerLock = pointerLockModule.checkForPointerLock();
 var controls;
 var controlsEnabled = true;
 var multiplayer;
+var playerBody;
+var collidingObjects;
+var collidableObjects;
+
+var gameMode;
 
 var loader = new THREE.ObjectLoader();
 var isOpenable = true; //for animating door
@@ -141,14 +148,16 @@ function init() {
 	//hitDirection = 1;
 	//rotationActive = 0;
 
-	controlsModule.initControls();
+	controlsModule.initControls(scene);
 
 	controls = new PointerLockControls(camera, document.body);
 	
 	var playerHeight = 5;
 	controls.object.playerHeight = playerHeight;
 	controls.object.position.set(5, playerHeight, 8);
-	
+	playerBody = new objectsModule.JailBotBody(renderer);
+	controls.getObject().add(playerBody);
+	playerBody.position.set(0, 0.5, 1); 
 
 	playerBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
 	playerBoundingBox.setFromObject(controls.object);
@@ -232,6 +241,7 @@ function init() {
 			if (currentCell == startCell) {
 				camera.position.x = cellOffsetX + cameraPositionInCellOfset;
 				camera.position.z = cellStartZ + cameraPositionInCellOfset;
+				//camera.position.y = 99990;
 			}
 		}
 	}
@@ -249,11 +259,14 @@ function init() {
 	scene.add(grid);
 	addRamps(renderer);
 	addSandFloor(renderer);
+	addBullets(renderer);
+
 	sun();
 
+	bulletControl.setPositionReference(camera);
 
 	THREE.DefaultLoadingManager.onLoad = function () {
-		console.log("finished loading");
+		//console.log("finished loading");
     	loadDone = true;
     	
 	};
@@ -385,6 +398,11 @@ function addSandFloor(renderer) {
 	collidableMeshList.push(sand);
 }
 
+function addBullets(renderer) {
+	var bullet = new bulletControl.Bullet(renderer);
+	bullet.position.set(20, 20, 20);
+	scene.add(bullet);	
+}
 
 function showCameraHelpers(){
 	//scene.add( new THREE.CameraHelper(camera)); //main camera
@@ -421,17 +439,26 @@ function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coo
 
 
 function animate() {
-	
+
+	if(gameMode != null && playerBody != null)
+	{
+		collidingObjects = collisionDetection(playerBody, collidableMeshList);
+		//console.log("Colision detected with:");
+		//console.log(collidingObjects);
+
+	}
+
+
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
 
- 		//updateMirrors();
+ 		/*updateMirrors();
 		raycaster.ray.origin.copy( controls.object.position );
 		raycaster.ray.origin.y -= controls.object.playerHeight;
 		
 		raycasterFront.ray.origin.copy( controls.object.position );
 		controls.getDirection(raycasterFront.ray.direction);
-		//raycasterFront.ray.origin.y -= 1;
+		//raycasterFront.ray.origin.y -= 1;*/
 
 		var vector = new THREE.Vector3(0, 0, -1);
 		vector = camera.localToWorld(vector);
@@ -441,6 +468,7 @@ function animate() {
 
 		if (multiplayer) {
 			multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
+			//multiplayer.adjustAudioVolume();
 		}
 
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
@@ -451,6 +479,14 @@ function animate() {
  		
 
 		transformModule.animateDrop();
+		bulletControl.getBulletArray().forEach(singleBullet => {
+			if(null == scene.getObjectByName(singleBullet.getName())) {
+				//console.log(singleBullet);
+				scene.add(singleBullet);
+			}
+		});
+		
+		transformModule.animateBullets(bulletControl.getBulletArray());
 		//transformModule.patrolRobot(botBody);
  	
 		/*if(botAggressive == 1)
@@ -495,6 +531,7 @@ function loadMultiplayer(player_name, selected_server){
 }
 
 export function startSingleplayer() {
+	gameMode = "SinglePlayer";
     console.log("Starting Singleplayer mode...");
 	closeStart();
 	init();
@@ -525,6 +562,7 @@ export function startMultiplayerWithName() {
 }
 
 export function startMultiplayer() {
+	gameMode = "MultiPlayer";
     console.log("Starting Multiplayer mode...");
 	// show Config dialogue
 	document.getElementById("userDetails").style.display = "block";

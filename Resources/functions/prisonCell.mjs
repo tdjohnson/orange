@@ -19,6 +19,7 @@ export class PrisonCell extends THREE.Mesh {
 		}
 		
 		var cellComplete = new CellComplete(renderer);
+		cellComplete.name = this.name; //correcT?
 		cellComplete.position.set(0,0,0);
 		cellComplete.rotation.y = Math.PI*-0.5;
 		this.add(cellComplete);
