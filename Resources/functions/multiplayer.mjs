@@ -120,6 +120,7 @@ export class Multiplayer extends THREE.Mesh {
                 // name: "Multi_" + player.id,
                 body: this.playerBody.clone(),
             };
+            newPlayer.body.playerid = player.id;
             console.log(newPlayer)
             this.addPlayerIdText(newPlayer.body, newPlayer.id, newPlayer.name);
             this.updatePlayer(newPlayer, player);
