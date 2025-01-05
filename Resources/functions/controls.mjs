@@ -68,8 +68,10 @@ export function onKeyDown(e) {
 			transformModule.triggerObject(lastObject);
 			break;    	
   		case 87: // w
-		  pressedKeys.set("w", true);
-		  break;	
+		  	pressedKeys.set("w", true);
+		  	break;
+  		case 88: // x
+		  	transformModule.shoot();
   		case 89: //y
 		 	transformModule.triggerDrop(lastObject);
 			break;

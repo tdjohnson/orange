@@ -29,11 +29,12 @@ export class Multiplayer extends THREE.Mesh {
         this.playerBody = new objectsModule.JailBotBody(renderer);
         this.playerId = this.umps.GetPlayerId();
         this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
-        //this.playerName = "Multi_" + this.playerId;
         this.players = [];
     }
     
     init() {
+
+        // handle player position messages
         this.umps.hub.on("ReceiveData", (player) => {
             if (player.id === this.playerId) return;
 
@@ -43,6 +44,16 @@ export class Multiplayer extends THREE.Mesh {
             } else {
                 this.addNewPlayer(player);
             }
+        });
+
+        // handle event messages
+        this.umps.hub.on("Event", (event) => {
+            if (event.type === "hit"){
+                if (event.destination === this.playerId){
+                    console.log("You got hit!");
+                    alert("YOU ARE DEAD!!!!!!!!!");
+                }
+            };
         });
 
         this.playerLastUpdate = {};
@@ -90,6 +101,19 @@ export class Multiplayer extends THREE.Mesh {
 
         lastMovementTime = performance.now();
         this.playerLastUpdate[this.playerId] = lastMovementTime;
+    }
+
+    sendEvent(type, source, destination){
+        const event = {
+            type: type,
+            source: source,
+            destination: destination
+        };
+        if (this.umps.hub.connection.q === "Connected") {
+            this.umps.hub.invoke("SendEvent", player).catch(err => {
+                console.error("Error sending event: ", err);
+            });
+        }
     }
 
     addNewPlayer(player) {

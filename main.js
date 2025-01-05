@@ -512,6 +512,8 @@ export function startMultiplayerWithName() {
 
 		retrieveServerList().then((result) => {
 			var server_list = result;
+			// uncomment this line if you want to have a local url AND ALSO UNCOMMENT THE SAME LINE IN FUNCTION startMultiplayer()
+			// server_list.push({id: "6666", name: "Lokales Gefängnis", baseUrl: "https://localhost:7000", defaultUrl: "https://localhost:7000/controlhub"});
 			var selected_server = server_list.find(obj => {
 				return obj.id === selected_server_id;
 			});
@@ -533,6 +535,8 @@ export function startMultiplayer() {
 
 	retrieveServerList().then((result) => {
 		var server_list = result;
+		// uncomment this line if you want to have a local url AND ALSO UNCOMMENT THE SAME LINE IN FUNCTION startMultiplayerWithName()
+		// server_list.push({id: "6666", name: "Lokales Gefängnis", baseUrl: "https://localhost:7000", defaultUrl: "https://localhost:7000/controlhub"});
 		console.log("Working on server list: " + JSON.stringify(server_list));
 		createServerListDropdown(server_list);
 	});
