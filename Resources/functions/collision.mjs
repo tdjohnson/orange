@@ -1,4 +1,29 @@
-export function collisionDetection(xNew, zNew, toTest, collidableMeshList) {
+import * as THREE from 'three';
+
+var collidableObjects;
+
+export function collisionDetection(objectToCheck, collidableMeshList) {
+    const collidingObjects = []; // List to store colliding objects
+	collidableObjects = [];
+	collidableObjects = collidableMeshList.filter(obj => !obj.name.startsWith("PrisonCell_"));
+    // Compute the bounding box for the object to check
+    const objectBoundingBox = new THREE.Box3().setFromObject(objectToCheck);
+
+    for (const collidableObject of collidableObjects) {
+        // Compute the bounding box for the current collidable object
+        const collidableBoundingBox = new THREE.Box3().setFromObject(collidableObject);
+
+        // Check if the bounding boxes intersect
+        if (objectBoundingBox.intersectsBox(collidableBoundingBox)) {
+            collidingObjects.push(collidableObject); // Add to the list if collision detected
+        }
+    }
+
+    return collidingObjects; // Return the list of colliding objects
+}
+
+
+/*export function collisionDetection(xNew, zNew, toTest, collidableMeshList) {
 	var collision;
 	for (var i=0; i<collidableMeshList.length; i++) {
 		var homeBB = new THREE.Box3().setFromObject(collidableMeshList[i]);
@@ -10,7 +35,7 @@ export function collisionDetection(xNew, zNew, toTest, collidableMeshList) {
 		if ((homeBB.containsPoint(toTest))) { /*&&
 			(controls.getObject().position.x+n <= bbox.box.max.x) &&
 			(controls.getObject().position.z+n >= bbox.box.min.z) &&
-			(controls.getObject().position.z+n <= bbox.box.max.z)) {*/
+			(controls.getObject().position.z+n <= bbox.box.max.z)) 
 				
 			 	collision = true;
 			 	break;
@@ -23,3 +48,4 @@ export function collisionDetection(xNew, zNew, toTest, collidableMeshList) {
 	}
 	return collision;
 }
+*/

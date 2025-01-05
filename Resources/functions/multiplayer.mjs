@@ -12,6 +12,7 @@ var lastMovementTime = 0;
 var lastPosition = new THREE.Vector3();
 var lastDirection = new THREE.Vector3();
 
+
 const roundVector = (v) => new THREE.Vector3(
     Math.round(v.x * 1000) / 1000,
     Math.round(v.y * 1000) / 1000,
@@ -30,6 +31,7 @@ export class Multiplayer extends THREE.Mesh {
         this.playerId = this.umps.GetPlayerId();
         this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
         this.players = [];
+
     }
     
     init() {
@@ -58,11 +60,27 @@ export class Multiplayer extends THREE.Mesh {
 
         this.playerLastUpdate = {};
         setInterval(() => this.checkIdle(), idleCheckInterval);
+
+
+
     }
+
+  
+  
+  
+  
+  
+  
+
 
     getPlayerId() {
         return this.playerId;
     }
+
+    getCurrentPlayerBody() {
+        this.playerBody;
+    }
+
  
     sendData(pos, dir, forceSend = false) {
        
@@ -173,6 +191,7 @@ export class Multiplayer extends THREE.Mesh {
             if ((currentTime - this.playerLastUpdate[player.id]) > idleTimeout) {
                 this.scene.remove(player.body);
                 this.collidableMeshList = this.collidableMeshList.filter(mesh => mesh !== player.body);
+                                
                 return false;
             }
             return true;
