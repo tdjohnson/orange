@@ -33,14 +33,14 @@ export function collisionDetection(objectToCheck, collidableMeshList) {
 		
 		
 		if ((homeBB.containsPoint(toTest))) { /*&&
-			(controls.getObject().position.x+n <= bbox.box.max.x) &&
-			(controls.getObject().position.z+n >= bbox.box.min.z) &&
-			(controls.getObject().position.z+n <= bbox.box.max.z)) 
+			(controls.object.position.x+n <= bbox.box.max.x) &&
+			(controls.object.position.z+n >= bbox.box.min.z) &&
+			(controls.object.position.z+n <= bbox.box.max.z)) 
 				
 			 	collision = true;
 			 	break;
 			} else {
-				//alert(controls.getObject().position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
+				//alert(controls.object.position.x+" "+bbox.box.min.x+" "+bbox.box.max.x);
 				//console.log(toTest);
 				collision = false;
 				//testcomment again

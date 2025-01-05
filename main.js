@@ -156,7 +156,7 @@ function init() {
 	controls.object.playerHeight = playerHeight;
 	controls.object.position.set(5, playerHeight, 8);
 	playerBody = new objectsModule.JailBotBody(renderer);
-	controls.getObject().add(playerBody);
+	controls.object.add(playerBody);
 	playerBody.position.set(0, 0.5, 1); 
 
 	playerBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
