@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import {meshloader} from './objects.mjs';
+import {collisionDetection} from './collision.mjs'
 
 
 const BulletArray = [];
 var currentPositon;
-var buuletLifetime = 10;
+var buletLifetime = 10;
+var collidableMeshList = [];
 
 export class Bullet extends THREE.Mesh {
     constructor(renderer) {
@@ -24,18 +26,30 @@ export class Bullet extends THREE.Mesh {
 
 }
 
+export function updateCollidableMeshList(newMeshList) {
+    collidableMeshList = newMeshList;
+}
+
 
 export function addBullet(renderer) {
     var newBullet = new Bullet(renderer);
     var initialBulletPositionVector = currentPositon.position
     //console.log(currentPositon);
-    const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
+    const raycasterFront = new THREE.Raycaster(initialBulletPositionVector , new THREE.Vector3( 1, 0, 0 ), 0, 20 );
 
     const bulletDirection = currentPositon.getWorldDirection(raycasterFront.ray.direction);
     const lookAtPoint = new THREE.Vector3().addVectors(bulletDirection, initialBulletPositionVector);
     newBullet.position.set(initialBulletPositionVector.x, initialBulletPositionVector.y, initialBulletPositionVector.z);
     newBullet.lookAt(lookAtPoint);
     BulletArray.push(newBullet);
+
+    var intersectArray = raycasterFront.intersectObjects(collidableMeshList);
+    console.log(intersectArray);
+    console.log(raycasterFront);
+
+    //intersectArray[0] contains the first object that is intersected when a bullet is shot.
+    //If this is a jailBotBody, you shot a player
+
 }
 
 export function getBulletArray() {

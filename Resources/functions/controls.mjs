@@ -201,6 +201,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		velocity.x = calcNewVelocityPerTick(velocity.x, delta);
 		velocity.z = calcNewVelocityPerTick(velocity.z, delta);
 
+		//console.log(velocity.y)
 		velocity.y -= 9.8 * delta * mass;
 
 		//velocityWorld = new
@@ -239,7 +240,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 
 			controls.object.position.y += ( velocity.y * delta );
 		}
-		console.log(hasMoved);
+		//console.log(hasMoved);
 	    //controls.object.translateX(velocity.x);
 	    //controls.object.translateY(velocity.y);
 	    //controls.object.translateZ(velocity.z);
