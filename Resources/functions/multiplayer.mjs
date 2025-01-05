@@ -30,12 +30,13 @@ export class Multiplayer extends THREE.Mesh {
         this.playerBody = new objectsModule.JailBotBody(renderer);
         this.playerId = this.umps.GetPlayerId();
         this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
-        //this.playerName = "Multi_" + this.playerId;
         this.players = [];
 
     }
     
     init() {
+
+        // handle player position messages
         this.umps.hub.on("ReceiveData", (player) => {
             if (player.id === this.playerId) return;
 
@@ -47,20 +48,19 @@ export class Multiplayer extends THREE.Mesh {
             }
         });
 
+        // handle event messages
+        this.umps.hub.on("ReceiveEvent", (event) => {
+            if (event.type === "hit"){
+                if (event.destination === this.playerId){
+                    console.log("You got hit!");
+                    alert("YOU ARE DEAD!!!!!!!!!");
+                }
+            };
+        });
+
         this.playerLastUpdate = {};
         setInterval(() => this.checkIdle(), idleCheckInterval);
-
-
-
     }
-
-  
-  
-  
-  
-  
-  
-
 
     getPlayerId() {
         return this.playerId;
@@ -110,6 +110,19 @@ export class Multiplayer extends THREE.Mesh {
         this.playerLastUpdate[this.playerId] = lastMovementTime;
     }
 
+    sendEvent(type, destination){
+        const event = {
+            type: type,
+            source: this.playerId,
+            destination: destination
+        };
+        if (this.umps.hub.connection.q === "Connected") {
+            this.umps.hub.invoke("SendEvent", event).catch(err => {
+                console.error("Error sending event: ", err);
+            });
+        }
+    }
+
     addNewPlayer(player) {
         var requested_player_name = ""
         this.umps.GetPlayerName(player.id).then( (result) => {
@@ -117,7 +130,6 @@ export class Multiplayer extends THREE.Mesh {
             const newPlayer = {
                 id: player.id,
                 name: requested_player_name,
-                // name: "Multi_" + player.id,
                 body: this.playerBody.clone(),
             };
             newPlayer.body.playerid = player.id;
