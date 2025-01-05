@@ -45,8 +45,8 @@ export function onMouseUp(e) {
 	//console.log(e.button);
 	switch (e.button) {
 		case 0: //left mouse click end
-				pressedKeys.set("LMB", false);
-				break;
+			pressedKeys.set("LMB", false);
+			break;
 	}
 }
 
@@ -55,7 +55,6 @@ export function onKeyDown(e) {
     switch (e.keyCode) {
 		case 32: // space
 			pressedKeys.set(" ", true);
-			
 		    break;
 		case 16: //Shift
 			pressedKeys.set("SHIFT", true);
@@ -83,7 +82,7 @@ export function onKeyDown(e) {
 			break;
 		case 69: // e
 	 		rotate(lastObject,new THREE.Vector3(0,1,0),-5); //object,axis,degree
-			 break;
+			break;
 		case 79: //o
 			botAggressive = 0;
 			break;
@@ -99,8 +98,8 @@ export function onKeyDown(e) {
 			transformModule.triggerObject(lastObject);
 			break;    	
   		case 87: // w
-		  pressedKeys.set("w", true);
-		  break;	
+		  	pressedKeys.set("w", true);
+		  	break;
   		case 89: //y
 		 	transformModule.triggerDrop(lastObject);
 			break;
@@ -219,7 +218,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 
 		//const inFrontOfObject = collidingMeshesListInMovementDir.length > 0;
 		const inFrontOfObject = false;
-		if ((inFrontOfObject === true) & (0 >= velocity.z) ) {
+		if ((inFrontOfObject === true) && (0 >= velocity.z) ) {
 			velocity.z = 0;
 		}
 		controls.moveForward(-velocity.z);
