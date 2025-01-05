@@ -244,7 +244,7 @@ function init() {
 	bulletControl.setPositionReference(camera);
 
 	THREE.DefaultLoadingManager.onLoad = function () {
-		console.log("finished loading");
+		//console.log("finished loading");
     	loadDone = true;
     	
 	};
@@ -421,8 +421,8 @@ function animate() {
 	if(gameMode != null && playerBody != null)
 	{
 		collidingObjects = collisionDetection(playerBody, collidableMeshList);
-		console.log("Colision detected with:");
-		console.log(collidingObjects);
+		//console.log("Colision detected with:");
+		//console.log(collidingObjects);
 
 	}
 

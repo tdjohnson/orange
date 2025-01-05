@@ -28,7 +28,7 @@ export class Bullet extends THREE.Mesh {
 export function addBullet(renderer) {
     var newBullet = new Bullet(renderer);
     var initialBulletPositionVector = currentPositon.position
-    console.log(currentPositon);
+    //console.log(currentPositon);
     const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
 
     const bulletDirection = currentPositon.getWorldDirection(raycasterFront.ray.direction);

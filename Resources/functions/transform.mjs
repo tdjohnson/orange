@@ -171,7 +171,7 @@ export function animateDoors() {
 }
 
 export function animateBullets(bulletList) {
-	var speed = 1;
+	var speed = 0.5;
 	
 	bulletList.forEach(singleBullet => {
 		var direction = new THREE.Vector3(0, 0, 1);

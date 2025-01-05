@@ -35,8 +35,9 @@ export function onMouseDown(e) {
 	//console.log(e.button);
 	switch (e.button) {
 		case 0: //left mouse click
-				pressedKeys.set("LMB", true);
-				bulletControl.addBullet(renderer, scene);
+			pressedKeys.set("LMB", true);
+			bulletControl.addBullet(renderer, scene);
+			break;
 	}
 }
 
@@ -45,6 +46,7 @@ export function onMouseUp(e) {
 	switch (e.button) {
 		case 0: //left mouse click end
 				pressedKeys.set("LMB", false);
+				break;
 	}
 }
 
@@ -53,7 +55,12 @@ export function onKeyDown(e) {
     switch (e.keyCode) {
 		case 32: // space
 			pressedKeys.set(" ", true);
+			
 		    break;
+		case 16: //Shift
+			pressedKeys.set("SHIFT", true);
+			console.log("Pressed SHift");
+			break;
 		case 37: // left
     	case 38: // up
 		case 39: // right
@@ -109,6 +116,10 @@ export function onKeyUp(e) {
 	switch(e.keyCode) {
 		case 1: // left mouse button
 			pressedKeys.set("LMB", false);
+			break;
+		case 16: //Shift
+			pressedKeys.set("SHIFT", false);
+			break;
 		case 32: // space
 			pressedKeys.set(" ", false);
 			break;
@@ -159,7 +170,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		var delta = clock.getDelta();
       	var mass = 10;
 		var walkingSpeedImpulse = 0.1;
-		var jumpImpulse = 14;
+		var jumpImpulse = 5;
 		var TargetY = 4;
 		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
 
@@ -168,6 +179,9 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 				velocity.y += jumpImpulse;
 				canJump = false;
 			}
+		}
+		if(pressedKeys.get("SHIFT")) {
+			velocity.y -= jumpImpulse;
 		}
 		if (pressedKeys.get("w")) {
 			velocity.z -= walkingSpeedImpulse;
@@ -181,15 +195,20 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		if (pressedKeys.get("d")) {
 			velocity.x += walkingSpeedImpulse;
 		}
+
+
 		//var deltaMass = delta * mass;
 		velocity.x = calcNewVelocityPerTick(velocity.x, delta);
 		velocity.z = calcNewVelocityPerTick(velocity.z, delta);
 
+		console.log(velocity.y)
 		velocity.y -= 9.8 * delta * mass;
 
 		//velocityWorld = new
 		//raycasterFront.ray.direction = velocity.localToWorld();
 		const collidingMeshesList = raycaster.intersectObjects(collidableMeshList);
+		//const collidingMeshesList = collisionDetection(controls, collidableMeshList)
+		//const collidingMeshesList = ["arrayTest"];
 		const collidingMeshesListInMovementDir = raycasterFront.intersectObjects(collidableMeshList);
 		const collidingMeshesListCameraRay = raycasterCamera.intersectObjects(collidableMeshList);
 
@@ -210,8 +229,10 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 			velocity.y = Math.max( 0, velocity.y );
 			canJump = true;
 			if (collidingMeshesList[0].distance <= 0.9) {
-				controls.object.position.y += 0.1;
+				//controls.object.position.y += 0.1;
 			}
+		} else {
+			
 		}
 		if (hasMoved === true) {
 			controls.object.position.y += ( velocity.y * delta );
