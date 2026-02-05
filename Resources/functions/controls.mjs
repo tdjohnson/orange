@@ -178,14 +178,46 @@ function reduceFloatPrecision(toReduce) {
 	return toReduce.toFixed(4);
 }
 
+// --- Wall collision ---
+var wallRaycaster = new THREE.Raycaster();
+var wallDirections = [
+	new THREE.Vector3(1, 0, 0),
+	new THREE.Vector3(-1, 0, 0),
+	new THREE.Vector3(0, 0, 1),
+	new THREE.Vector3(0, 0, -1),
+	new THREE.Vector3(0.707, 0, 0.707),
+	new THREE.Vector3(-0.707, 0, 0.707),
+	new THREE.Vector3(0.707, 0, -0.707),
+	new THREE.Vector3(-0.707, 0, -0.707),
+];
+var playerCollisionRadius = 0.8;
+
+function hasWallCollision(position, playerHeight, meshList) {
+	var origin = new THREE.Vector3(position.x, position.y - 1.0, position.z);
+	wallRaycaster.far = playerCollisionRadius;
+	wallRaycaster.near = 0;
+	for (var i = 0; i < wallDirections.length; i++) {
+		wallRaycaster.set(origin, wallDirections[i]);
+		var hits = wallRaycaster.intersectObjects(meshList, true);
+		if (hits.length > 0 && hits[0].face) {
+			// Transform normal to world space and ignore floors/ramps (horizontal surfaces)
+			var normal = hits[0].face.normal.clone();
+			normal.transformDirection(hits[0].object.matrixWorld);
+			if (Math.abs(normal.y) < 0.5) {
+				return true; // vertical surface = wall
+			}
+		}
+	}
+	return false;
+}
+
 export function updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera) {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
-      	var mass = 10;
+		var mass = 10;
 		var walkingSpeedImpulse = 0.1;
 		var jumpImpulse = 5;
-		var TargetY = 4;
-		//var toTest = new THREE.Vector3(controls.object.position.x, 1, controls.object.position.z);
+		var playerHeight = controls.object.playerHeight;
 
 		if(pressedKeys.get(" ")) {
 			if (canJump === true) {
@@ -209,72 +241,69 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 			velocity.x += walkingSpeedImpulse;
 		}
 
-
-		//var deltaMass = delta * mass;
 		velocity.x = calcNewVelocityPerTick(velocity.x, delta);
 		velocity.z = calcNewVelocityPerTick(velocity.z, delta);
-
-		//console.log(velocity.y)
 		velocity.y -= 9.8 * delta * mass;
 
-		//velocityWorld = new
-		//raycasterFront.ray.direction = velocity.localToWorld();
-		const collidingMeshesList = raycaster.intersectObjects(collidableMeshList);
-		//const collidingMeshesList = collisionDetection(controls, collidableMeshList)
-		//const collidingMeshesList = ["arrayTest"];
-		const collidingMeshesListInMovementDir = raycasterFront.intersectObjects(collidableMeshList);
-		const collidingMeshesListCameraRay = raycasterCamera.intersectObjects(collidableMeshList);
+		// --- Horizontal movement with wall collision ---
+		var prevPos = controls.object.position.clone();
 
+		controls.moveForward(-velocity.z);
+		if (hasWallCollision(controls.object.position, playerHeight, collidableMeshList)) {
+			controls.object.position.copy(prevPos);
+			velocity.z = 0;
+		}
+
+		var midPos = controls.object.position.clone();
+
+		controls.moveRight(velocity.x);
+		if (hasWallCollision(controls.object.position, playerHeight, collidableMeshList)) {
+			controls.object.position.copy(midPos);
+			velocity.x = 0;
+		}
+
+		// --- Floor/ramp detection (raycaster casts down from camera height) ---
+		raycaster.ray.origin.set(
+			controls.object.position.x,
+			controls.object.position.y,
+			controls.object.position.z
+		);
+
+		var groundHits = raycaster.intersectObjects(collidableMeshList, true);
+		var onGround = false;
+
+		if (hasMoved === true) {
+			controls.object.position.y += (velocity.y * delta);
+		}
+
+		if (groundHits.length > 0) {
+			var groundY = groundHits[0].point.y;
+			var standingY = groundY + playerHeight;
+
+			if (controls.object.position.y <= standingY + 1.5) {
+				controls.object.position.y = standingY;
+				velocity.y = Math.max(0, velocity.y);
+				canJump = true;
+				onGround = true;
+			}
+		}
+
+		// Camera ray for object interaction
+		var collidingMeshesListCameraRay = raycasterCamera.intersectObjects(collidableMeshList, true);
 		if (collidingMeshesListCameraRay.length > 0) {
-			//console.log(collidingMeshesListCameraRay[0]);
 			lastObject = collidingMeshesListCameraRay;
 		}
 
-		//const inFrontOfObject = collidingMeshesListInMovementDir.length > 0;
-		const inFrontOfObject = false;
-		if ((inFrontOfObject === true) && (0 >= velocity.z) ) {
-			velocity.z = 0;
-		}
-		controls.moveForward(-velocity.z);
-		controls.moveRight(velocity.x);
-
-		const onObject = collidingMeshesList.length > 0;
-		//const onObject = false;
-		if ( onObject === true ) {
-			velocity.y = Math.max( 0, velocity.y );
-			canJump = true;
-			if (collidingMeshesList[0].distance <= 0.9) {
-				//controls.object.position.y += 0.1;
-			}
-		} else {
-			
-		}
-		if (hasMoved === true) {
-
-			controls.object.position.y += ( velocity.y * delta );
-		}
-		//console.log(hasMoved);
-	    //controls.object.translateX(velocity.x);
-	    //controls.object.translateY(velocity.y);
-	    //controls.object.translateZ(velocity.z);
-
 		var toDisplay =
 			"<table id='InfoOutput'>"+
-			"<tr><td>velocityX:</td><td>"+ reduceFloatPrecision(velocity.x) + "</td><td>positionX:</td><td>" + reduceFloatPrecision(controls.object.position.x) + "</td><td></td><td></td><td></td></tr>" +
-			"<tr><td>velocityY:</td><td> "+ reduceFloatPrecision(velocity.y) + "</td><td>positionY:</td><td>" + reduceFloatPrecision(controls.object.position.y) + "</td></tr>" +
-			"<tr><td>velocityZ:</td><td> "+ reduceFloatPrecision(velocity.z) + "</td><td>positionZ:</td><td>" + reduceFloatPrecision(controls.object.position.z) + "</td></tr>" +
-			"<tr><td>FPS:</td><td>"+ Math.round(1 / delta)+ "</td></tr>";
-		if ( onObject === true ) {
-			toDisplay += "<tr><td>IntersDisFloor:</td><td>" + reduceFloatPrecision(collidingMeshesList[0].distance) +"</td></tr>";
-			toDisplay += "<tr><td>IntersPntFloor:</td><td>X:</td><td>" + reduceFloatPrecision(collidingMeshesList[0].point.x) + "</td><td>Y:</td><td>" + reduceFloatPrecision(collidingMeshesList[0].point.y) + "</td><td>Z:</td><td>" + reduceFloatPrecision(collidingMeshesList[0].point.z)+"</td></tr>";
+			"<tr><td>velX:</td><td>"+ reduceFloatPrecision(velocity.x) + "</td><td>posX:</td><td>" + reduceFloatPrecision(controls.object.position.x) + "</td></tr>" +
+			"<tr><td>velY:</td><td>"+ reduceFloatPrecision(velocity.y) + "</td><td>posY:</td><td>" + reduceFloatPrecision(controls.object.position.y) + "</td></tr>" +
+			"<tr><td>velZ:</td><td>"+ reduceFloatPrecision(velocity.z) + "</td><td>posZ:</td><td>" + reduceFloatPrecision(controls.object.position.z) + "</td></tr>" +
+			"<tr><td>FPS:</td><td>"+ Math.round(1 / delta) + "</td><td>ground:</td><td>" + onGround + "</td></tr>";
+		if (groundHits.length > 0) {
+			toDisplay += "<tr><td>groundY:</td><td>" + reduceFloatPrecision(groundHits[0].point.y) + "</td></tr>";
 		}
-		if (inFrontOfObject === true) {
-			toDisplay += "<tr><td>IntersDisFront:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].distance) +"</td></tr>";
-			toDisplay += "<tr><td>IntersPntFront:</td><td>X:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].point.x) + "</td><td>Y:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].point.y) + "</td><td>Z:</td><td>" + reduceFloatPrecision(collidingMeshesListInMovementDir[0].point.z)+"</td></tr>";
-		}
-		toDisplay += "</table>" +
-		raycasterCamera.ray.origin.x + " " + raycasterCamera.ray.origin.y + " " + raycasterCamera.ray.origin.z + "</br>" +
-		raycasterCamera.ray.direction.x + " " + raycasterCamera.ray.direction.y + " " + raycasterCamera.ray.direction.z + "</br>";
+		toDisplay += "</table>";
 
 		showMessageContent(toDisplay);
 

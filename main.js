@@ -42,7 +42,7 @@ var meshes = new Map();
 var rootCell;
 var prisonWallRoot;
 
-const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
+const raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 100 );
 const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, 0, 0 ), 0, 1 );
 var raycasterCamera;
 
@@ -158,7 +158,7 @@ function init() {
 	
 	var playerHeight = 5;
 	controls.object.playerHeight = playerHeight;
-	controls.object.position.set(5, playerHeight, 8);
+	controls.object.position.set(5, 5 + playerHeight, 8);
 	playerBody = new objectsModule.JailBotBody(renderer);
 	controls.object.add(playerBody);
 	playerBody.position.set(0, 0.5, 1); 
@@ -202,7 +202,7 @@ function init() {
 		var hallwayOffset = hallwayStart + (48 * i);
 
 		var fullHallway = new hallwayModule.FullHallway(renderer, collidableMeshList, scene);
-		fullHallway.position.set(hallwayOffset,0,21);
+		fullHallway.position.set(hallwayOffset,5,21);
 		scene.add(fullHallway);
 	}
 	
@@ -236,7 +236,7 @@ function init() {
 			var cellOffsetX = cellStartX + (12 * i);
 			var cellOffsetZ = cellStartZ + (42 * j);
 			var rootCell = new prisonCellModule.PrisonCell(renderer, collidableMeshList, scene);
-			rootCell.position.set(cellOffsetX,0,cellOffsetZ);
+			rootCell.position.set(cellOffsetX,5,cellOffsetZ);
 			rootCell.rotateY(rotate);
 			scene.add(rootCell);
 
@@ -262,6 +262,7 @@ function init() {
 
 	scene.add(grid);
 	addRamps(renderer);
+	addFoundation();
 	addSandFloor(renderer);
 	addBullets(renderer);
 
@@ -296,13 +297,13 @@ function cloning(n) {
 
 function addRamps(renderer) {
 	var ramp1 = new objectsModule.Ramp(renderer);
-	ramp1.position.set(-35,-2.5,12);
+	ramp1.position.set(-35,2.5,12);
 	scene.add(ramp1);
 	collidableMeshList.push(ramp1);
 
 	var ramp2 = new objectsModule.Ramp(renderer);
 	ramp2.rotateY(Math.PI);
-	ramp2.position.set(35,-2.5,30);
+	ramp2.position.set(35,2.5,30);
 	scene.add(ramp2);
 	collidableMeshList.push(ramp2);
 
@@ -311,10 +312,20 @@ function addRamps(renderer) {
 }
 
 
+function addFoundation() {
+	// Matches the building footprint (cells x:-30..42, z:0..48)
+	var geometry = new THREE.BoxGeometry(76, 5, 52);
+	var material = new THREE.MeshLambertMaterial({ color: 0x7a6b5a });
+	var foundation = new THREE.Mesh(geometry, material);
+	foundation.position.set(6, 2.5, 23);
+	scene.add(foundation);
+	collidableMeshList.push(foundation);
+}
+
 function addWall(renderer) {
 	prisonWallRoot = new objectsModule.PrisonWall(renderer);
 	prisonWallRoot.rotation.y += Math.PI/2;
-	var y = 3.7;
+	var y = 0;
 	prisonWallRoot.rotation.y += Math.PI/2;
 	for (let i = -3; i < 5; i++) { 
 		var prisonWall = prisonWallRoot.clone();
@@ -344,19 +355,19 @@ function addWall(renderer) {
 
 function addTowers(renderer) {
 	var tower = new objectsModule.Tower(renderer);
-	tower.position.set(-50,0,-50);	
+	tower.position.set(-50,0,-50);
 	scene.add(tower);
-	
+
 	var tower = new objectsModule.Tower(renderer);
-	tower.position.set(80,0,-50);	
+	tower.position.set(80,0,-50);
 	scene.add(tower);
-	
+
 	var tower = new objectsModule.Tower(renderer);
-	tower.position.set(80,0,60);	
+	tower.position.set(80,0,60);
 	scene.add(tower);
-	
+
 	var tower = new objectsModule.Tower(renderer);
-	tower.position.set(-50,0,60);	
+	tower.position.set(-50,0,60);
 	scene.add(tower);
 }
 
@@ -397,7 +408,7 @@ function sun(){
 }
 function addSandFloor(renderer) {
 	var sand = new objectsModule.Sand(renderer);
-	sand.position.set(100, -5, 100);
+	sand.position.set(100, 0, 100);
 	scene.add(sand);
 	collidableMeshList.push(sand);
 }
@@ -456,13 +467,11 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
 
- 		/*updateMirrors();
+		//updateMirrors();
 		raycaster.ray.origin.copy( controls.object.position );
-		raycaster.ray.origin.y -= controls.object.playerHeight;
-		
+
 		raycasterFront.ray.origin.copy( controls.object.position );
 		controls.getDirection(raycasterFront.ray.direction);
-		//raycasterFront.ray.origin.y -= 1;*/
 
 		var vector = new THREE.Vector3(0, 0, -1);
 		vector = camera.localToWorld(vector);
