@@ -21,6 +21,14 @@ var renderer;
 var scene;
 var currentBody;
 
+var debugOverlayVisible = false;
+
+function toggleDebugOverlay() {
+	debugOverlayVisible = !debugOverlayVisible;
+	var el = document.getElementById("message");
+	if (el) el.classList.toggle("hidden", !debugOverlayVisible);
+}
+
 export function initControls(currentRender, currentScene) {
 	document.addEventListener('keydown', onKeyDown, false);
 	document.addEventListener('keyup', onKeyUp, false);
@@ -29,6 +37,9 @@ export function initControls(currentRender, currentScene) {
 	canJump = true;
 	renderer = currentRender;
 	scene = currentScene;
+	// start with debug overlay hidden
+	var el = document.getElementById("message");
+	if (el) el.classList.add("hidden");
 }
 
 export function onMouseDown(e) {
@@ -102,6 +113,9 @@ export function onKeyDown(e) {
 		  	break;
   		case 89: //y
 		 	transformModule.triggerDrop(lastObject);
+			break;
+	   	case 72: //h
+			toggleDebugOverlay();
 			break;
 	   	case 90: //z
 	   		zoom();
