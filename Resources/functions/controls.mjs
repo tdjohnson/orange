@@ -229,7 +229,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		var delta = clock.getDelta();
 		var mass = 1;
 		var walkingSpeedImpulse = 0.1;
-		var jumpImpulse = 5;
+		var jumpImpulse = 8;
 		var playerHeight = controls.object.playerHeight;
 
 		if(pressedKeys.get(" ")) {

@@ -156,7 +156,7 @@ function init() {
 
 	controls = new PointerLockControls(camera, document.body);
 	
-	var playerHeight = 1.8;
+	var playerHeight = 2.5;
 	controls.object.playerHeight = playerHeight;
 	controls.object.position.set(5, playerHeight, 8);
 	playerBody = new objectsModule.JailBotBody(renderer);
