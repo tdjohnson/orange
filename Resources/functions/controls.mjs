@@ -217,7 +217,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		// Prevent physics spiral when tab loses focus
 		if (delta > 0.1) delta = 0.1;
 		var mass = 1;
-		var walkingSpeedImpulse = 0.1;
+		var walkingSpeedImpulse = 0.05;
 		var jumpImpulse = 10;
 		var playerHeight = controls.object.playerHeight;
 
@@ -245,7 +245,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 
 		velocity.x = calcNewVelocityPerTick(velocity.x, delta);
 		velocity.z = calcNewVelocityPerTick(velocity.z, delta);
-		velocity.y -= 9.8 * delta * mass;
+		velocity.y -= 19.6 * delta * mass;
 
 		var prevPos = controls.object.position.clone();
 
