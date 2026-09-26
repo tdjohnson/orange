@@ -219,7 +219,7 @@ function init() {
 	vector = camera.localToWorld(vector);
 	vector.sub(camera.position); // Now vector is a unit vector with the same direction as the camera
 
-	raycasterCamera = new THREE.Raycaster( camera.position, vector, 0, 3);
+	raycasterCamera = new THREE.Raycaster( camera.position, vector, 0, 50);
 
 	var cellRowCount = 2;
 	var cellsPerRow = 6;
