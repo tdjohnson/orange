@@ -90,9 +90,13 @@ function GetCollidableMeshList() {
 
 function init() { 
 	
-	renderer = new THREE.WebGLRenderer({antialias:true});
+	renderer = new THREE.WebGLRenderer({
+		antialias: false,
+		powerPreference: "high-performance"
+	});
 	renderer._microCache = MicroCache();
 	renderer.domElement.id = "scene";
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 	renderer.setSize(window.innerWidth, window.innerHeight-30);
 	renderer.setClearColor(0xb2e1f2);
 	if (!performanceBoostGlobal) {
@@ -251,16 +255,12 @@ function init() {
 	}
 
 
-	var grid = new THREE.GridHelper(500, 5);
 	addWall(renderer);
 
 	//cloning(4);
 	addTowers(renderer);
 
 	pointerLockModule.initPointerLock(havePointerLock);
-
-
-	scene.add(grid);
 	addRamps(renderer);
 	addFoundation();
 	addSandFloor(renderer);
@@ -374,36 +374,13 @@ function addTowers(renderer) {
 
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
-	//var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-	var dirLight = new THREE.PointLight( 0xffffff, 1000);
-	/*var dirLight2 = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	var dirLight3 = new THREE.DirectionalLight( 0xffffff, 0.5 );*/
+	var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+	dirLight.position.set(20, 40, 30);
 
-	const sun = new THREE.AmbientLight( 0x404040, 1);
+	const sun = new THREE.AmbientLight(0x404040, 0.4);
 
-	//Shadow stuff
-	//dirLight.castShadow = true;
-	//dirLight.shadow.radius = 200;
-	//dirLight.shadow.mapSize.width = 2048;
-	//dirLight.shadow.mapSize.height = 2048
-
-	//dirLight.color.setHSL( 0.1, 1, 0.95 );
-	dirLight.position.set( 20, 20, 20 );
-	
-	/*dirLight2.color.setHSL( 0.1, 1, 0.95 );
-	dirLight2.position.set( -40, 40, 0 );
-	
-	dirLight3.color.setHSL( 0.1, 1, 0.95 );
-	dirLight3.position.set( 0, 40, -40 );*/
-	
-	/*scene.add(dirLight3);
-	scene.add(dirLight2);*/
-
+	scene.add(dirLight);
 	scene.add(sun);
-	//scene.add(dirLight);
-	
-	const helper = new THREE.PointLightHelper(dirLight);
-	scene.add(helper);
 	
 }
 function addSandFloor(renderer) {
