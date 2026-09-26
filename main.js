@@ -102,7 +102,7 @@ export function takeDamage(amount) {
 		showBustedMessage();
 		// Track local player defeat
 		if (multiplayer && multiplayer.playerName) {
-			const localPlayerName = multiplayer.playerName;
+			const localPlayerName = multiplayer.name;
 			const currentCount = defeatedPlayers.get(localPlayerName) || 0;
 			defeatedPlayers.set(localPlayerName, currentCount + 1);
 			updateDefeatedCounter();
@@ -124,16 +124,27 @@ function updateDefeatedCounter() {
 	
 	const entries = Array.from(defeatedPlayers.entries()).sort((a, b) => b[1] - a[1]);
 	
+	container.innerHTML = "";
+	
 	if (entries.length === 0) {
-		container.innerHTML = "0";
+		const span = document.createElement("span");
+		span.textContent = "0";
+		container.appendChild(span);
 		return;
 	}
 	
-	// Format as highscore list
-	const html = entries.map(([name, count]) => 
-		`<div class="defeatedEntry">${name}: ${count}</div>`
-	).join("");
-	container.innerHTML = html;
+	// Format as highscore list using safe DOM methods
+	entries.forEach(([name, count]) => {
+		const entry = document.createElement("div");
+		entry.className = "defeatedEntry";
+		const nameSpan = document.createElement("span");
+		nameSpan.textContent = name + ": ";
+		const countSpan = document.createElement("span");
+		countSpan.textContent = String(count);
+		entry.appendChild(nameSpan);
+		entry.appendChild(countSpan);
+		container.appendChild(entry);
+	});
 }
 
 export function handleDefeated(playerName) {
@@ -141,6 +152,18 @@ export function handleDefeated(playerName) {
 	defeatedPlayers.set(playerName, currentCount + 1);
 	updateDefeatedCounter();
 }
+
+function showDefeatedCounter(show) {
+	const container = document.getElementById("defeatedCounterContainer");
+	if (container) {
+		if (show) {
+			container.classList.remove("healthBarHidden");
+		} else {
+			container.classList.add("healthBarHidden");
+		}
+	}
+}
+
 
 
 async function retrieveServerList() {
@@ -622,11 +645,14 @@ function loadMultiplayer(player_name, selected_server){
 export function startSingleplayer() {
 	gameMode = "SinglePlayer";
     console.log("Starting Singleplayer mode...");
+	showDefeatedCounter(false);
 	closeStart();
 	init();
 }
 
 export function startMultiplayerWithName() {
+	gameMode = "MultiPlayer";
+	showDefeatedCounter(true);
 	var player_name = document.getElementById("player_name").value;
 	var selected_server_id = document.getElementById("serverSelector").value;
 	if(player_name === "" || player_name === null){
@@ -655,6 +681,7 @@ export function startMultiplayerWithName() {
 export function startMultiplayer() {
 	gameMode = "MultiPlayer";
     console.log("Starting Multiplayer mode...");
+	showDefeatedCounter(true);
 	// show Config dialogue
 	document.getElementById("userDetails").style.display = "block";
 
@@ -679,3 +706,4 @@ window.startMultiplayerWithName = startMultiplayerWithName;
 window.init = init;
 window.showBustedMessage = showBustedMessage;
 window.takeDamage = takeDamage;
+window.handleDefeated = handleDefeated;
