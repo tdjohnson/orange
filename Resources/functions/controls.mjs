@@ -283,9 +283,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		var groundHits = raycaster.intersectObjects(collidableMeshList, true);
 		var onGround = false;
 
-		if (hasMoved === true) {
-			controls.object.position.y += (velocity.y * delta);
-		}
+		controls.object.position.y += (velocity.y * delta);
 
 		if (groundHits.length > 0) {
 			var groundY = groundHits[0].point.y;
