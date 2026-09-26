@@ -15,7 +15,7 @@ var moveForward,
 	
 var velocity = new THREE.Vector3();
 var pressedKeys = {};
-var maxVelocity = 0.2;
+var maxVelocity = 12;
 
 // Reusable vectors to avoid allocations
 var tempVec = new THREE.Vector3();
@@ -174,7 +174,7 @@ export function onKeyUp(e) {
 
 function calcNewVelocityPerTick(oldVelocity, deltaTick) {
 	var newVelocity = oldVelocity * (1 - deltaTick * 10);
-	if (Math.abs(newVelocity) < 0.002) return 0;
+	if (Math.abs(newVelocity) < 0.1) return 0;
 	if (Math.abs(newVelocity) > maxVelocity) return Math.sign(oldVelocity) * maxVelocity;
 	return newVelocity;
 }
@@ -217,8 +217,8 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		// Prevent physics spiral when tab loses focus
 		if (delta > 0.1) delta = 0.1;
 		var mass = 1;
-		var walkingSpeedImpulse = 0.05;
-		var jumpImpulse = 10;
+		var walkAccel = 180;
+		var jumpImpulse = 12;
 		var playerHeight = controls.object.playerHeight;
 
 		if(pressedKeys[" "]) {
@@ -227,20 +227,20 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 				canJump = false;
 			}
 		}
-		if(pressedKeys["SHIFT"]) {
-			velocity.y -= jumpImpulse;
+		if(pressedKeys["SHIFT"] && velocity.y > -30) {
+			velocity.y = -30;
 		}
 		if (pressedKeys["w"] || pressedKeys["ArrowUp"]) {
-			velocity.z -= walkingSpeedImpulse;
+			velocity.z -= walkAccel * delta;
 		}
 		if (pressedKeys["a"] || pressedKeys["ArrowLeft"]) {
-			velocity.x -= walkingSpeedImpulse;
+			velocity.x -= walkAccel * delta;
 		}
 		if (pressedKeys["s"] || pressedKeys["ArrowDown"]) {
-			velocity.z += walkingSpeedImpulse;
+			velocity.z += walkAccel * delta;
 		}
 		if (pressedKeys["d"] || pressedKeys["ArrowRight"]) {
-			velocity.x += walkingSpeedImpulse;
+			velocity.x += walkAccel * delta;
 		}
 
 		velocity.x = calcNewVelocityPerTick(velocity.x, delta);
@@ -249,7 +249,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 
 		var prevPos = controls.object.position.clone();
 
-		controls.moveForward(-velocity.z);
+		controls.moveForward(-velocity.z * delta);
 		if (hasWallCollision(controls.object.position, playerHeight, collidableMeshList)) {
 			controls.object.position.copy(prevPos);
 			velocity.z = 0;
@@ -257,7 +257,7 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 
 		var midPos = controls.object.position.clone();
 
-		controls.moveRight(velocity.x);
+		controls.moveRight(velocity.x * delta);
 		if (hasWallCollision(controls.object.position, playerHeight, collidableMeshList)) {
 			controls.object.position.copy(midPos);
 			velocity.x = 0;
