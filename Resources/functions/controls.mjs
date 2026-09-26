@@ -110,7 +110,7 @@ export function onKeyDown(e) {
 			pressedKeys.set("s", true);
 			break;
 		case "KeyT":
-			if(lastObject) transformModule.triggerObject(lastObject);
+			if(lastObject) transformModule.triggerObject([{object: lastObject}]);
 			break;
 		case "KeyW":
 			pressedKeys.set("w", true);

@@ -158,7 +158,7 @@ function init() {
 	
 	var playerHeight = 2.5;
 	controls.object.playerHeight = playerHeight;
-	controls.object.position.set(5, 5 + playerHeight, 8);
+	controls.object.position.set(5, 10 + playerHeight, 8);
 	playerBody = new objectsModule.JailBotBody(renderer);
 	controls.object.add(playerBody);
 	playerBody.position.set(0, 0.5, 1); 
@@ -473,9 +473,8 @@ function animate() {
 		raycasterFront.ray.origin.copy( controls.object.position );
 		controls.getDirection(raycasterFront.ray.direction);
 
-		var vector = new THREE.Vector3(0, 0, -1);
-		vector = camera.localToWorld(vector);
-		vector.sub(camera.position); // Now vector is a unit vector with the same direction as the camera
+		var vector = new THREE.Vector3();
+		camera.getWorldDirection(vector); // Get camera forward direction as normalized vector
 
 		raycasterCamera.ray.origin.copy(camera.position);
 		raycasterCamera.ray.direction = vector;
