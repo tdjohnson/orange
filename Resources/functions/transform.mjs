@@ -170,17 +170,16 @@ export function animateDoors() {
 	}
 }
 
-export function animateBullets(bulletList) {
+export function animateBullets(bulletList, delta) {
 	var gravity = 9.8;
-	var bulletSpeed = 0.5;
 	var lifetime = 3000; // 3 seconds in milliseconds
 	var currentTime = Date.now();
 	
 	for (let i = bulletList.length - 1; i >= 0; i--) {
 		var singleBullet = bulletList[i];
 		
-		// Apply gravity to velocity
-		singleBullet.velocity.y -= gravity * (0.016); // Approximate delta for 60fps
+		// Apply gravity to velocity (frame-rate independent)
+		singleBullet.velocity.y -= gravity * delta;
 		
 		// Update position based on velocity
 		singleBullet.position.add(singleBullet.velocity);

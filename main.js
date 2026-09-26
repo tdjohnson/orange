@@ -461,6 +461,7 @@ function animate() {
 			//multiplayer.adjustAudioVolume();
 		}
 
+		var delta = clock.getDelta();
 		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
 	    renderer.render(scene, camera);
 	    
@@ -476,7 +477,7 @@ function animate() {
 			}
 		});
 		bulletControl.updateCollidableMeshList(collidableMeshList);
-		transformModule.animateBullets(bulletControl.getBulletArray());
+		transformModule.animateBullets(bulletControl.getBulletArray(), delta);
 		//transformModule.patrolRobot(botBody);
  	
 		/*if(botAggressive == 1)
