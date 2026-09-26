@@ -15,6 +15,7 @@ export class Bullet extends THREE.Mesh {
 		this.name = 'Bullet_' + this.id;
         var scope = this;
         this.birthday = Date.now();
+		this.velocity = new THREE.Vector3();
 
         meshloader('./Prototypes/Bullet/Bullet.glb',function(model) {
 			scope.add(model);
@@ -47,6 +48,10 @@ export function addBullet(renderer) {
     const lookAtPoint = new THREE.Vector3().addVectors(bulletDirection, initialBulletPositionVector);
     newBullet.position.set(initialBulletPositionVector.x, initialBulletPositionVector.y, initialBulletPositionVector.z);
     newBullet.lookAt(lookAtPoint);
+	// Set initial velocity in the direction the bullet is facing
+	var direction = new THREE.Vector3(0, 0, 1);
+	direction.applyQuaternion(newBullet.quaternion);
+	newBullet.velocity.copy(direction.multiplyScalar(0.5));
     BulletArray.push(newBullet);
 
     var intersectArray = raycasterFront.intersectObjects(collidableMeshList);

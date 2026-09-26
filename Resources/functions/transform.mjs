@@ -171,14 +171,30 @@ export function animateDoors() {
 }
 
 export function animateBullets(bulletList) {
-	var speed = 0.5;
+	var gravity = 9.8;
+	var bulletSpeed = 0.5;
+	var lifetime = 3000; // 3 seconds in milliseconds
+	var currentTime = Date.now();
 	
-	bulletList.forEach(singleBullet => {
-		var direction = new THREE.Vector3(0, 0, 1);
-		direction.applyQuaternion(singleBullet.quaternion);
-		singleBullet.position.add(direction.multiplyScalar(speed));
-		//console.log("Added: " + (direction.multiplyScalar(speed)))
-	});
+	for (let i = bulletList.length - 1; i >= 0; i--) {
+		var singleBullet = bulletList[i];
+		
+		// Apply gravity to velocity
+		singleBullet.velocity.y -= gravity * (0.016); // Approximate delta for 60fps
+		
+		// Update position based on velocity
+		singleBullet.position.add(singleBullet.velocity);
+		
+		// Check if bullet has exceeded its lifetime
+		if (singleBullet.birthday && (currentTime - singleBullet.birthday) > lifetime) {
+			// Remove bullet from scene
+			if (singleBullet.parent) {
+				singleBullet.parent.remove(singleBullet);
+			}
+			// Remove from array
+			bulletList.splice(i, 1);
+		}
+	}
 }
 
 
