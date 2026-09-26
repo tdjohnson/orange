@@ -26,6 +26,7 @@ var collidableObjects;
 
 var gameMode;
 var health = 100;
+var defeatedPlayers = new Map();
 
 var loader = new THREE.ObjectLoader();
 var isOpenable = true; //for animating door
@@ -99,11 +100,46 @@ export function takeDamage(amount) {
 		health = 0;
 		updateHealthBar();
 		showBustedMessage();
+		// Track local player defeat
+		if (multiplayer && multiplayer.playerName) {
+			const localPlayerName = multiplayer.playerName;
+			const currentCount = defeatedPlayers.get(localPlayerName) || 0;
+			defeatedPlayers.set(localPlayerName, currentCount + 1);
+			updateDefeatedCounter();
+			// Send defeat event to other players
+			if (multiplayer) {
+				multiplayer.sendEvent("defeated", localPlayerName);
+			}
+		}
 		// Reset health after busted message
 		setTimeout(() => {
 			resetHealth();
 		}, 3000);
 	}
+}
+
+function updateDefeatedCounter() {
+	const container = document.getElementById("defeatedCounter");
+	if (!container) return;
+	
+	const entries = Array.from(defeatedPlayers.entries()).sort((a, b) => b[1] - a[1]);
+	
+	if (entries.length === 0) {
+		container.innerHTML = "0";
+		return;
+	}
+	
+	// Format as highscore list
+	const html = entries.map(([name, count]) => 
+		`<div class="defeatedEntry">${name}: ${count}</div>`
+	).join("");
+	container.innerHTML = html;
+}
+
+export function handleDefeated(playerName) {
+	const currentCount = defeatedPlayers.get(playerName) || 0;
+	defeatedPlayers.set(playerName, currentCount + 1);
+	updateDefeatedCounter();
 }
 
 

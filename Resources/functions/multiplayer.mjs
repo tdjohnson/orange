@@ -69,6 +69,14 @@ export class Multiplayer extends THREE.Mesh {
                         console.error("Failed to parse bullet data:", e);
                     }
                 }
+            } else if (event.type === "defeated") {
+                // A player was defeated
+                if (event.source !== this.playerId) {
+                    if (typeof window.handleDefeated === 'function') {
+                        // event.destination contains the player name
+                        window.handleDefeated(event.destination);
+                    }
+                }
             }
         });
 
