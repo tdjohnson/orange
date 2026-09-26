@@ -14,8 +14,14 @@ var moveForward,
 	var hasMoved = true;
 	
 var velocity = new THREE.Vector3();
-var pressedKeys = new Map();
+var pressedKeys = {};
 var maxVelocity = 0.2;
+
+// Reusable vectors to avoid allocations
+var tempVec = new THREE.Vector3();
+var originVec = new THREE.Vector3();
+var normalVec = new THREE.Vector3();
+var rotationAxis = new THREE.Vector3(0, 1, 0);
 
 var renderer;
 var scene;
@@ -43,20 +49,18 @@ export function initControls(currentRender, currentScene) {
 }
 
 export function onMouseDown(e) {
-	//console.log(e.button);
 	switch (e.button) {
 		case 0: //left mouse click
-			pressedKeys.set("LMB", true);
+			pressedKeys["LMB"] = true;
 			bulletControl.addBullet(renderer, scene);
 			break;
 	}
 }
 
 export function onMouseUp(e) {
-	//console.log(e.button);
 	switch (e.button) {
 		case 0: //left mouse click end
-			pressedKeys.set("LMB", false);
+			pressedKeys["LMB"] = false;
 			break;
 	}
 }
@@ -65,27 +69,26 @@ export function onKeyDown(e) {
 	hasMoved = true;
     switch (e.code) {
 		case "Space":
-			pressedKeys.set(" ", true);
+			pressedKeys[" "] = true;
 		    break;
 		case "ShiftLeft":
 		case "ShiftRight":
-			pressedKeys.set("SHIFT", true);
-			console.log("Pressed Shift");
+			pressedKeys["SHIFT"] = true;
 			break;
 		case "ArrowLeft":
-			pressedKeys.set("ArrowLeft", true);
+			pressedKeys["ArrowLeft"] = true;
 			break;
 		case "ArrowUp":
-			pressedKeys.set("ArrowUp", true);
+			pressedKeys["ArrowUp"] = true;
 			break;
 		case "ArrowRight":
-			pressedKeys.set("ArrowRight", true);
+			pressedKeys["ArrowRight"] = true;
 			break;
 		case "ArrowDown":
-			pressedKeys.set("ArrowDown", true);
+			pressedKeys["ArrowDown"] = true;
 			break;
 		case "KeyA":
-			pressedKeys.set("a", true);
+			pressedKeys["a"] = true;
 			break;
 		case "KeyB":
 			if(botAggressive == 0) {
@@ -95,25 +98,25 @@ export function onKeyDown(e) {
 			}
 			break;
 		case "KeyD":
-			pressedKeys.set("d", true);
+			pressedKeys["d"] = true;
 			break;
 		case "KeyE":
-			if(lastObject) transformModule.rotate(lastObject, new THREE.Vector3(0,1,0), -5);
+			if(lastObject) transformModule.rotate(lastObject, rotationAxis, -5);
 			break;
 		case "KeyO":
 			botAggressive = 0;
 			break;
 		case "KeyQ":
-			if(lastObject) transformModule.rotate(lastObject, new THREE.Vector3(0,1,0), 5);
+			if(lastObject) transformModule.rotate(lastObject, rotationAxis, 5);
 			break;
 		case "KeyS":
-			pressedKeys.set("s", true);
+			pressedKeys["s"] = true;
 			break;
 		case "KeyT":
 			if(lastObject) transformModule.triggerObject([{object: lastObject}]);
 			break;
 		case "KeyW":
-			pressedKeys.set("w", true);
+			pressedKeys["w"] = true;
 			break;
 		case "KeyY":
 			if(lastObject) transformModule.triggerDrop(lastObject);
@@ -131,61 +134,49 @@ export function onKeyDown(e) {
 export function onKeyUp(e) {
 	switch(e.code) {
 		case "Space":
-			pressedKeys.set(" ", false);
+			pressedKeys[" "] = false;
 			break;
 		case "ShiftLeft":
 		case "ShiftRight":
-			pressedKeys.set("SHIFT", false);
+			pressedKeys["SHIFT"] = false;
 			break;
 		case "ArrowLeft":
-			pressedKeys.set("ArrowLeft", false);
+			pressedKeys["ArrowLeft"] = false;
 			break;
 		case "ArrowUp":
-			pressedKeys.set("ArrowUp", false);
+			pressedKeys["ArrowUp"] = false;
 			break;
 		case "ArrowRight":
-			pressedKeys.set("ArrowRight", false);
+			pressedKeys["ArrowRight"] = false;
 			break;
 		case "ArrowDown":
-			pressedKeys.set("ArrowDown", false);
+			pressedKeys["ArrowDown"] = false;
 			break;
 		case "KeyA":
-			pressedKeys.set("a", false);
+			pressedKeys["a"] = false;
 			break;
 		case "KeyD":
-			pressedKeys.set("d", false);
+			pressedKeys["d"] = false;
 			break;
 		case "KeyS":
-			pressedKeys.set("s", false);
+			pressedKeys["s"] = false;
 			break;
 		case "KeyW":
-			pressedKeys.set("w", false);
+			pressedKeys["w"] = false;
 			break;
 	}
 	// Reset hasMoved if no movement keys are pressed
-	if(!pressedKeys.get("w") && !pressedKeys.get("a") && !pressedKeys.get("s") && !pressedKeys.get("d") &&
-	   !pressedKeys.get("ArrowUp") && !pressedKeys.get("ArrowLeft") && !pressedKeys.get("ArrowDown") && !pressedKeys.get("ArrowRight")) {
+	if(!pressedKeys["w"] && !pressedKeys["a"] && !pressedKeys["s"] && !pressedKeys["d"] &&
+	   !pressedKeys["ArrowUp"] && !pressedKeys["ArrowLeft"] && !pressedKeys["ArrowDown"] && !pressedKeys["ArrowRight"]) {
 		hasMoved = false;
 	}
 }
 
 function calcNewVelocityPerTick(oldVelocity, deltaTick) {
-	var isNegativeVelocity = 1;
-	if (oldVelocity < 0) {
-		isNegativeVelocity = -1;
-	}
-	var absoluteOldVelocity = Math.abs(oldVelocity);
-	var newAbsoluteVelocity = absoluteOldVelocity - (absoluteOldVelocity * deltaTick * 10);
-	var newVelocity = newAbsoluteVelocity * isNegativeVelocity;
-	if (newAbsoluteVelocity >= 0.002) {
-		if (newAbsoluteVelocity > maxVelocity) {
-			return maxVelocity * isNegativeVelocity;
-		} else {
-			return newVelocity;
-		}
-	} else {
-		return 0;
-	}
+	var newVelocity = oldVelocity * (1 - deltaTick * 10);
+	if (Math.abs(newVelocity) < 0.002) return 0;
+	if (Math.abs(newVelocity) > maxVelocity) return Math.sign(oldVelocity) * maxVelocity;
+	return newVelocity;
 }
 
 function reduceFloatPrecision(toReduce) {
@@ -199,24 +190,20 @@ var wallDirections = [
 	new THREE.Vector3(-1, 0, 0),
 	new THREE.Vector3(0, 0, 1),
 	new THREE.Vector3(0, 0, -1),
-	new THREE.Vector3(0.707, 0, 0.707),
-	new THREE.Vector3(-0.707, 0, 0.707),
-	new THREE.Vector3(0.707, 0, -0.707),
-	new THREE.Vector3(-0.707, 0, -0.707),
 ];
 var playerCollisionRadius = 0.8;
 
 function hasWallCollision(position, playerHeight, meshList) {
-	var origin = new THREE.Vector3(position.x, position.y - 1.0, position.z);
+	originVec.set(position.x, position.y - 1.0, position.z);
 	wallRaycaster.far = playerCollisionRadius;
 	wallRaycaster.near = 0;
 	for (var i = 0; i < wallDirections.length; i++) {
-		wallRaycaster.set(origin, wallDirections[i]);
+		wallRaycaster.set(originVec, wallDirections[i]);
 		var hits = wallRaycaster.intersectObjects(meshList, true);
 		if (hits.length > 0 && hits[0].face) {
-			var normal = hits[0].face.normal.clone();
-			normal.transformDirection(hits[0].object.matrixWorld);
-			if (Math.abs(normal.y) < 0.5) {
+			normalVec.copy(hits[0].face.normal);
+			normalVec.transformDirection(hits[0].object.matrixWorld);
+			if (Math.abs(normalVec.y) < 0.5) {
 				return true;
 			}
 		}
@@ -227,30 +214,32 @@ function hasWallCollision(position, playerHeight, meshList) {
 export function updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera) {
 	if (controlsEnabled) {
 		var delta = clock.getDelta();
+		// Prevent physics spiral when tab loses focus
+		if (delta > 0.1) delta = 0.1;
 		var mass = 1;
 		var walkingSpeedImpulse = 0.1;
-		var jumpImpulse = 8;
+		var jumpImpulse = 10;
 		var playerHeight = controls.object.playerHeight;
 
-		if(pressedKeys.get(" ")) {
+		if(pressedKeys[" "]) {
 			if (canJump === true) {
 				velocity.y += jumpImpulse;
 				canJump = false;
 			}
 		}
-		if(pressedKeys.get("SHIFT")) {
+		if(pressedKeys["SHIFT"]) {
 			velocity.y -= jumpImpulse;
 		}
-		if (pressedKeys.get("w") || pressedKeys.get("ArrowUp")) {
+		if (pressedKeys["w"] || pressedKeys["ArrowUp"]) {
 			velocity.z -= walkingSpeedImpulse;
 		}
-		if (pressedKeys.get("a") || pressedKeys.get("ArrowLeft")) {
+		if (pressedKeys["a"] || pressedKeys["ArrowLeft"]) {
 			velocity.x -= walkingSpeedImpulse;
 		}
-		if (pressedKeys.get("s") || pressedKeys.get("ArrowDown")) {
+		if (pressedKeys["s"] || pressedKeys["ArrowDown"]) {
 			velocity.z += walkingSpeedImpulse;
 		}
-		if (pressedKeys.get("d") || pressedKeys.get("ArrowRight")) {
+		if (pressedKeys["d"] || pressedKeys["ArrowRight"]) {
 			velocity.x += walkingSpeedImpulse;
 		}
 
@@ -278,11 +267,8 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 		var newY = controls.object.position.y + (velocity.y * delta);
 		
 		// Raycast from the proposed new position to detect ground BEFORE moving there
-		raycaster.ray.origin.set(
-			controls.object.position.x,
-			newY,
-			controls.object.position.z
-		);
+		tempVec.set(controls.object.position.x, newY, controls.object.position.z);
+		raycaster.ray.origin.copy(tempVec);
 
 		var groundHits = raycaster.intersectObjects(collidableMeshList, true);
 		var onGround = false;
