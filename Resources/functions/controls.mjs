@@ -121,7 +121,7 @@ export function onKeyDown(e) {
 		case "KeyY":
 			if(lastObject) transformModule.triggerDrop(lastObject);
 			break;
-		case "F1":
+		case "KeyH":
 			toggleDebugOverlay();
 			break;
 		case "KeyZ":
