@@ -11,7 +11,7 @@ var moveForward,
     canJump,
 	botAggressive;
 	var lastObject;
-	var hasMoved = false;
+	var hasMoved = true;
 	
 var velocity = new THREE.Vector3();
 var pressedKeys = new Map();

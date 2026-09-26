@@ -152,13 +152,13 @@ function init() {
 	//hitDirection = 1;
 	//rotationActive = 0;
 
-	controlsModule.initControls(scene);
+	controlsModule.initControls(renderer, scene);
 
 	controls = new PointerLockControls(camera, document.body);
 	
-	var playerHeight = 5;
+	var playerHeight = 1.8;
 	controls.object.playerHeight = playerHeight;
-	controls.object.position.set(5, 5 + playerHeight, 8);
+	controls.object.position.set(5, playerHeight, 8);
 	playerBody = new objectsModule.JailBotBody(renderer);
 	controls.object.add(playerBody);
 	playerBody.position.set(0, 0.5, 1); 
@@ -517,6 +517,7 @@ function zoom(){
 		camera.zoom = 1;
 	else
 		camera.zoom = 4;
+	camera.updateProjectionMatrix();
 }
 
 function showMessage(text){
