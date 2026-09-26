@@ -206,7 +206,7 @@ function init() {
 	renderer._microCache = MicroCache();
 	renderer.domElement.id = "scene";
 	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-	renderer.setSize(window.innerWidth, window.innerHeight-30);
+	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
 	if (!performanceBoostGlobal) {
 		renderer.shadowMap.enabled = true;
@@ -389,6 +389,20 @@ function init() {
 	};
 
 	animate();	
+
+	// Add window resize handler for canvas
+	window.addEventListener('resize', () => {
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		// Recompute crosshair position based on new aspect ratio
+		const crosshair = camera.getObjectByName('crosshair');
+		if (crosshair) {
+			const crosshairPercentX = 50;
+			const crosshairPositionX = (crosshairPercentX / 100) * 2 - 1;
+			crosshair.position.x = crosshairPositionX * camera.aspect;
+		}
+	});
 }
 
 function cloning(n) {
