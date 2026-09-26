@@ -101,7 +101,7 @@ export class PrisonCell extends THREE.Mesh {
 		collidableMeshList.push(soap);
 
 		var toilet = new Toilet(renderer);
-		toilet.position.set(2.5,0,5);
+		toilet.position.set(2.5,-0.1,5);
 		toilet.rotation.y =  Math.PI*0.5;
 		this.add(toilet);
 		collidableMeshList.push(toilet);
