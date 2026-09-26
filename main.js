@@ -477,6 +477,7 @@ function animate() {
 		vector = camera.localToWorld(vector);
 		vector.sub(camera.position); // Now vector is a unit vector with the same direction as the camera
 
+		raycasterCamera.ray.origin.copy(camera.position);
 		raycasterCamera.ray.direction = vector;
 
 		if (multiplayer) {
