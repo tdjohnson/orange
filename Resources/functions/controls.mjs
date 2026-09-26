@@ -274,27 +274,36 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 			velocity.x = 0;
 		}
 
+		// Calculate proposed new Y position before applying movement
+		var newY = controls.object.position.y + (velocity.y * delta);
+		
+		// Raycast from the proposed new position to detect ground BEFORE moving there
 		raycaster.ray.origin.set(
 			controls.object.position.x,
-			controls.object.position.y,
+			newY,
 			controls.object.position.z
 		);
 
 		var groundHits = raycaster.intersectObjects(collidableMeshList, true);
 		var onGround = false;
 
-		controls.object.position.y += (velocity.y * delta);
-
 		if (groundHits.length > 0) {
 			var groundY = groundHits[0].point.y;
 			var standingY = groundY + playerHeight;
 
-			if (controls.object.position.y < standingY) {
+			if (newY < standingY) {
+				// Would fall below ground, so snap to standing position
 				controls.object.position.y = standingY;
 				velocity.y = 0;
 				canJump = true;
 				onGround = true;
+			} else {
+				// Safe to move down
+				controls.object.position.y = newY;
 			}
+		} else {
+			// No ground detected, allow the movement
+			controls.object.position.y = newY;
 		}
 
 		var collidingMeshesListCameraRay = raycasterCamera.intersectObjects(collidableMeshList, true);
