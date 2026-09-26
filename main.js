@@ -59,26 +59,24 @@ export function events2main(type, destination){
 }
 
 function updateHealthBar() {
+	const container = document.getElementById("healthBarContainer");
 	const healthBarFill = document.getElementById("healthBarFill");
 	const healthBarText = document.getElementById("healthBarText");
-	
-	if (healthBarFill && healthBarText) {
-		// Update bar width (0-100%)
-		const percentage = Math.max(0, Math.min(100, health));
-		healthBarFill.style.width = percentage + "%";
-		
-		// Update text
-		healthBarText.textContent = health + "/100";
-		
-		// Update color based on health
-		if (health >= 67) {
-			healthBarFill.style.background = "linear-gradient(to right, #00ff00, #00cc00)";
-		} else if (health >= 34) {
-			healthBarFill.style.background = "linear-gradient(to right, #ff8c00, #ff6600)";
-		} else {
-			healthBarFill.style.background = "linear-gradient(to right, #ff0000, #cc0000)";
-		}
+	if (!container || !healthBarFill || !healthBarText) return;
+
+	const percentage = Math.max(0, Math.min(100, health));
+	healthBarFill.style.width = percentage + "%";
+	healthBarText.textContent = percentage;
+
+	var color = "#3ddc5a"; // green
+	if (percentage < 34) {
+		color = "#ff3b3b"; // red
+	} else if (percentage < 67) {
+		color = "#ffb020"; // orange
 	}
+	healthBarFill.style.backgroundColor = color;
+	healthBarText.style.color = (percentage < 34) ? color : "#ffffff";
+	container.classList.toggle("low", percentage < 34);
 }
 
 function resetHealth() {
