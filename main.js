@@ -160,7 +160,7 @@ function init() {
 
 	controls = new PointerLockControls(camera, document.body);
 	
-	var playerHeight = 3.0;
+	var playerHeight = 5.0;
 	controls.object.playerHeight = playerHeight;
 	controls.object.position.set(5, 10 + playerHeight, 8);
 	playerBody = new objectsModule.JailBotBody(renderer);
@@ -314,7 +314,7 @@ function addRamps(renderer) {
 
 function addFoundation() {
 	// Matches the building footprint (cells x:-30..42, z:0..48)
-	var geometry = new THREE.BoxGeometry(76, 5, 52);
+	var geometry = new THREE.BoxGeometry(75, 4, 50);
 	var material = new THREE.MeshLambertMaterial({ color: 0x7a6b5a });
 	var foundation = new THREE.Mesh(geometry, material);
 	foundation.position.set(6, 2.5, 23);
@@ -511,6 +511,14 @@ function removeWelcomeMessage(){
 	document.getElementById("welcomeMessage").style.display="none";
 }
 
+function showBustedMessage() {
+	document.getElementById("bustedOverlay").classList.add("visible");
+	// Hide after 3 seconds
+	setTimeout(() => {
+		document.getElementById("bustedOverlay").classList.remove("visible");
+	}, 3000);
+}
+
 function loadMultiplayer(player_name, selected_server){
 	console.log("Loading multiplayer...");
 	closeStart();
@@ -579,3 +587,4 @@ window.startSingleplayer = startSingleplayer;
 window.startMultiplayer = startMultiplayer;
 window.startMultiplayerWithName = startMultiplayerWithName;
 window.init = init;
+window.showBustedMessage = showBustedMessage;

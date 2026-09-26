@@ -63,6 +63,37 @@ div#message.hidden {
 	display: none;
 }
 
+#bustedOverlay {
+	position: fixed;
+	top: 30%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 72px;
+	font-weight: bold;
+	color: #ff0000;
+	text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
+	background: rgba(0, 0, 0, 0.5);
+	padding: 40px 80px;
+	border-radius: 10px;
+	z-index: 1000;
+	display: none;
+	text-align: center;
+	font-family: Arial, sans-serif;
+	letter-spacing: 3px;
+	pointer-events: none;
+}
+
+#bustedOverlay.visible {
+	display: block;
+	animation: bustedPulse 0.5s ease-out;
+}
+
+@keyframes bustedPulse {
+	0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+	50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+	100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
 table#InfoOutput {
 	table-layout: auto;
 	height: auto;

@@ -53,7 +53,9 @@ export class Multiplayer extends THREE.Mesh {
             if (event.type === "hit"){
                 if (event.destination === this.playerId){
                     console.log("You got hit!");
-                    alert("YOU ARE DEAD!!!!!!!!!");
+                    if (typeof window.showBustedMessage === 'function') {
+                        window.showBustedMessage();
+                    }
                 }
             };
         });
