@@ -125,9 +125,10 @@ export function takeDamage(amount) {
 				multiplayer.sendEvent("defeated", localPlayerName);
 			}
 		}
-		// Reset health after busted message
+		// Reset health after busted message and respawn
 		setTimeout(() => {
 			resetHealth();
+			respawnPlayer();
 		}, 3000);
 	}
 }
@@ -215,6 +216,45 @@ export function handleScoresRequest(sourcePlayerId) {
 		multiplayer.sendEvent("scores", scoresJson);
 	}
 }
+
+// Respawn player in a random cell (similar to initial spawn)
+function respawnPlayer() {
+	if (!controls || !controls.object) return;
+	
+	var cellStartX = -30;
+	var cellStartZ = 0;
+	var cameraPositionInCellOfset = 3;
+	var cellRowCount = 2;
+	var cellsPerRow = 6;
+	var totalCellcount = cellRowCount * cellsPerRow;
+	
+	var startCell = Math.floor(Math.random() * totalCellcount);
+	console.log("Respawning at cell: " + startCell);
+	
+	var currentCell = 0;
+	for (var j = 0; j < cellRowCount; j++) {
+		var rotate = Math.PI * j;
+		for (var i = 0; i < cellsPerRow; i++) {
+			var cellOffsetX = cellStartX + (12 * i);
+			var cellOffsetZ = cellStartZ + (42 * j);
+			
+			currentCell++;
+			if (currentCell == startCell) {
+				// Move player to this cell's spawn position
+				controls.object.position.set(cellOffsetX + cameraPositionInCellOfset, 10, cellOffsetZ + cameraPositionInCellOfset);
+				camera.position.x = cellOffsetX + cameraPositionInCellOfset;
+				camera.position.z = cellStartZ + cameraPositionInCellOfset;
+				// Reset camera direction
+				var vector = new THREE.Vector3(0, 0, -1);
+				vector = camera.localToWorld(vector);
+				vector.sub(camera.position);
+				controls.getDirection(vector);
+				break;
+			}
+		}
+	}
+}
+
 
 function showDefeatedCounter(show) {
 	const container = document.getElementById("defeatedCounterContainer");
