@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { showBustedMessage } from '../../main.js';
 
 var door;
 var soap;
@@ -170,19 +171,46 @@ export function animateDoors() {
 	}
 }
 
-export function animateBullets(bulletList, delta) {
+export function animateBullets(bulletList, delta, collidableMeshList) {
 	var gravity = 9.8;
 	var lifetime = 3000; // 3 seconds in milliseconds
 	var currentTime = Date.now();
 	
+tvar bulletRaycaster = new THREE.Raycaster();
 	for (let i = bulletList.length - 1; i >= 0; i--) {
 		var singleBullet = bulletList[i];
 		
 		// Apply gravity to velocity
 		singleBullet.velocity.y -= gravity * delta;
 		
+		// Store old position for collision detection
+		var oldPosition = singleBullet.position.clone();
+		
 		// Update position based on velocity
 		singleBullet.position.addScaledVector(singleBullet.velocity, delta);
+		
+		// Perform raycast from old position to new position to detect collisions
+		var movementVector = new THREE.Vector3().subVectors(singleBullet.position, oldPosition);
+		bulletRaycaster.set(oldPosition, movementVector.clone().normalize());
+		bulletRaycaster.far = movementVector.length();
+		bulletRaycaster.near = 0;
+		
+		var hits = bulletRaycaster.intersectObjects(collidableMeshList, true);
+		
+		if (hits.length > 0) {
+			// Check if we hit a player (JailBotBody or Body)
+			var hitObject = hits[0].object;
+			if (hitObject.name === "JailBotBody" || hitObject.name === "Body") {
+				// Player hit - show busted message
+				showBustedMessage();
+			}
+			// Remove bullet on any collision (player or wall)
+			if (singleBullet.parent) {
+				singleBullet.parent.remove(singleBullet);
+			}
+			bulletList.splice(i, 1);
+			continue; // Skip lifetime check for collided bullets
+		}
 		
 		// Check if bullet has exceeded its lifetime
 		if (singleBullet.birthday && (currentTime - singleBullet.birthday) > lifetime) {

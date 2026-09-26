@@ -477,7 +477,7 @@ function animate() {
 			}
 		});
 		bulletControl.updateCollidableMeshList(collidableMeshList);
-		transformModule.animateBullets(bulletControl.getBulletArray(), delta);
+		transformModule.animateBullets(bulletControl.getBulletArray(), delta, collidableMeshList);
 		//transformModule.patrolRobot(botBody);
  	
 		/*if(botAggressive == 1)

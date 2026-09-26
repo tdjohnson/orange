@@ -3,7 +3,6 @@ import {meshloader} from './objects.mjs';
 import {collisionDetection} from './collision.mjs'
 import { events2main } from '../../main.js';
 
-
 const BulletArray = [];
 var currentPositon;
 var buletLifetime = 10;
@@ -37,14 +36,11 @@ function shoot(destination){
     events2main("hit", destination);
 }
 
-
 export function addBullet(renderer) {
     var newBullet = new Bullet(renderer);
-    var initialBulletPositionVector = currentPositon.position
-    //console.log(currentPositon);
-    const raycasterFront = new THREE.Raycaster(initialBulletPositionVector , new THREE.Vector3( 1, 0, 0 ), 0, 20 );
-
-    const bulletDirection = currentPositon.getWorldDirection(raycasterFront.ray.direction);
+    var initialBulletPositionVector = currentPositon.position;
+    
+    const bulletDirection = currentPositon.getWorldDirection(new THREE.Vector3(0, 0, -1));
     const lookAtPoint = new THREE.Vector3().addVectors(bulletDirection, initialBulletPositionVector);
     newBullet.position.set(initialBulletPositionVector.x, initialBulletPositionVector.y, initialBulletPositionVector.z);
     newBullet.lookAt(lookAtPoint);
@@ -54,20 +50,6 @@ export function addBullet(renderer) {
 	var bulletSpeed = 60;   // units per second
 	newBullet.velocity.copy(direction.multiplyScalar(bulletSpeed));
     BulletArray.push(newBullet);
-
-    var intersectArray = raycasterFront.intersectObjects(collidableMeshList);
-    //console.log(intersectArray);
-    //console.log(raycasterFront);
-
-    //intersectArray[0] contains the first object that is intersected when a bullet is shot.
-    //If this is a jailBotBody, you shot a player
-    if(intersectArray.length > 0) {
-        if(intersectArray[0].object.name == "Body") {
-            var playerIDshot = intersectArray[0].object.parent.parent.playerid;
-            shoot(playerIDshot);
-        }
-    }
-
 }
 
 export function getBulletArray() {
@@ -77,3 +59,4 @@ export function getBulletArray() {
 export function setPositionReference(camera) {
     currentPositon = camera;
 }
+
