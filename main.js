@@ -11,6 +11,7 @@ import * as proximityModule from './Resources/functions/proximity.mjs';
 import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
+import { setLocalPlayer } from './Resources/functions/transform.mjs';
 import * as bulletControl from './Resources/functions/bulletControl.mjs';
 
 var clock;
@@ -25,6 +26,7 @@ var collidingObjects;
 var collidableObjects;
 
 var gameMode;
+var health = 100;
 
 var loader = new THREE.ObjectLoader();
 var isOpenable = true; //for animating door
@@ -56,6 +58,57 @@ hallwayModule.setPerformanceOptimization(performanceBoostGlobal);
 export function events2main(type, destination){
 	if (multiplayer) multiplayer.sendEvent(type, destination);
 }
+
+function updateHealthBar() {
+	const healthBarFill = document.getElementById("healthBarFill");
+	const healthBarText = document.getElementById("healthBarText");
+	
+	if (healthBarFill && healthBarText) {
+		// Update bar width (0-100%)
+		const percentage = Math.max(0, Math.min(100, health));
+		healthBarFill.style.width = percentage + "%";
+		
+		// Update text
+		healthBarText.textContent = health + "/100";
+		
+		// Update color based on health
+		if (health >= 67) {
+			healthBarFill.style.background = "linear-gradient(to right, #00ff00, #00cc00)";
+		} else if (health >= 34) {
+			healthBarFill.style.background = "linear-gradient(to right, #ff8c00, #ff6600)";
+		} else {
+			healthBarFill.style.background = "linear-gradient(to right, #ff0000, #cc0000)";
+		}
+	}
+}
+
+function resetHealth() {
+	health = 100;
+	updateHealthBar();
+	// Show health bar
+	const healthBar = document.getElementById("healthBarContainer");
+	if (healthBar) {
+		healthBar.classList.remove("healthBarHidden");
+	}
+}
+
+export function takeDamage(amount) {
+	if (gameMode !== "SinglePlayer" && !playerBody) return;
+	
+	health -= amount;
+	updateHealthBar();
+	
+	if (health <= 0) {
+		health = 0;
+		updateHealthBar();
+		showBustedMessage();
+		// Reset health after busted message
+		setTimeout(() => {
+			resetHealth();
+		}, 3000);
+	}
+}
+
 
 async function retrieveServerList() {
     const response = await fetch("https://umps.tdj23.com/api/Server/GetServers");
@@ -172,6 +225,12 @@ function init() {
 
 
 	scene.add(controls.object);
+
+	// Initialize health bar
+	resetHealth();
+	
+	// Set local player reference for damage system
+	setLocalPlayer(controls.object);
 
 	/* 	collidableMeshList.push(botBody);
 	botBody.position.set(1.25,2.5,22);
@@ -589,3 +648,4 @@ window.startMultiplayer = startMultiplayer;
 window.startMultiplayerWithName = startMultiplayerWithName;
 window.init = init;
 window.showBustedMessage = showBustedMessage;
+window.takeDamage = takeDamage;

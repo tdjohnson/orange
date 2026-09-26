@@ -32,6 +32,54 @@ div
 	padding: 10px;
 }
 
+#healthBarContainer {
+	top: 10px;
+	left: 10px;
+	z-index: 1000;
+	background: rgba(0, 0, 0, 0.7);
+	padding: 8px 12px;
+	border-radius: 4px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+#healthBarLabel {
+	color: white;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+#healthBar {
+	width: 100px;
+	height: 20px;
+	background: #333;
+	border: 2px solid #666;
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+#healthBarFill {
+	height: 100%;
+	width: 100%;
+	background: linear-gradient(to right, #ff0000, #ff8c00, #ffff00);
+	transition: width 0.3s ease-out, background 0.3s ease-out;
+}
+
+.healthBarHidden {
+	display: none !important;
+}
+
+#healthBarText {
+	color: white;
+	font-weight: bold;
+	font-size: 14px;
+	min-width: 50px;
+	text-align: right;
+}
+
+
 p#credits {
 	color: white;
 }

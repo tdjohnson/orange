@@ -1,8 +1,12 @@
 import * as THREE from 'three';
 import * as bulletControl from './bulletControl.mjs';
+import { takeDamage } from '../../main.js';
 
 var door;
 var soap;
+
+// Reference to local player's controls object
+var localPlayer = null;
 
 // rotate object around own axis
 export function rotate(object, axis, degree) { 
@@ -205,6 +209,10 @@ export function animateBullets(bulletList, delta, collidableMeshList) {
 					var player = hitObject;
 					while (player && player.playerid === undefined) player = player.parent;
 					if (player) bulletControl.shoot(player.playerid);
+					// If this is the local player, apply damage
+					if (localPlayer && player === localPlayer) {
+						takeDamage(10);
+					}
 				}
 			}
 			// Remove bullet on any collision (player or wall)
@@ -362,4 +370,8 @@ export function robotAttack()
 			}	
 		}
 	}	
+}
+
+export function setLocalPlayer(playerRef) {
+	localPlayer = playerRef;
 }
