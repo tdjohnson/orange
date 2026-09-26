@@ -28,6 +28,20 @@ var gameMode;
 var health = 100;
 var defeatedPlayers = new Map();
 
+// Load defeated scores from localStorage on startup
+try {
+	const savedScores = localStorage.getItem('orange.defeated');
+	if (savedScores) {
+		const scores = JSON.parse(savedScores);
+		for (const [playerName, count] of Object.entries(scores)) {
+			defeatedPlayers.set(playerName, count);
+		}
+		updateDefeatedCounter();
+	}
+} catch (e) {
+	console.log("Could not load scores from localStorage:", e);
+}
+
 var loader = new THREE.ObjectLoader();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
@@ -151,6 +165,55 @@ export function handleDefeated(playerName) {
 	const currentCount = defeatedPlayers.get(playerName) || 0;
 	defeatedPlayers.set(playerName, currentCount + 1);
 	updateDefeatedCounter();
+	
+	// Save to localStorage for persistence across reloads
+	try {
+		const scores = Object.fromEntries(defeatedPlayers.entries());
+		localStorage.setItem('orange.defeated', JSON.stringify(scores));
+	} catch (e) {
+		console.log("Could not save scores to localStorage:", e);
+	}
+	
+	// Broadcast scores to other players
+	if (multiplayer) {
+		const scoresJson = JSON.stringify(Object.fromEntries(defeatedPlayers.entries()));
+		multiplayer.sendEvent("scores", scoresJson);
+	}
+}
+
+
+// Handle scores update from other players
+export function handleScores(scoresJson, sourcePlayerId) {
+	try {
+		const receivedScores = JSON.parse(scoresJson);
+		// Merge with Math.max
+		for (const [playerName, count] of Object.entries(receivedScores)) {
+			const currentCount = defeatedPlayers.get(playerName) || 0;
+			if (count > currentCount) {
+				defeatedPlayers.set(playerName, count);
+			}
+		}
+		updateDefeatedCounter();
+		
+		// Save merged scores to localStorage
+		try {
+			localStorage.setItem('orange.defeated', JSON.stringify(Object.fromEntries(defeatedPlayers.entries())));
+		} catch (e) {
+			console.log("Could not save merged scores to localStorage:", e);
+		}
+	} catch (e) {
+		console.log("Could not parse scores:", e);
+	}
+}
+
+
+// Handle scores request from other players
+export function handleScoresRequest(sourcePlayerId) {
+	// Send our current scores to the requester
+	if (multiplayer) {
+		const scoresJson = JSON.stringify(Object.fromEntries(defeatedPlayers.entries()));
+		multiplayer.sendEvent("scores", scoresJson);
+	}
 }
 
 function showDefeatedCounter(show) {
@@ -753,3 +816,5 @@ window.init = init;
 window.showBustedMessage = showBustedMessage;
 window.takeDamage = takeDamage;
 window.handleDefeated = handleDefeated;
+window.handleScoresRequest = handleScoresRequest;
+window.handleScores = handleScores;

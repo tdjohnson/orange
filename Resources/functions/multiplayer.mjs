@@ -77,11 +77,28 @@ export class Multiplayer extends THREE.Mesh {
                         window.handleDefeated(event.destination);
                     }
                 }
+            } else if (event.type === "scores?") {
+                // Request for scores from another player
+                if (typeof window.handleScoresRequest === 'function') {
+                    window.handleScoresRequest(event.source);
+                }
+            } else if (event.type === "scores") {
+                // Receive scores from another player
+                if (typeof window.handleScores === 'function') {
+                    window.handleScores(event.destination, event.source);
+                }
             }
         });
 
         this.playerLastUpdate = {};
         setInterval(() => this.checkIdle(), idleCheckInterval);
+        
+        // Request scores from other players once after connection
+        setTimeout(() => {
+            if (this.umps.hub.connection.q === "Connected") {
+                this.sendEvent("scores?", "");
+            }
+        }, 1000);
     }
 
     getPlayerId() {
