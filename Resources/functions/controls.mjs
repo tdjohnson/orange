@@ -211,9 +211,9 @@ function hasWallCollision(position, playerHeight, meshList) {
 	return false;
 }
 
-export function updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera) {
+export function updateControls(controlsEnabled, delta, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera) {
 	if (controlsEnabled) {
-		var delta = clock.getDelta();
+		// delta is now passed in from main.js, do not call clock.getDelta() here
 		// Prevent physics spiral when tab loses focus
 		if (delta > 0.1) delta = 0.1;
 		var mass = 1;

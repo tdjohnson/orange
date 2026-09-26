@@ -462,7 +462,7 @@ function animate() {
 		}
 
 		var delta = clock.getDelta();
-		controlsModule.updateControls(controlsEnabled, clock, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
+		controlsModule.updateControls(controlsEnabled, delta, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
 	    renderer.render(scene, camera);
 	    
 		proximityModule.proximityDetector();
