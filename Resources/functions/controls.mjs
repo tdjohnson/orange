@@ -43,9 +43,9 @@ export function initControls(currentRender, currentScene) {
 	canJump = true;
 	renderer = currentRender;
 	scene = currentScene;
-	// start with debug overlay hidden
+	// start with debug overlay visible
 	var el = document.getElementById("message");
-	if (el) el.classList.add("hidden");
+	if (el) el.classList.remove("hidden");
 }
 
 export function onMouseDown(e) {
@@ -122,6 +122,7 @@ export function onKeyDown(e) {
 			if(lastObject) transformModule.triggerDrop(lastObject);
 			break;
 		case "KeyH":
+		case "F1":
 			toggleDebugOverlay();
 			break;
 		case "KeyZ":
