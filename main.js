@@ -659,6 +659,14 @@ export function startMultiplayerWithName() {
 		alert("Please type in a name for your player!");
 		return;
 	}else{
+		// Save player name and server to localStorage
+		try {
+			localStorage.setItem('orange.playerName', player_name);
+			localStorage.setItem('orange.serverId', selected_server_id);
+		} catch (e) {
+			console.log("Could not save to localStorage:", e);
+		}
+
 		document.getElementById("userDetails").style.display = "none";
 		console.log("Selected Server ID: " + selected_server_id)
 
@@ -685,6 +693,16 @@ export function startMultiplayer() {
 	// show Config dialogue
 	document.getElementById("userDetails").style.display = "block";
 
+	// Try to load saved player name from localStorage
+	try {
+		const savedName = localStorage.getItem('orange.playerName');
+		if (savedName) {
+			document.getElementById("player_name").value = savedName;
+		}
+	} catch (e) {
+		console.log("localStorage not available:", e);
+	}
+
 	console.log("Getting server list...");
 
 	retrieveServerList().then((result) => {
@@ -693,6 +711,16 @@ export function startMultiplayer() {
 		// server_list.push({id: "6666", name: "Lokales Gefängnis", baseUrl: "https://localhost:7000", defaultUrl: "https://localhost:7000/controlhub"});
 		console.log("Working on server list: " + JSON.stringify(server_list));
 		createServerListDropdown(server_list);
+			
+			// Try to load saved server after dropdown is populated
+			try {
+				const savedServerId = localStorage.getItem('orange.serverId');
+				if (savedServerId) {
+					document.getElementById("serverSelector").value = savedServerId;
+				}
+			} catch (e) {
+				console.log("localStorage not available:", e);
+			}
 	});
 
 	console.log("Selecting User Details");
