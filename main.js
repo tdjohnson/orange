@@ -716,7 +716,11 @@ export function startMultiplayer() {
 			try {
 				const savedServerId = localStorage.getItem('orange.serverId');
 				if (savedServerId) {
-					document.getElementById("serverSelector").value = savedServerId;
+					const serverSelector = document.getElementById("serverSelector");
+					const hasServer = Array.from(serverSelector.options).some(opt => opt.value === savedServerId);
+					if (hasServer) {
+						serverSelector.value = savedServerId;
+					}
 				}
 			} catch (e) {
 				console.log("localStorage not available:", e);
