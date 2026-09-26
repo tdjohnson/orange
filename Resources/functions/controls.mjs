@@ -291,9 +291,9 @@ export function updateControls(controlsEnabled, clock, controls, collidableMeshL
 			var groundY = groundHits[0].point.y;
 			var standingY = groundY + playerHeight;
 
-			if (controls.object.position.y <= standingY + 1.5) {
+			if (controls.object.position.y < standingY) {
 				controls.object.position.y = standingY;
-				velocity.y = Math.max(0, velocity.y);
+				velocity.y = 0;
 				canJump = true;
 				onGround = true;
 			}
