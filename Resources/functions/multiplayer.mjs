@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as signalR from 'signalR';
 import * as UMPS from 'umps';
 import * as objectsModule from './objects.mjs';
+import * as bulletControl from './bulletControl.mjs';
 
 const serverTickinMS = 20; //Only every x Milliseconds will the client report its position to server, so server is not flooded with messages
 var lastServerSync = 0;
@@ -60,10 +61,13 @@ export class Multiplayer extends THREE.Mesh {
             } else if (event.type === "bullet") {
                 // Remote player fired a bullet
                 if (event.source !== this.playerId) {
-                    // Import bulletControl dynamically to avoid circular dependency
-                    import('./bulletControl.mjs').then(module => {
-                        module.addRemoteBullet(this.renderer, event);
-                    });
+                    // Parse bullet data from JSON string
+                    try {
+                        const bulletData = JSON.parse(event.destination);
+                        bulletControl.addRemoteBullet(this.renderer, bulletData);
+                    } catch (e) {
+                        console.error("Failed to parse bullet data:", e);
+                    }
                 }
             }
         });

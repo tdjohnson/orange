@@ -52,8 +52,7 @@ export function onMouseDown(e) {
 	switch (e.button) {
 		case 0: //left mouse click
 			pressedKeys["LMB"] = true;
-			var playerId = (window.multiplayer && window.multiplayer.playerId) ? window.multiplayer.playerId : null;
-			bulletControl.addBullet(renderer, playerId);
+			bulletControl.addBullet(renderer);
 			break;
 	}
 }

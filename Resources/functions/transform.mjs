@@ -200,10 +200,12 @@ export function animateBullets(bulletList, delta, collidableMeshList) {
 			// Check if we hit a player (JailBotBody or Body)
 			var hitObject = hits[0].object;
 			if (hitObject.name === "JailBotBody" || hitObject.name === "Body") {
-				// Find the player object and send hit event
-				var player = hitObject;
-				while (player && player.playerid === undefined) player = player.parent;
-				if (player) bulletControl.shoot(player.playerid);
+				// Find the player object and send hit event (only for local bullets)
+				if (!singleBullet.isRemote) {
+					var player = hitObject;
+					while (player && player.playerid === undefined) player = player.parent;
+					if (player) bulletControl.shoot(player.playerid);
+				}
 			}
 			// Remove bullet on any collision (player or wall)
 			if (singleBullet.parent) {

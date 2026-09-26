@@ -36,7 +36,7 @@ export function shoot(destination){
     events2main("hit", destination);
 }
 
-export function addBullet(renderer, playerId) {
+export function addBullet(renderer) {
     var newBullet = new Bullet(renderer);
     var initialBulletPositionVector = currentPositon.position;
     
@@ -49,19 +49,19 @@ export function addBullet(renderer, playerId) {
 	direction.applyQuaternion(newBullet.quaternion);
 	var bulletSpeed = 60;   // units per second
 	newBullet.velocity.copy(direction.multiplyScalar(bulletSpeed));
+    newBullet.isRemote = false;
     BulletArray.push(newBullet);
     
-    // Send bullet event to multiplayer if playerId is provided
-    if (playerId && typeof events2main === 'function') {
-        events2main("bullet", {
-            playerId: playerId,
+    // Send bullet event unconditionally (events2main guards for singleplayer)
+    if (typeof events2main === 'function') {
+        events2main("bullet", JSON.stringify({
             x: initialBulletPositionVector.x,
             y: initialBulletPositionVector.y,
             z: initialBulletPositionVector.z,
             dx: direction.x,
             dy: direction.y,
             dz: direction.z
-        });
+        }));
     }
 }
 
@@ -85,6 +85,7 @@ export function addRemoteBullet(renderer, bulletData) {
     // Set velocity
     var bulletSpeed = 60;   // units per second
     newBullet.velocity.copy(direction.multiplyScalar(bulletSpeed));
+    newBullet.isRemote = true;
     
     BulletArray.push(newBullet);
 }
