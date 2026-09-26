@@ -5,4 +5,6 @@ config.js
 key.pem
 server.py
 umps.module.js
-Mosquitto/screenshots/
+Mosquitto/
+screenshots/
+NOTES.md

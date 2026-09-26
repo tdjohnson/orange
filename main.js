@@ -101,7 +101,7 @@ export function takeDamage(amount) {
 		updateHealthBar();
 		showBustedMessage();
 		// Track local player defeat
-		if (multiplayer && multiplayer.playerName) {
+		if (multiplayer && multiplayer.name) {
 			const localPlayerName = multiplayer.name;
 			const currentCount = defeatedPlayers.get(localPlayerName) || 0;
 			defeatedPlayers.set(localPlayerName, currentCount + 1);
