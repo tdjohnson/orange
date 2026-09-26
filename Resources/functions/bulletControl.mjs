@@ -36,7 +36,7 @@ export function shoot(destination){
     events2main("hit", destination);
 }
 
-export function addBullet(renderer) {
+export function addBullet(renderer, playerId) {
     var newBullet = new Bullet(renderer);
     var initialBulletPositionVector = currentPositon.position;
     
@@ -50,6 +50,19 @@ export function addBullet(renderer) {
 	var bulletSpeed = 60;   // units per second
 	newBullet.velocity.copy(direction.multiplyScalar(bulletSpeed));
     BulletArray.push(newBullet);
+    
+    // Send bullet event to multiplayer if playerId is provided
+    if (playerId && typeof events2main === 'function') {
+        events2main("bullet", {
+            playerId: playerId,
+            x: initialBulletPositionVector.x,
+            y: initialBulletPositionVector.y,
+            z: initialBulletPositionVector.z,
+            dx: direction.x,
+            dy: direction.y,
+            dz: direction.z
+        });
+    }
 }
 
 export function getBulletArray() {
@@ -60,3 +73,18 @@ export function setPositionReference(camera) {
     currentPositon = camera;
 }
 
+export function addRemoteBullet(renderer, bulletData) {
+    var newBullet = new Bullet(renderer);
+    newBullet.position.set(bulletData.x, bulletData.y, bulletData.z);
+    
+    // Set direction from bulletData
+    var direction = new THREE.Vector3(bulletData.dx, bulletData.dy, bulletData.dz);
+    var lookAtPoint = new THREE.Vector3().addVectors(direction, newBullet.position);
+    newBullet.lookAt(lookAtPoint);
+    
+    // Set velocity
+    var bulletSpeed = 60;   // units per second
+    newBullet.velocity.copy(direction.multiplyScalar(bulletSpeed));
+    
+    BulletArray.push(newBullet);
+}

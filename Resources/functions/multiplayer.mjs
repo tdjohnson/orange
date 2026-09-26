@@ -57,7 +57,15 @@ export class Multiplayer extends THREE.Mesh {
                         window.showBustedMessage();
                     }
                 }
-            };
+            } else if (event.type === "bullet") {
+                // Remote player fired a bullet
+                if (event.source !== this.playerId) {
+                    // Import bulletControl dynamically to avoid circular dependency
+                    import('./bulletControl.mjs').then(module => {
+                        module.addRemoteBullet(this.renderer, event);
+                    });
+                }
+            }
         });
 
         this.playerLastUpdate = {};
