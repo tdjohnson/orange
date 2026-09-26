@@ -178,11 +178,11 @@ export function animateBullets(bulletList, delta) {
 	for (let i = bulletList.length - 1; i >= 0; i--) {
 		var singleBullet = bulletList[i];
 		
-		// Apply gravity to velocity (frame-rate independent)
+		// Apply gravity to velocity
 		singleBullet.velocity.y -= gravity * delta;
 		
 		// Update position based on velocity
-		singleBullet.position.add(singleBullet.velocity);
+		singleBullet.position.addScaledVector(singleBullet.velocity, delta);
 		
 		// Check if bullet has exceeded its lifetime
 		if (singleBullet.birthday && (currentTime - singleBullet.birthday) > lifetime) {

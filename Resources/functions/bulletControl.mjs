@@ -51,7 +51,8 @@ export function addBullet(renderer) {
 	// Set initial velocity in the direction the bullet is facing
 	var direction = new THREE.Vector3(0, 0, 1);
 	direction.applyQuaternion(newBullet.quaternion);
-	newBullet.velocity.copy(direction.multiplyScalar(0.5));
+	var bulletSpeed = 60;   // units per second
+	newBullet.velocity.copy(direction.multiplyScalar(bulletSpeed));
     BulletArray.push(newBullet);
 
     var intersectArray = raycasterFront.intersectObjects(collidableMeshList);
