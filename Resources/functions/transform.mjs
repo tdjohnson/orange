@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { showBustedMessage } from '../../main.js';
+import * as bulletControl from './bulletControl.mjs';
 
 var door;
 var soap;
@@ -175,8 +175,7 @@ export function animateBullets(bulletList, delta, collidableMeshList) {
 	var gravity = 9.8;
 	var lifetime = 3000; // 3 seconds in milliseconds
 	var currentTime = Date.now();
-	
-tvar bulletRaycaster = new THREE.Raycaster();
+	var bulletRaycaster = new THREE.Raycaster();
 	for (let i = bulletList.length - 1; i >= 0; i--) {
 		var singleBullet = bulletList[i];
 		
@@ -201,8 +200,10 @@ tvar bulletRaycaster = new THREE.Raycaster();
 			// Check if we hit a player (JailBotBody or Body)
 			var hitObject = hits[0].object;
 			if (hitObject.name === "JailBotBody" || hitObject.name === "Body") {
-				// Player hit - show busted message
-				showBustedMessage();
+				// Find the player object and send hit event
+				var player = hitObject;
+				while (player && player.playerid === undefined) player = player.parent;
+				if (player) bulletControl.shoot(player.playerid);
 			}
 			// Remove bullet on any collision (player or wall)
 			if (singleBullet.parent) {

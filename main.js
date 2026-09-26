@@ -54,7 +54,7 @@ prisonCellModule.setPerformanceOptimization(performanceBoostGlobal);
 hallwayModule.setPerformanceOptimization(performanceBoostGlobal);
 
 export function events2main(type, destination){
-	multiplayer.sendEvent(type, destination);
+	if (multiplayer) multiplayer.sendEvent(type, destination);
 }
 
 async function retrieveServerList() {

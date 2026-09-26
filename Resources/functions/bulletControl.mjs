@@ -31,7 +31,7 @@ export function updateCollidableMeshList(newMeshList) {
     collidableMeshList = newMeshList;
 }
 
-function shoot(destination){
+export function shoot(destination){
     console.log("You shot: " + destination);
     events2main("hit", destination);
 }
