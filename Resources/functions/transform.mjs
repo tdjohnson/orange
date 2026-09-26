@@ -1,12 +1,8 @@
 import * as THREE from 'three';
 import * as bulletControl from './bulletControl.mjs';
-import { takeDamage } from '../../main.js';
 
 var door;
 var soap;
-
-// Reference to local player's controls object
-var localPlayer = null;
 
 // rotate object around own axis
 export function rotate(object, axis, degree) { 
@@ -201,19 +197,11 @@ export function animateBullets(bulletList, delta, collidableMeshList) {
 		var hits = bulletRaycaster.intersectObjects(collidableMeshList, true);
 		
 		if (hits.length > 0) {
-			// Check if we hit a player (JailBotBody or Body)
-			var hitObject = hits[0].object;
-			if (hitObject.name === "JailBotBody" || hitObject.name === "Body") {
-				// Find the player object and send hit event (only for local bullets)
-				if (!singleBullet.isRemote) {
-					var player = hitObject;
-					while (player && player.playerid === undefined) player = player.parent;
-					if (player) bulletControl.shoot(player.playerid);
-					// If this is the local player, apply damage
-					if (localPlayer && player === localPlayer) {
-						takeDamage(10);
-					}
-				}
+			// Find the player object and send hit event (only for local bullets)
+			var player = hits[0].object;
+			while (player && player.playerid === undefined) player = player.parent;
+			if (!singleBullet.isRemote && player) {
+				bulletControl.shoot(player.playerid);
 			}
 			// Remove bullet on any collision (player or wall)
 			if (singleBullet.parent) {
@@ -372,6 +360,3 @@ export function robotAttack()
 	}	
 }
 
-export function setLocalPlayer(playerRef) {
-	localPlayer = playerRef;
-}

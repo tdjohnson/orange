@@ -11,7 +11,6 @@ import * as proximityModule from './Resources/functions/proximity.mjs';
 import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
-import { setLocalPlayer } from './Resources/functions/transform.mjs';
 import * as bulletControl from './Resources/functions/bulletControl.mjs';
 
 var clock;
@@ -93,7 +92,7 @@ function resetHealth() {
 }
 
 export function takeDamage(amount) {
-	if (gameMode !== "SinglePlayer" && !playerBody) return;
+	if (health <= 0) return;
 	
 	health -= amount;
 	updateHealthBar();
@@ -228,9 +227,6 @@ function init() {
 
 	// Initialize health bar
 	resetHealth();
-	
-	// Set local player reference for damage system
-	setLocalPlayer(controls.object);
 
 	/* 	collidableMeshList.push(botBody);
 	botBody.position.set(1.25,2.5,22);

@@ -54,8 +54,8 @@ export class Multiplayer extends THREE.Mesh {
             if (event.type === "hit"){
                 if (event.destination === this.playerId){
                     console.log("You got hit!");
-                    if (typeof window.showBustedMessage === 'function') {
-                        window.showBustedMessage();
+                    if (typeof window.takeDamage === 'function') {
+                        window.takeDamage(10);
                     }
                 }
             } else if (event.type === "bullet") {
