@@ -220,7 +220,9 @@ var forwardVec = new THREE.Vector3();
 var rightVec = new THREE.Vector3();
 var colliderCache = new WeakMap();
 var boxColliders = [];
-var rayColliders = [];
+var rayColliders = [];      // ray targets within reach of the player, rebuilt for every move
+var rayCandidates = [];    // all ray targets with their bounding boxes
+var reachPoint = new THREE.Vector3();
 var neverBoxes = { Ramp: true, Sand: true, Hallway: true, FullHallway: true };
 
 // Sort the collidable objects into boxes and ray targets. Boxes of static objects are
@@ -228,7 +230,7 @@ var neverBoxes = { Ramp: true, Sand: true, Hallway: true, FullHallway: true };
 function updateColliders(meshList) {
 	var now = performance.now();
 	boxColliders.length = 0;
-	rayColliders.length = 0;
+	rayCandidates.length = 0;
 	for (var i = 0; i < meshList.length; i++) {
 		var object = meshList[i];
 		var entry = colliderCache.get(object);
@@ -243,7 +245,7 @@ function updateColliders(meshList) {
 			entry.isBox = !entry.box.isEmpty() && footprint <= boxMaxFootprint && !neverBoxes[object.constructor.name];
 			entry.time = now;
 		}
-		if (entry.isBox) boxColliders.push(entry.box); else rayColliders.push(object);
+		if (entry.isBox) boxColliders.push(entry.box); else rayCandidates.push({ object: object, box: entry.box });
 	}
 }
 
@@ -296,16 +298,65 @@ function allowedByRays(x, z, feetY, playerHeight, dirX, dirZ, distance) {
 	return Math.max(0, allowed);
 }
 
+// Diagnostics: what would stop a move of `distance` from (x, z) in direction (dirX, dirZ)?
+// Uses the colliders of the last frame. Handy from the browser console.
+export function explainCollision(x, z, feetY, playerHeight, dirX, dirZ, distance) {
+	var found = [];
+	var low = feetY + stepHeight, high = feetY + playerHeight - 0.2;
+	for (var i = 0; i < boxColliders.length; i++) {
+		var one = [boxColliders[i]];
+		var saved = boxColliders; boxColliders = one;
+		var a = allowedByBoxes(x, z, feetY, playerHeight, dirX, dirZ, distance);
+		boxColliders = saved;
+		if (a < distance) found.push({ kind: "box", allowed: a, min: one[0].min.toArray(), max: one[0].max.toArray(), low: low, high: high });
+	}
+	var heights = [feetY + stepHeight, feetY + playerHeight * 0.5, feetY + playerHeight - 1.0];
+	sweepDir.set(dirX, 0, dirZ);
+	sweepSide.set(-dirZ, 0, dirX);
+	wallRaycaster.near = 0;
+	wallRaycaster.far = distance + playerCollisionRadius;
+	for (var h = 0; h < heights.length; h++) {
+		for (var side = -1; side <= 1; side++) {
+			originVec.set(x + sweepSide.x * shoulderOffset * side, heights[h], z + sweepSide.z * shoulderOffset * side);
+			wallRaycaster.set(originVec, sweepDir);
+			var hits = wallRaycaster.intersectObjects(rayColliders, true);
+			for (var k = 0; k < hits.length; k++) {
+				if (!hits[k].face) continue;
+				normalVec.copy(hits[k].face.normal);
+				normalVec.transformDirection(hits[k].object.matrixWorld);
+				if (Math.abs(normalVec.y) >= 0.5) continue;
+				var owner = hits[k].object;
+				while (owner.parent && owner.parent.type !== "Scene") owner = owner.parent;
+				found.push({ kind: "ray", height: heights[h], side: side, allowed: hits[k].distance - playerCollisionRadius, point: hits[k].point.toArray(), mesh: hits[k].object.name, owner: owner.name || owner.constructor.name });
+				break;
+			}
+		}
+	}
+	return found;
+}
+
 function allowedDistance(x, z, feetY, playerHeight, dirX, dirZ, distance) {
 	var byBoxes = allowedByBoxes(x, z, feetY, playerHeight, dirX, dirZ, distance);
 	if (byBoxes <= 0) return 0;
 	return Math.min(byBoxes, allowedByRays(x, z, feetY, playerHeight, dirX, dirZ, byBoxes));
 }
 
+// A ray tests every triangle of every mesh whose bounding sphere it crosses, and a horizontal
+// ray crosses a whole row of cells. Only structures within reach of this move are tested.
+function selectRayColliders(x, y, z, reach) {
+	rayColliders.length = 0;
+	reachPoint.set(x, y, z);
+	for (var i = 0; i < rayCandidates.length; i++) {
+		var candidate = rayCandidates[i];
+		if (candidate.box.isEmpty() || candidate.box.distanceToPoint(reachPoint) <= reach) rayColliders.push(candidate.object);
+	}
+}
+
 function moveWithCollision(object, dx, dz, playerHeight, meshList) {
 	if (Math.abs(dx) <= 1e-6 && Math.abs(dz) <= 1e-6) return;
 	updateColliders(meshList);
 	var feetY = object.position.y - playerHeight;
+	selectRayColliders(object.position.x, feetY + playerHeight * 0.5, object.position.z, Math.abs(dx) + Math.abs(dz) + playerCollisionRadius + 1);
 	if (Math.abs(dx) > 1e-6) {
 		object.position.x += Math.sign(dx) * allowedDistance(object.position.x, object.position.z, feetY, playerHeight, Math.sign(dx), 0, Math.abs(dx));
 	}
