@@ -25,6 +25,57 @@ export class PrisonCell extends THREE.Mesh {
 		this.add(cellComplete);
 		collidableMeshList.push(cellComplete);
 
+		/*var wallCell1 = new WallCell1(renderer);
+		wallCell1.position.set(0,0,0);
+		wallCell1.rotation.y = Math.PI*-0.5;
+		this.add(wallCell1);
+		collidableMeshList.push(wallCell1);
+		
+		var floorCell = new FloorCell(renderer);
+		floorCell.position.set(0,0,0);
+		floorCell.rotation.y = Math.PI/-2;
+		this.add(floorCell);
+		collidableMeshList.push(floorCell);
+		
+		var wallCell2 = new WallCell2();
+		wallCell2.position.set(4.8,0,0);
+		wallCell2.rotation.y = Math.PI*-0.5;
+		this.add(wallCell2);
+		
+		var wallCellWindow = new WallCellWindow();
+		wallCellWindow.position.set(0.4,0,0);
+		wallCellWindow.rotation.y = Math.PI*-0.5;
+		this.add(wallCellWindow);
+		
+		var wallCellDoor = new WallCellDoor();
+		wallCellDoor.position.set(-0.7,0,6.1);
+		wallCellDoor.scale.z = 3.85;
+		wallCellDoor.scale.y = 3.4;
+		wallCellDoor.scale.x = 2;
+		wallCellDoor.rotation.y = Math.PI*-0.5;;
+		this.add(wallCellDoor);
+		
+		
+		var wallCellDoorCol1 = new WallCellDoorCol1();
+		wallCellDoorCol1.position.set(-0.4,0,6.2);
+		wallCellDoorCol1.scale.z = 3.7;
+		wallCellDoorCol1.scale.y = 3.4;
+		wallCellDoorCol1.scale.x = 2;
+		wallCellDoorCol1.rotation.y = Math.PI*-0.5;
+		wallCellDoorCol1.visible = false;
+		this.add(wallCellDoorCol1);
+		collidableMeshList.push(wallCellDoorCol1);
+		
+		var wallCellDoorCol2 = new WallCellDoorCol2();
+		wallCellDoorCol2.position.set(-0.4,0,6.2);
+		wallCellDoorCol2.scale.z = 3.7;
+		wallCellDoorCol2.scale.y = 3.4;
+		wallCellDoorCol2.scale.x = 2;
+		wallCellDoorCol2.rotation.y = Math.PI*-0.5;;
+		wallCellDoorCol2.visible = false;
+		this.add(wallCellDoorCol2);
+		collidableMeshList.push(wallCellDoorCol1);
+		*/
 		var door1 = new WallCellDoorCol1(renderer);
 		door1.position.set(4,4.5,14);
 		this.add(door1);
@@ -98,6 +149,13 @@ export class PrisonCell extends THREE.Mesh {
 		collidableMeshList.push(bed);
 		
 
+		/*
+		var mirror = new Mirror();
+		mirror.position.set(0.5,4,12.8);
+		mirror.rotation.y =  Math.PI/180*90;
+
+		this.add(mirror);
+		*/
 	}
 
 }

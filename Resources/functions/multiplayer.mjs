@@ -282,6 +282,7 @@ export class Multiplayer extends THREE.Mesh {
         context.fillText(nameString, 0, 60);
 
         const texture = new THREE.CanvasTexture(canvas);
+        texture.colorSpace = THREE.SRGBColorSpace;
         const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
         const planeGeometry = new THREE.PlaneGeometry(1, 0.5);
         const plane = new THREE.Mesh(planeGeometry, material);

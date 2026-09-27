@@ -37,7 +37,11 @@ export function Mirror()
 	}
 	this.scale.x = this.scale.y = this.scale.z = 1.1;
 	
-	var mmaterial = new THREE.WebGLRenderTarget( 500, 500, { format: THREE.RGBFormat } );
+	var mmaterial = new THREE.WebGLRenderTarget( 500, 500, { 
+		format: THREE.RGBFormat, 
+		depthBuffer: true,
+		stencilBuffer: false 
+	} );
 	mirror_materials.push(mmaterial);
 	var mcam= new THREE.PerspectiveCamera(45, 1, 3.0,50);
 	mcam.up = new THREE.Vector3(0,0,1);
