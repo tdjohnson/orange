@@ -874,7 +874,7 @@ async function updateSessionTable(baseUrl) {
 		th.textContent = text;
 		headerRow.appendChild(th);
 	});
-	head.appendChild(headerRow);
+	thead.appendChild(headerRow);
 	table.appendChild(thead);
 	
 	// Table body
@@ -903,6 +903,8 @@ async function updateSessionTable(baseUrl) {
 		const joinButton = document.createElement("button");
 		joinButton.className = "joinButton";
 		joinButton.textContent = "Join";
+		joinButton.dataset.sessionId = String(session.id);
+		joinButton.dataset.sessionName = String(session.name);
 		joinButton.onclick = () => chooseSession(String(session.id));
 		joinCell.appendChild(joinButton);
 		row.appendChild(joinCell);
@@ -913,10 +915,26 @@ async function updateSessionTable(baseUrl) {
 	table.appendChild(tbody);
 	container.appendChild(table);
 	
+	if (sessions.length === 0) {
+		const emptyRow = document.createElement("tr");
+		const emptyCell = document.createElement("td");
+		emptyCell.colSpan = 4;
+		emptyCell.textContent = "No session is running.";
+		emptyRow.appendChild(emptyCell);
+		tbody.appendChild(emptyRow);
+	}
+
+	// Default is a new session; a choice for a session that has ended falls back to it too
+	const stillListed = sessions.some(session => String(session.id) === orangeSessions.choice);
+	if (!sessionChoiceMade || (orangeSessions.choice !== null && orangeSessions.choice !== "new" && !stillListed)) {
+		orangeSessions.choose("new");
+	}
+
 	// Show buttons
-	newButton.style.display = "block";
-	lobbyButton.style.display = "block";
+	newButton.style.display = "inline-block";
+	lobbyButton.style.display = "inline-block";
 	chooser.style.display = "block";
+	markSessionChoice();
 }
 
 // Wrapper to maintain backward compatibility
@@ -938,18 +956,37 @@ async function updateSessionDropdownForSelectedServer(server_list) {
 
 // What the player picked: 'new', a session id, or null for the lobby
 function chosenSession() {
-	// With the new table UI, we use orangeSessions.choice directly
-	// which is set by chooseSession() when user clicks Join/New/Lobby buttons
+	const chooser = document.getElementById("sessionChooser");
+	if (!chooser || chooser.style.display === "none") return null; // server without sessions
 	return orangeSessions.choice;
 }
 
-// Called when user clicks Join button in session table or New/Lobby buttons
+var sessionChoiceMade = false;
+
+// Called by the Join buttons in the session table and by the New / Lobby buttons
 function chooseSession(sessionId) {
-	orangeSessions.choose(sessionId);
-	// If multiplayer exists and is initialized, trigger the session join
-	if (multiplayer && typeof multiplayer.applySessionChoice === 'function') {
-		multiplayer.applySessionChoice();
-	}
+	const lobby = sessionId === "lobby" || sessionId === null || sessionId === undefined || sessionId === "";
+	sessionChoiceMade = true;
+	orangeSessions.choose(lobby ? null : String(sessionId));
+	markSessionChoice();
+}
+
+// Show which option is selected
+function markSessionChoice() {
+	const choice = orangeSessions.choice;
+	const newButton = document.getElementById("newSessionButton");
+	const lobbyButton = document.getElementById("lobbyButton");
+	const label = document.getElementById("sessionChoiceLabel");
+	let text = "Selected: no session (lobby)";
+	if (newButton) newButton.classList.toggle("selected", choice === "new");
+	if (lobbyButton) lobbyButton.classList.toggle("selected", choice === null);
+	if (choice === "new") text = "Selected: start a new session";
+	document.querySelectorAll("#sessionTableContainer .joinButton").forEach(button => {
+		const selected = button.dataset.sessionId === choice;
+		button.classList.toggle("selected", selected);
+		if (selected) text = "Selected: " + button.dataset.sessionName;
+	});
+	if (label) label.textContent = text;
 }
 
 function updateSessionCountdown(secondsLeft, visible) {

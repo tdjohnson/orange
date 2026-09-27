@@ -389,3 +389,20 @@ div#welcomeMessage {
 .sessionTable .joinButton:hover {
 	background: #45a049;
 }
+
+/* selected option in the session chooser */
+.modeButton.selected,
+.joinButton.selected {
+	outline: 3px solid orange;
+	background-color: orange;
+	color: black;
+}
+
+#sessionChoiceLabel {
+	font-size: 16px;
+	color: orange;
+}
+
+#sessionTableContainer table {
+	margin: 0 auto;
+}
