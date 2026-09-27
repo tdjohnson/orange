@@ -8,7 +8,7 @@ const serverTickinMS = 20; //Only every x Milliseconds will the client report it
 var lastServerSync = 0;
 const idleCheckInterval = 1000;
 const idleThreshold = 1;
-const idleTimeout = 60000;
+const idleTimeout = 5000;
 var lastMovementTime = 0;
 var lastPosition = new THREE.Vector3();
 var lastDirection = new THREE.Vector3();
@@ -246,9 +246,25 @@ export class Multiplayer extends THREE.Mesh {
 
         this.players = this.players.filter(player => {
             if ((currentTime - this.playerLastUpdate[player.id]) > idleTimeout) {
+                // Dispose of name tag and health bar resources
+                player.body.traverse(o => {
+                    if (o.geometry) o.geometry.dispose();
+                    if (o.material) {
+                        if (o.material.map) o.material.map.dispose();
+                        o.material.dispose();
+                    }
+                });
+                
+                // Remove from scene
                 this.scene.remove(player.body);
-                this.collidableMeshList = this.collidableMeshList.filter(mesh => mesh !== player.body);
-                                
+                
+                // Remove from collidableMeshList in place (not reassign)
+                const idx = this.collidableMeshList.indexOf(player.body);
+                if (idx !== -1) this.collidableMeshList.splice(idx, 1);
+                
+                // Clean up playerLastUpdate map
+                delete this.playerLastUpdate[player.id];
+                
                 return false;
             }
             return true;
