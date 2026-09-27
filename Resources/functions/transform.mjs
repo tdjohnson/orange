@@ -3,6 +3,7 @@ import * as bulletControl from './bulletControl.mjs';
 
 var door;
 var soap;
+var droppingSoaps = []; // soaps that are falling right now, several players can drop one at the same time
 
 // rotate object around own axis
 export function rotate(object, axis, degree) { 
@@ -51,7 +52,13 @@ export function triggerObject(intersectArray) {
 	
 	switch (correctObject.userData.name) {
 		case "soap": {
-			triggerDrop(correctObject);
+			if (correctObject.userData.isDropable == true) {
+				triggerDrop(correctObject);
+				// tell the other players, they play the same animation
+				if (typeof window.events2main === 'function' && correctObject.userData.syncId) {
+					window.events2main("soap", correctObject.userData.syncId);
+				}
+			}
 			break;
 		}
 		case "Door2": {
@@ -68,6 +75,7 @@ export function triggerDrop(object) {
 	if (object.userData.isDropable == true) {
 		object.userData.isDropable = false;
 		soap = object;
+		if (droppingSoaps.indexOf(object) === -1) droppingSoaps.push(object);
 			if (object.userData.info.indexOf("Wirf")>-1) {
 				object.userData.info = "Heb mich auf";
 				
@@ -115,35 +123,47 @@ export function switchTableLight(object) {
 	}
 }
 
+// Another player dropped a soap: find it by its id and drop it here as well
+export function dropSoapById(scene, syncId) {
+	var found = null;
+	scene.traverse(function (object) {
+		if (!found && object.userData && object.userData.syncId === syncId) found = object;
+	});
+	if (found) triggerDrop(found);
+	return found !== null;
+}
+
 export function animateDrop() {
 	// TO DO: fix angle
-	if (soap != null) {
-		if (soap.userData.isDropable == false) {
-				//animationLock = true; // lock raycaster //not nice...shame on you
-			if (soap.userData.info.indexOf("Heb")>-1) {
-				if(soap.position.z > 11.6){
-					soap.position.z -= 0.05;
+	for (var i = droppingSoaps.length - 1; i >= 0; i--) {
+		var falling = droppingSoaps[i];
+		if (falling.userData.isDropable == false) {
+			if (falling.userData.info.indexOf("Heb")>-1) {
+				if(falling.position.z > 11.6){
+					falling.position.z -= 0.05;
 				}
 				else{
-					if (soap.position.y > 0.1){
-						soap.position.y -= 0.1;
+					if (falling.position.y > 0.1){
+						falling.position.y -= 0.1;
 						
-						if(soap.position.z > 11 && soap.position.z < 11.6){
-							soap.position.z -= 0.05;
+						if(falling.position.z > 11 && falling.position.z < 11.6){
+							falling.position.z -= 0.05;
 						}
 						
-						rotate(soap, new THREE.Vector3(1,0,0),-8);
+						rotate(falling, new THREE.Vector3(1,0,0),-8);
 						
 					}else{
-						//animationLock = false; // unlock raycaster //not nice...shame on you
+						droppingSoaps.splice(i, 1); // it lies on the floor
 					}
 				}
 			}
-			else
-			soap.userData.isDropable = true;
+			else {
+				falling.userData.isDropable = true;
+				droppingSoaps.splice(i, 1);
+			}
 		}
 		else {
-			
+			droppingSoaps.splice(i, 1);
 		}
 	}	
 }

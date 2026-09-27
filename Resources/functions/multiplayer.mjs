@@ -4,6 +4,7 @@ import * as UMPS from 'umps';
 import * as objectsModule from './objects.mjs';
 import * as bulletControl from './bulletControl.mjs';
 import { orangeSessions } from './sessions.mjs';
+import * as transformModule from './transform.mjs';
 
 const serverTickinMS = 20; //Only every x Milliseconds will the client report its position to server, so server is not flooded with messages
 var lastServerSync = 0;
@@ -119,6 +120,11 @@ export class Multiplayer extends THREE.Mesh {
 						this.updateHealthBar(player);
 					}
 				
+            } else if (event.type === "soap") {
+                // another player dropped a soap
+                if (event.source !== this.playerId) {
+                    transformModule.dropSoapById(this.scene, String(event.destination));
+                }
             } else if (event.type === "sessionStarted") {
                 // auto-restart: the server moved us into the next round
                 this.startNextSession(event);
