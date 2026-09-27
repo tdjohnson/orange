@@ -888,12 +888,6 @@ function chosenSession() {
 	return dropdown.value === "lobby" || dropdown.value === "" ? null : dropdown.value;
 }
 
-// Session countdown handling
-const defaultSessionCountdown = document.getElementById("sessionCountdown");
-if (defaultSessionCountdown) {
-	defaultSessionCountdown.style.display = 'none';
-}
-
 function updateSessionCountdown(secondsLeft, visible) {
 	const countdown = document.getElementById("sessionCountdown");
 	const timeSpan = document.getElementById("sessionTime");
