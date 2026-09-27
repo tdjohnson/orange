@@ -12,6 +12,7 @@ import * as prisonCellModule from './Resources/functions/prisonCell.mjs';
 import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 import * as bulletControl from './Resources/functions/bulletControl.mjs';
+import { orangeSessions } from './Resources/functions/sessions.mjs';
 
 var clock;
 var scene, camera, renderer;
@@ -129,7 +130,10 @@ export function takeDamage(amount) {
 			}
 			// Send defeat event: other players (old server) or the server's counter (new server)
 			if (multiplayer) {
-				multiplayer.sendEvent("defeated", localPlayerName);
+				// Servers with sessions take JSON {name, by} so kills can be counted; older ones only a plain name
+				const killer = multiplayer.getLastHitterName();
+				const payload = (orangeSessions.supported && killer) ? JSON.stringify({ name: localPlayerName, by: killer }) : localPlayerName;
+				multiplayer.sendEvent("defeated", payload);
 			}
 		}
 		// Reset health after busted message and respawn

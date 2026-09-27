@@ -3,6 +3,7 @@ import * as signalR from 'signalR';
 import * as UMPS from 'umps';
 import * as objectsModule from './objects.mjs';
 import * as bulletControl from './bulletControl.mjs';
+import { orangeSessions } from './sessions.mjs';
 
 const serverTickinMS = 20; //Only every x Milliseconds will the client report its position to server, so server is not flooded with messages
 var lastServerSync = 0;
@@ -33,6 +34,10 @@ export class Multiplayer extends THREE.Mesh {
         this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
         this.players = [];
         this.pendingPlayers = new Set();
+        this.session = null;        // {id, name, endsAtLocal} while in a session
+        this.sessionTimer = null;
+        this.lastHitBy = null;      // player id of the last hit we took, for kill credit
+        this.lastHitAt = 0;
         // REST base of the selected server, e.g. https://umps.tdj23.com (hub url minus /controlhub)
         this.serverBaseUrl = String(selected_server || '').replace(/\/controlhub\/?$/, '');
 
@@ -60,6 +65,8 @@ export class Multiplayer extends THREE.Mesh {
             if (event.type === "hit"){
                 if (event.destination === this.playerId){
                     console.log("You got hit!");
+                    this.lastHitBy = event.source;
+                    this.lastHitAt = performance.now();
                     if (typeof window.takeDamage === 'function') {
                         window.takeDamage(10);
                     }
@@ -91,8 +98,8 @@ export class Multiplayer extends THREE.Mesh {
                 // A player was defeated
                 if (event.source !== this.playerId) {
                     if (typeof window.handleDefeated === 'function') {
-                        // event.destination contains the player name
-                        window.handleDefeated(event.destination);
+                        // event.destination is the player name, or JSON {name, by} on servers with sessions
+                        window.handleDefeated(this.parseDefeated(event.destination).name);
                     }
                 }
 				} else if (event.type === "healthReset") {
@@ -104,6 +111,8 @@ export class Multiplayer extends THREE.Mesh {
 						this.updateHealthBar(player);
 					}
 				
+            } else if (event.type === "sessionEnded") {
+                this.endSession(event);
             } else if (event.type === "left") {
                 // Server says this player disconnected (UMPS >= player_left_scores_type)
                 this.removePlayerById(event.source);
@@ -130,6 +139,7 @@ export class Multiplayer extends THREE.Mesh {
             .catch(() => { /* old server without scores, peer sync stays active */ });
 
         this.playerLastUpdate = {};
+        this.applySessionChoice();
         setInterval(() => this.checkIdle(), idleCheckInterval);
         
         // Request scores from other players once after connection
@@ -294,6 +304,87 @@ export class Multiplayer extends THREE.Mesh {
         const idx = this.collidableMeshList.indexOf(player.body);
         if (idx !== -1) this.collidableMeshList.splice(idx, 1);
         delete this.playerLastUpdate[player.id];
+    }
+
+    removeAllPlayers() {
+        for (const player of this.players) this.removePlayer(player);
+        this.players = [];
+        this.pendingPlayers.clear();
+    }
+
+    parseDefeated(destination) {
+        const text = String(destination || '');
+        if (text.charAt(0) === '{') {
+            try {
+                const parsed = JSON.parse(text);
+                return { name: String(parsed.name || ''), by: parsed.by ? String(parsed.by) : null };
+            } catch (e) { /* fall through: treat as plain name */ }
+        }
+        return { name: text, by: null };
+    }
+
+    // Name of the player whose hit we took last, if it was within the last 10 seconds
+    getLastHitterName() {
+        if (!this.lastHitBy || (performance.now() - this.lastHitAt) > 10000) return null;
+        const hitter = this.players.find(p => p.id === this.lastHitBy);
+        return hitter && hitter.name ? hitter.name : null;
+    }
+
+    // Join or create the session the player picked in the dialog (window.orangeSessions.choose)
+    async applySessionChoice() {
+        const choice = orangeSessions.choice;
+        if (!choice) return; // lobby, behaves like before sessions existed
+        try {
+            for (let i = 0; i < 40 && this.umps.hub.connection.q !== "Connected"; i++) {
+                await new Promise(resolve => setTimeout(resolve, 250));
+            }
+            let sessionId = choice;
+            if (choice === 'new') {
+                const created = await orangeSessions.create(this.serverBaseUrl);
+                if (!created) throw new Error('could not create a session');
+                sessionId = created.id;
+            }
+            const session = await this.umps.hub.invoke("JoinSession", sessionId);
+            if (!session) throw new Error('session is full, over, or about to end');
+            this.enterSession(session);
+        } catch (err) {
+            console.error("Could not join session: ", err);
+            orangeSessions._emit('orange:sessionJoinFailed', { reason: String((err && err.message) || err) });
+        }
+    }
+
+    enterSession(session) {
+        // bodies we have so far belong to the lobby, the session has its own players
+        this.removeAllPlayers();
+        const secondsLeft = Math.max(0, Number(session.secondsRemaining) || 0);
+        const endsAtLocal = performance.now() + secondsLeft * 1000;
+        this.session = { id: session.id, name: session.name, endsAtLocal: endsAtLocal };
+        orangeSessions._state.current = { id: session.id, name: session.name };
+        orangeSessions._emit('orange:sessionJoined', { id: session.id, name: session.name, secondsLeft: secondsLeft });
+        clearInterval(this.sessionTimer);
+        this.sessionTimer = setInterval(() => {
+            const left = Math.max(0, Math.ceil((endsAtLocal - performance.now()) / 1000));
+            orangeSessions._emit('orange:sessionTime', { secondsLeft: left });
+        }, 1000);
+    }
+
+    endSession(event) {
+        let result = {};
+        try { result = JSON.parse(event.destination) || {}; } catch (e) { result = {}; }
+        const finished = this.session;
+        clearInterval(this.sessionTimer);
+        this.sessionTimer = null;
+        this.session = null;
+        orangeSessions._state.current = null;
+        orangeSessions.choose(null);
+        // the server has put us back into the lobby; lobby players reappear with their next update
+        this.removeAllPlayers();
+        orangeSessions._emit('orange:sessionEnded', {
+            id: event.source,
+            name: finished ? finished.name : null,
+            kills: result.kills || {},
+            defeats: result.defeats || {}
+        });
     }
 
     removePlayerById(playerId) {
