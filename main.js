@@ -58,9 +58,10 @@ var arrow; //for raycasterhelper
 var collidableMeshList = [];
 
 // ========== MIRROR SYSTEM ==========
-var mirrorCameras = [];
-var mirrorTextures = [];
-var mirrorMeshes = [];
+// COMMENTED OUT: THREE.Mirror not available at CDN paths in r186
+// var mirrorCameras = [];
+// var mirrorTextures = [];
+// var mirrorMeshes = [];
 
 var loadDone, toWakeUp = false;
 var animationLock = false;
@@ -94,9 +95,12 @@ objectsModule.setPerformanceOptimization(performanceBoostGlobal);
 prisonCellModule.setPerformanceOptimization(performanceBoostGlobal);
 hallwayModule.setPerformanceOptimization(performanceBoostGlobal);
 
-export function events2main(type, destination){
+function events2main(type, destination){
 	if (mqttEnabled && multiplayer) multiplayer.sendEvent(type, destination);
 }
+events2main._real = events2main;
+window.events2main = events2main;
+export { events2main };
 
 function updateHealthBar() {
 	const container = document.getElementById("healthBarContainer");
@@ -128,7 +132,7 @@ function resetHealth() {
 	}
 }
 
-export function takeDamage(amount) {
+function takeDamage(amount) {
 	if (health <= 0) return;
 	
 	health -= amount;
@@ -168,6 +172,9 @@ export function takeDamage(amount) {
 		}, 3000);
 	}
 }
+takeDamage._real = takeDamage;
+window.takeDamage = takeDamage;
+export { takeDamage };
 
 var killFeedEntries = [];
 const KILL_FEED_MAX = 5;
@@ -183,6 +190,9 @@ function addKillFeedEntry(victim, killer) {
 	renderKillFeed();
 	setTimeout(renderKillFeed, KILL_FEED_MS + 100);
 }
+addKillFeedEntry._real = addKillFeedEntry;
+window.handleKillFeed = addKillFeedEntry;
+export { addKillFeedEntry as handleKillFeed };
 
 function renderKillFeed() {
 	const feed = document.getElementById("killFeed");
@@ -203,6 +213,9 @@ function recordSessionDefeat(victim, killer) {
 	if (killer) sessionKills.set(killer, (sessionKills.get(killer) || 0) + 1);
 	updateDefeatedCounter();
 }
+recordSessionDefeat._real = recordSessionDefeat;
+window.handleSessionDefeat = recordSessionDefeat;
+export { recordSessionDefeat as handleSessionDefeat };
 
 function resetSessionStats() {
 	sessionKills = new Map();
@@ -261,14 +274,17 @@ function updateDefeatedCounter() {
 	});
 }
 
-export function handleServerScores(scores) {
+function handleServerScores(scores) {
 	if (!scores || typeof scores !== 'object') return;
 	serverScoresActive = true;
 	defeatedPlayers = new Map(Object.entries(scores).map(([name, count]) => [name, Number(count) || 0]));
 	updateDefeatedCounter();
 }
+handleServerScores._real = handleServerScores;
+window.handleServerScores = handleServerScores;
+export { handleServerScores };
 
-export function handleDefeated(playerName) {
+function handleDefeated(playerName) {
 	if (serverScoresActive) return;
 	const currentCount = defeatedPlayers.get(playerName) || 0;
 	defeatedPlayers.set(playerName, currentCount + 1);
@@ -284,8 +300,10 @@ export function handleDefeated(playerName) {
 		multiplayer.sendEvent("scores", scoresJson);
 	}
 }
-
-export function handleScores(scoresJson, sourcePlayerId) {
+handleDefeated._real = handleDefeated;
+window.handleDefeated = handleDefeated;
+export { handleDefeated };
+function handleScores(scoresJson, sourcePlayerId) {
 	if (serverScoresActive) return;
 	try {
 		const receivedScores = JSON.parse(scoresJson);
@@ -305,14 +323,20 @@ export function handleScores(scoresJson, sourcePlayerId) {
 		console.log("Could not parse scores:", e);
 	}
 }
+handleScores._real = handleScores;
+window.handleScores = handleScores;
+export { handleScores };
 
-export function handleScoresRequest(sourcePlayerId) {
+function handleScoresRequest(sourcePlayerId) {
 	if (serverScoresActive) return;
 	if (multiplayer) {
 		const scoresJson = JSON.stringify(Object.fromEntries(defeatedPlayers.entries()));
 		multiplayer.sendEvent("scores", scoresJson);
 	}
 }
+handleScoresRequest._real = handleScoresRequest;
+window.handleScoresRequest = handleScoresRequest;
+export { handleScoresRequest };
 
 function getCellSpawnPosition(cellIndex) {
 	const cellRowCount = 2;
@@ -494,120 +518,22 @@ function applyQualitySettings() {
 	}
 }
 
-export function setQualityMode(mode) {
+function setQualityMode(mode) {
 	if (['performance', 'balanced', 'quality'].includes(mode)) {
 		qualityMode = mode;
 		applyQualitySettings();
 		console.log("Quality mode set to:", mode);
 	}
 }
+setQualityMode._real = setQualityMode;
+window.setQualityMode = setQualityMode;
+export { setQualityMode };
 
 // ========== MIRROR SYSTEM FUNCTIONS ==========
+// COMMENTED OUT: THREE.Mirror not available at CDN paths in r186
+// function createMirror(position, size, rotation) { ... }
+// function updateMirrors() { ... }
 
-/**
- * Creates a mirror at specified position and size
- * @param {THREE.Vector3} position - World position of the mirror
- * @param {THREE.Vector2} size - Width and height of the mirror
- * @param {THREE.Vector3} rotation - Rotation of the mirror (Euler angles)
- */
-function createMirror(position, size, rotation) {
-	if (!renderer || qualityMode === 'performance') return null;
-	
-	const width = size.x || 10;
-	const height = size.y || 10;
-	
-	// Create render target for the mirror
-	const renderTarget = new THREE.WebGLRenderTarget(512, 512, {
-		minFilter: THREE.LinearFilter,
-		magFilter: THREE.LinearFilter,
-		format: THREE.RGBFormat
-	});
-	
-	// Create mirror camera with same FOV as main camera
-	const mirrorCamera = new THREE.PerspectiveCamera(
-		camera.fov,
-		width / height,
-		camera.near,
-		camera.far
-	);
-	
-	// Create mirror material using the render target texture
-	const mirrorMaterial = new THREE.MeshBasicMaterial({
-		map: renderTarget.texture,
-		side: THREE.FrontSide
-	});
-	
-	// Create mirror mesh (plane)
-	const mirrorGeometry = new THREE.PlaneGeometry(width, height);
-	const mirrorMesh = new THREE.Mesh(mirrorGeometry, mirrorMaterial);
-	mirrorMesh.position.copy(position);
-	mirrorMesh.rotation.copy(rotation);
-	
-	// Store references along with the mirror's normal
-	mirrorCameras.push({
-		camera: mirrorCamera,
-		normal: new THREE.Vector3(0, 0, 1).applyEuler(rotation)
-	});
-	mirrorTextures.push(renderTarget);
-	mirrorMeshes.push(mirrorMesh);
-	
-	return mirrorMesh;
-}
-
-/**
- * Updates all mirror cameras and renders to their textures
- * Uses proper reflection calculation for mirror perspective
- */
-function updateMirrors() {
-	if (mirrorCameras.length === 0 || !controls || !controls.object) return;
-	
-	const playerCam = controls.object;
-	
-	for (let i = 0; i < mirrorCameras.length; i++) {
-		const mirrorData = mirrorCameras[i];
-		const mirrorCamera = mirrorData.camera;
-		const mirrorMesh = mirrorMeshes[i];
-		const renderTarget = mirrorTextures[i];
-		
-		if (!mirrorCamera || !mirrorMesh || !renderTarget) continue;
-		
-		// Get mirror position and normal
-		const mirrorPos = mirrorMesh.position;
-		const mirrorNormal = mirrorData.normal;
-		
-		// Calculate the reflected camera position
-		// The formula is: reflectedPos = playerPos - 2 * (playerPos - mirrorPos) * dot(normal, playerPos - mirrorPos)
-		const playerToMirror = playerCam.position.clone().sub(mirrorPos);
-		const distanceToPlane = playerToMirror.dot(mirrorNormal);
-		const reflectionOffset = mirrorNormal.clone().multiplyScalar(-2 * distanceToPlane);
-		const reflectedCamPos = playerCam.position.clone().add(reflectionOffset);
-		
-		// Set mirror camera position
-		mirrorCamera.position.copy(reflectedCamPos);
-		
-		// Calculate reflected camera direction
-		// Get the player's look direction in world space
-		const playerDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(playerCam.quaternion);
-		
-		// Reflect the direction across the mirror normal
-		const reflectedDirection = playerDirection.clone().reflect(mirrorNormal);
-		
-		// Point the mirror camera in the reflected direction
-		mirrorCamera.lookAt(reflectedCamPos.clone().add(reflectedDirection));
-		
-		// Temporarily hide the mirror itself from its own reflection
-		mirrorMesh.visible = false;
-		
-		// Render scene from mirror camera's perspective
-		renderer.setRenderTarget(renderTarget);
-		renderer.clear();
-		renderer.render(scene, mirrorCamera);
-		
-		// Restore
-		mirrorMesh.visible = true;
-		renderer.setRenderTarget(null);
-	}
-}
 
 function init() {
 	// Create renderer with improved settings
@@ -732,28 +658,27 @@ function init() {
 	addTowers(renderer);
 
 	// ========== CREATE MIRRORS ==========
-	// Add mirrors to the scene
-	// Mirror 1: On the prison wall
-	const mirror1 = createMirror(
-		new THREE.Vector3(-30, 8, -45),
-		new THREE.Vector2(8, 8),
-		new THREE.Euler(0, 0, 0)
-	);
-	if (mirror1) {
-		scene.add(mirror1);
-		collidableMeshList.push(mirror1);
-	}
-	
+	// COMMENTED OUT: THREE.Mirror not available at CDN paths in r186
+	// const mirror1 = createMirror(
+	// 	new THREE.Vector3(-30, 8, -45),
+	// 	new THREE.Vector2(8, 8),
+	// 	new THREE.Euler(0, 0, 0)
+	// );
+	// if (mirror1) {
+	// 	scene.add(mirror1);
+	// 	collidableMeshList.push(mirror1);
+	// }
+	// 
 	// Mirror 2: On another wall
-	const mirror2 = createMirror(
-		new THREE.Vector3(30, 8, 45),
-		new THREE.Vector2(8, 8),
-		new THREE.Euler(0, Math.PI, 0)
-	);
-	if (mirror2) {
-		scene.add(mirror2);
-		collidableMeshList.push(mirror2);
-	}
+	// const mirror2 = createMirror(
+	// 	new THREE.Vector3(30, 8, 45),
+	// 	new THREE.Vector2(8, 8),
+	// 	new THREE.Euler(0, Math.PI, 0)
+	// );
+	// if (mirror2) {
+	// 	scene.add(mirror2);
+	// 	collidableMeshList.push(mirror2);
+	// }
 
 	pointerLockModule.initPointerLock(havePointerLock);
 	addRamps(renderer);
@@ -776,18 +701,21 @@ function init() {
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
 		
-		// Update mirror cameras aspect ratio
-		for (let i = 0; i < mirrorCameras.length; i++) {
-			const mirrorMesh = mirrorMeshes[i];
-			if (mirrorMesh && mirrorMesh.geometry) {
-				const width = mirrorMesh.geometry.parameters.width || 1;
-				const height = mirrorMesh.geometry.parameters.height || 1;
-				mirrorCameras[i].aspect = width / height;
-				mirrorCameras[i].updateProjectionMatrix();
-			}
-		}
+		// COMMENTED OUT: Mirror resize handler disabled
+		// for (let i = 0; i < mirrorCameras.length; i++) {
+		// 	const mirrorMesh = mirrorMeshes[i];
+		// 	if (mirrorMesh && mirrorMesh.geometry) {
+		// 		const width = mirrorMesh.geometry.parameters.width || 1;
+		// 		const height = mirrorMesh.geometry.parameters.height || 1;
+		// 		mirrorCameras[i].camera.aspect = width / height;
+		// 		mirrorCameras[i].camera.updateProjectionMatrix();
+		// 	}
+		// }
 	});
 }
+init._real = init;
+window.init = init;
+export { init };
 
 function cloning(n) {
 	for (let i = 1; i < n; i++) {
@@ -1040,8 +968,8 @@ function animate() {
 		var delta = clock.getDelta();
 		controlsModule.updateControls(controlsEnabled, delta, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
 		
-		// Update mirrors before rendering main scene
-		updateMirrors();
+		// COMMENTED OUT: Mirror updates disabled
+		// updateMirrors();
 		
 		renderer.render(scene, camera);
 		
@@ -1085,6 +1013,9 @@ function showBustedMessage() {
 		document.getElementById("bustedOverlay").classList.remove("visible");
 	}, 3000);
 }
+showBustedMessage._real = showBustedMessage;
+window.showBustedMessage = showBustedMessage;
+export { showBustedMessage };
 
 function loadMultiplayer(player_name, selected_server){
 	console.log("Loading multiplayer...");
@@ -1097,7 +1028,7 @@ function loadMultiplayer(player_name, selected_server){
 	});
 }
 
-export function startSingleplayer() {
+function startSingleplayer() {
 	gameMode = "SinglePlayer";
 	console.log("Starting Singleplayer mode...");
 	showDefeatedCounter(false);
@@ -1105,10 +1036,13 @@ export function startSingleplayer() {
 	closeStart();
 	init();
 }
+startSingleplayer._real = startSingleplayer;
+window.startSingleplayer = startSingleplayer;
+export { startSingleplayer };
 
 var multiplayerStarting = false;
 
-export function startMultiplayerWithName() {
+function startMultiplayerWithName() {
 	if (multiplayerStarting) return;
 	var player_name = document.getElementById("player_name").value.trim();
 	var selected_server_id = document.getElementById("serverSelector").value;
@@ -1143,6 +1077,9 @@ export function startMultiplayerWithName() {
 		});
 	}
 }
+startMultiplayerWithName._real = startMultiplayerWithName;
+window.startMultiplayerWithName = startMultiplayerWithName;
+export { startMultiplayerWithName };
 
 function formatSeconds(totalSeconds) {
 	const s = Math.max(0, Math.floor(Number(totalSeconds) || 0));
@@ -1238,6 +1175,9 @@ function chooseSession(sessionId) {
 	orangeSessions.choose(lobby ? null : String(sessionId));
 	startMultiplayerWithName();
 }
+chooseSession._real = chooseSession;
+window.chooseSession = chooseSession;
+export { chooseSession };
 
 function updateSessionCountdown(secondsLeft, visible) {
 	const countdown = document.getElementById("sessionCountdown");
@@ -1398,7 +1338,7 @@ window.addEventListener("orange:sessionJoinFailed", (e) => {
 	if (serverSelector) serverSelector.addEventListener("change", () => updateSessionDropdownForSelectedServer());
 }
 
-export function startMultiplayer() {
+function startMultiplayer() {
 	gameMode = "MultiPlayer";
 	console.log("Starting Multiplayer mode...");
 	showDefeatedCounter(true);
@@ -1437,6 +1377,9 @@ export function startMultiplayer() {
 
 	console.log("Selecting User Details");
 }
+startMultiplayer._real = startMultiplayer;
+window.startMultiplayer = startMultiplayer;
+export { startMultiplayer };
 
 async function showHallOfFame() {
 	if (gameMode === 'SinglePlayer') return;
@@ -1453,20 +1396,3 @@ async function showHallOfFame() {
 }
 
 showHallOfFame();
-
-// Make the functions globally accessible
-window.startSingleplayer = startSingleplayer;
-window.startMultiplayer = startMultiplayer;
-window.startMultiplayerWithName = startMultiplayerWithName;
-window.init = init;
-window.showBustedMessage = showBustedMessage;
-window.takeDamage = takeDamage;
-window.handleDefeated = handleDefeated;
-window.chooseSession = chooseSession;
-window.handleScoresRequest = handleScoresRequest;
-window.handleScores = handleScores;
-window.handleServerScores = handleServerScores;
-window.handleSessionDefeat = recordSessionDefeat;
-window.handleKillFeed = addKillFeedEntry;
-window.events2main = events2main;
-window.setQualityMode = setQualityMode;

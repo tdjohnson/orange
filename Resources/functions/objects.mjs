@@ -28,46 +28,47 @@ export function meshloader(objURL, callback){
 }
 
 
-export function Mirror()
-{	
-	THREE.Object3D.call( this );
-
-	if (!performanceBoost) {
-		this.castShadow = true;
-	}
-	this.scale.x = this.scale.y = this.scale.z = 1.1;
-	
-	var mmaterial = new THREE.WebGLRenderTarget( 500, 500, { 
-		format: THREE.RGBFormat, 
-		depthBuffer: true,
-		stencilBuffer: false 
-	} );
-	mirror_materials.push(mmaterial);
-	var mcam= new THREE.PerspectiveCamera(45, 1, 3.0,50);
-	mcam.up = new THREE.Vector3(0,0,1);
-	mcam.applyMatrix(new THREE.Matrix4().makeScale(1, 1, -1)); //flip view to create "mirrored" image
-	mcam.position.z = -2.5; //set camera origin behind, (front plane set accordingly)
-	mcam.name = "mirror" + this.id;
-	this.add(mcam);
-
-	mirror_cameras.push(mcam); // update cameras
-
-
-	var planeMaterial = new THREE.MeshBasicMaterial( { map: mmaterial } );
-	var plane = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), planeMaterial );
-	this.add(plane);
-
-	
-	var scope = this;
-	meshloader('./Prototypes/Spiegel/SpiegelRahmen.json',function(model) {
-			model.rotation.y = Math.PI*0.5; 
-		scope.add(model);});
-		this.rotation.y = Math.PI*0.5; 
-		this.mvisible  = true;
-	
-}
-Mirror.prototype = new THREE.Object3D();
-Mirror.prototype.constructor = Mirror;
+// COMMENTED OUT: Mirror function uses undefined globals (mirror_materials, mirror_cameras)
+// export function Mirror()
+// {	
+// 	THREE.Object3D.call( this );
+// 
+// 	if (!performanceBoost) {
+// 		this.castShadow = true;
+// 	}
+// 	this.scale.x = this.scale.y = this.scale.z = 1.1;
+// 	
+// 	var mmaterial = new THREE.WebGLRenderTarget( 500, 500, { 
+// 		format: THREE.RGBFormat, 
+// 		depthBuffer: true,
+// 		stencilBuffer: false 
+// 	} );
+// 	mirror_materials.push(mmaterial);
+// 	var mcam= new THREE.PerspectiveCamera(45, 1, 3.0,50);
+// 	mcam.up = new THREE.Vector3(0,0,1);
+// 	mcam.applyMatrix(new THREE.Matrix4().makeScale(1, 1, -1)); //flip view to create "mirrored" image
+// 	mcam.position.z = -2.5; //set camera origin behind, (front plane set accordingly)
+// 	mcam.name = "mirror" + this.id;
+// 	this.add(mcam);
+// 
+// 	mirror_cameras.push(mcam); // update cameras
+// 
+// 
+// 	var planeMaterial = new THREE.MeshBasicMaterial( { map: mmaterial } );
+// 	var plane = new THREE.Mesh( new THREE.PlaneBufferGeometry(2,2), planeMaterial );
+// 	this.add(plane);
+// 
+// 	
+// 	var scope = this;
+// 	meshloader('./Prototypes/Spiegel/SpiegelRahmen.json',function(model) {
+// 			model.rotation.y = Math.PI*0.5; 
+// 		scope.add(model);});
+// 		this.rotation.y = Math.PI*0.5; 
+// 		this.mvisible  = true;
+// 	
+// }
+// Mirror.prototype = new THREE.Object3D();
+// Mirror.prototype.constructor = Mirror;
 	
 
 
