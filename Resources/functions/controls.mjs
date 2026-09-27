@@ -550,7 +550,7 @@ export function updateControls(controlsEnabled, delta, controlsParam, collidable
 		}
 
 		// Debug overlay
-		const toDisplay =
+		let toDisplay =
 			"<table id='InfoOutput'>" +
 			"<tr><td>velX:</td><td>" + reduceFloatPrecision(velocity.x) + "</td><td>posX:</td><td>" + reduceFloatPrecision(controls.object.position.x) + "</td></tr>" +
 			"<tr><td>velY:</td><td>" + reduceFloatPrecision(velocity.y) + "</td><td>posY:</td><td>" + reduceFloatPrecision(controls.object.position.y) + "</td></tr>" +
