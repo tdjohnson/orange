@@ -654,7 +654,7 @@ function init() {
 	var hallwayStart = -38;
 	for (var i = 0; i < 3; i++) {
 		var hallwayOffset = hallwayStart + (48 * i);
-		var fullHallway = new hallwayModule.FullHallway(renderer, collidableMeshList, scene);
+		var fullHallway = new hallwayModule.FullHallway(renderer, collidableMeshList, scene, i === 1);
 		fullHallway.position.set(hallwayOffset, 5, 21);
 		fullHallway.traverse(function(child) {
 			if (child instanceof THREE.Mesh) {
@@ -957,8 +957,8 @@ function sun() {
 	dirLight.position.set(50, 80, 30);
 	
 	dirLight.castShadow = true;
-	dirLight.shadow.mapSize.width = 2048;
-	dirLight.shadow.mapSize.height = 2048;
+	dirLight.shadow.mapSize.width = 1024;
+	dirLight.shadow.mapSize.height = 1024;
 	dirLight.shadow.camera.near = 0.5;
 	dirLight.shadow.camera.far = 200;
 	dirLight.shadow.camera.left = -120;

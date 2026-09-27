@@ -8,7 +8,7 @@ export function setPerformanceOptimization(newValue) {
 }
 
 export class FullHallway extends THREE.Mesh {
-	constructor(renderer, collidableMeshList, scene) {
+	constructor(renderer, collidableMeshList, scene, enableShadow = false) {
 		super();
 
 		const hallway = new Hallway(renderer);
@@ -24,11 +24,13 @@ export class FullHallway extends THREE.Mesh {
 		if (!performanceBoost) {
 			const light = new THREE.PointLight(0xffff99, 100);
 			light.position.set(0, 8, 0);
-			light.castShadow = true;
-			light.shadow.mapSize.width = 512;
-			light.shadow.mapSize.height = 512;
-			light.shadow.camera.near = 0.5;
-			light.shadow.camera.far = 50;
+			if (enableShadow) {
+				light.castShadow = true;
+				light.shadow.mapSize.width = 256;
+				light.shadow.mapSize.height = 256;
+				light.shadow.camera.near = 0.5;
+				light.shadow.camera.far = 30;
+			}
 			this.add(light);
 		}
 	}

@@ -132,13 +132,7 @@ class TableLamp extends THREE.Mesh {
 		// Shadow stuff
 		if (!performanceBoost) {
 			const light = new THREE.PointLight(0xffff99, 4, 10);
-			light.shadow.radius = 200;
-			light.shadow.mapSize.width = 512;
-			light.shadow.mapSize.height = 512;
 			light.position.set(0, 9.8, -4.7);
-			light.castShadow = true;
-			light.shadow.camera.near = 0.5;
-			light.shadow.camera.far = 20;
 			const pointLightHelper = new THREE.PointLightHelper(light, 0.8);
 			scene.add(pointLightHelper);
 			this.add(light);
