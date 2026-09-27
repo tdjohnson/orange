@@ -328,7 +328,24 @@ div#welcomeMessage {
 	text-align: left;
 }
 
-#sessionResults div {
-	padding: 5px 0;
+#sessionResults table {
+	width: 100%;
+	border-collapse: collapse;
+	color: white;
+}
+
+#sessionResults th {
+	padding: 8px;
+	text-align: left;
+	border-bottom: 2px solid #444;
+}
+
+#sessionResults td {
+	padding: 8px;
+	border-bottom: 1px solid #444;
+}
+
+#sessionResults tr:hover {
+	background: rgba(255, 255, 255, 0.1);
 }
 
