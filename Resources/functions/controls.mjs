@@ -39,9 +39,9 @@ const reachPoint = new THREE.Vector3();
 
 // Collision system state
 const colliderCache = new WeakMap();
-const boxColliders = [];
-const rayColliders = [];
-const rayCandidates = [];
+let boxColliders = [];
+let rayColliders = [];
+let rayCandidates = [];
 
 // References
 let renderer;
