@@ -1,37 +1,78 @@
 import * as THREE from 'three';
-import {collisionDetection} from './collision.mjs'
-import {showMessageContent} from './splashScreen.mjs';
+import { collisionDetection } from './collision.mjs';
+import { showMessageContent } from './splashScreen.mjs';
 import * as transformModule from './transform.mjs';
 import * as bulletControl from './bulletControl.mjs';
 
-var moveForward,
-    moveBackward,
-    moveLeft,
-    moveRight,
-    canJump,
-	botAggressive;
-	var lastObject;
-	var hasMoved = true;
-	
-var velocity = new THREE.Vector3();
-var pressedKeys = {};
-var maxVelocity = 12;
+// Constants
+const MAX_VELOCITY = 12;
+const WALK_ACCEL = 180;
+const JUMP_IMPULSE = 12;
+const GRAVITY = 19.6;
+const PLAYER_COLLISION_RADIUS = 0.8;
+const BODY_HALF_WIDTH = 0.6;
+const SHOULDER_OFFSET = 0.55;
+const STEP_HEIGHT = 1.2;
+const BOX_MAX_FOOTPRINT = 8;
+const FPS_CAP = 10;
 
-// Reusable vectors to avoid allocations
-var tempVec = new THREE.Vector3();
-var originVec = new THREE.Vector3();
-var normalVec = new THREE.Vector3();
-var rotationAxis = new THREE.Vector3(0, 1, 0);
+// Movement state
+let moveForward, moveBackward, moveLeft, moveRight, canJump;
+let botAggressive = 0;
+let hasMoved = true;
 
-var renderer;
-var scene;
-var currentBody;
+// Control state
+let inputBlocked = false;
+let debugOverlayVisible = false;
 
-var debugOverlayVisible = false;
+// Reusable objects to avoid allocations
+const velocity = new THREE.Vector3();
+const tempVec = new THREE.Vector3();
+const originVec = new THREE.Vector3();
+const normalVec = new THREE.Vector3();
+const rotationAxis = new THREE.Vector3(0, 1, 0);
+const sweepDir = new THREE.Vector3();
+const sweepSide = new THREE.Vector3();
+const forwardVec = new THREE.Vector3();
+const rightVec = new THREE.Vector3();
+const reachPoint = new THREE.Vector3();
+
+// Collision system state
+const colliderCache = new WeakMap();
+const boxColliders = [];
+const rayColliders = [];
+const rayCandidates = [];
+
+// References
+let renderer;
+let scene;
+let currentBody;
+let lastObject;
+let controls;
+
+// Performance settings
+const neverBoxes = { Ramp: true, Sand: true, Hallway: true, FullHallway: true };
+
+// Object pools for collision detection
+const rayCasterPool = [];
+function getRaycaster() {
+	if (rayCasterPool.length > 0) {
+		return rayCasterPool.pop();
+	}
+	return new THREE.Raycaster();
+}
+function returnRaycaster(raycaster) {
+	raycaster.near = 0;
+	raycaster.far = 0;
+	rayCasterPool.push(raycaster);
+}
+
+// Wall raycaster (reused)
+const wallRaycaster = new THREE.Raycaster();
 
 function toggleDebugOverlay() {
 	debugOverlayVisible = !debugOverlayVisible;
-	var el = document.getElementById("message");
+	const el = document.getElementById("message");
 	if (el) el.classList.toggle("hidden", !debugOverlayVisible);
 }
 
@@ -44,11 +85,9 @@ export function initControls(currentRender, currentScene) {
 	renderer = currentRender;
 	scene = currentScene;
 	// start with debug overlay visible
-	var el = document.getElementById("message");
+	const el = document.getElementById("message");
 	if (el) el.classList.remove("hidden");
 }
-
-var inputBlocked = false;
 
 // While the player is busted: no walking, no jumping, no shooting
 export function setInputBlocked(blocked) {
@@ -59,14 +98,20 @@ export function setInputBlocked(blocked) {
 // Forget held keys and any leftover speed, e.g. after a respawn
 export function resetMovement() {
 	velocity.set(0, 0, 0);
-	for (var key in pressedKeys) pressedKeys[key] = false;
+	const keys = Object.keys(pressedKeys);
+	for (let i = 0; i < keys.length; i++) {
+		pressedKeys[keys[i]] = false;
+	}
 	canJump = true;
 }
+
+// Key state tracking
+const pressedKeys = {};
 
 export function onMouseDown(e) {
 	if (inputBlocked) return;
 	switch (e.button) {
-		case 0: //left mouse click
+		case 0: // left mouse click
 			pressedKeys["LMB"] = true;
 			bulletControl.addBullet(renderer);
 			break;
@@ -75,7 +120,7 @@ export function onMouseDown(e) {
 
 export function onMouseUp(e) {
 	switch (e.button) {
-		case 0: //left mouse click end
+		case 0: // left mouse click end
 			pressedKeys["LMB"] = false;
 			break;
 	}
@@ -84,115 +129,83 @@ export function onMouseUp(e) {
 export function onKeyDown(e) {
 	if (inputBlocked) return;
 	hasMoved = true;
-    switch (e.code) {
-		case "Space":
-			pressedKeys[" "] = true;
-		    break;
-		case "ShiftLeft":
-		case "ShiftRight":
-			pressedKeys["SHIFT"] = true;
-			break;
-		case "ArrowLeft":
-			pressedKeys["ArrowLeft"] = true;
-			break;
-		case "ArrowUp":
-			pressedKeys["ArrowUp"] = true;
-			break;
-		case "ArrowRight":
-			pressedKeys["ArrowRight"] = true;
-			break;
-		case "ArrowDown":
-			pressedKeys["ArrowDown"] = true;
-			break;
-		case "KeyA":
-			pressedKeys["a"] = true;
-			break;
-		case "KeyB":
-			if(botAggressive == 0) {
-				botAggressive = 1;
-			} else {
-				botAggressive = 0;
-			}
-			break;
-		case "KeyD":
-			pressedKeys["d"] = true;
-			break;
-		case "KeyE":
-			if(lastObject) transformModule.rotate(lastObject, rotationAxis, -5);
-			break;
-		case "KeyO":
-			botAggressive = 0;
-			break;
-		case "KeyQ":
-			if(lastObject) transformModule.rotate(lastObject, rotationAxis, 5);
-			break;
-		case "KeyS":
-			pressedKeys["s"] = true;
-			break;
-		case "KeyT":
-			if(lastObject) transformModule.triggerObject([{object: lastObject}]);
-			break;
-		case "KeyW":
-			pressedKeys["w"] = true;
-			break;
-		case "KeyY":
-			if(lastObject) transformModule.triggerDrop(lastObject);
-			break;
-		case "KeyH":
-			toggleDebugOverlay();
-			break;
-		case "KeyZ":
-			zoom();
-			break;
-    	}
-  }
-
+	const code = e.code;
+	
+	if (code === "Space") {
+		pressedKeys[" "] = true;
+	} else if (code === "ShiftLeft" || code === "ShiftRight") {
+		pressedKeys["SHIFT"] = true;
+	} else if (code === "ArrowLeft") {
+		pressedKeys["ArrowLeft"] = true;
+	} else if (code === "ArrowUp") {
+		pressedKeys["ArrowUp"] = true;
+	} else if (code === "ArrowRight") {
+		pressedKeys["ArrowRight"] = true;
+	} else if (code === "ArrowDown") {
+		pressedKeys["ArrowDown"] = true;
+	} else if (code === "KeyA") {
+		pressedKeys["a"] = true;
+	} else if (code === "KeyB") {
+		botAggressive = botAggressive === 0 ? 1 : 0;
+	} else if (code === "KeyD") {
+		pressedKeys["d"] = true;
+	} else if (code === "KeyE") {
+		if (lastObject) transformModule.rotate(lastObject, rotationAxis, -5);
+	} else if (code === "KeyO") {
+		botAggressive = 0;
+	} else if (code === "KeyQ") {
+		if (lastObject) transformModule.rotate(lastObject, rotationAxis, 5);
+	} else if (code === "KeyS") {
+		pressedKeys["s"] = true;
+	} else if (code === "KeyT") {
+		if (lastObject) transformModule.triggerObject([{ object: lastObject }]);
+	} else if (code === "KeyW") {
+		pressedKeys["w"] = true;
+	} else if (code === "KeyY") {
+		if (lastObject) transformModule.triggerDrop(lastObject);
+	} else if (code === "KeyH") {
+		toggleDebugOverlay();
+	} else if (code === "KeyZ") {
+		zoom();
+	}
+}
 
 export function onKeyUp(e) {
-	switch(e.code) {
-		case "Space":
-			pressedKeys[" "] = false;
-			break;
-		case "ShiftLeft":
-		case "ShiftRight":
-			pressedKeys["SHIFT"] = false;
-			break;
-		case "ArrowLeft":
-			pressedKeys["ArrowLeft"] = false;
-			break;
-		case "ArrowUp":
-			pressedKeys["ArrowUp"] = false;
-			break;
-		case "ArrowRight":
-			pressedKeys["ArrowRight"] = false;
-			break;
-		case "ArrowDown":
-			pressedKeys["ArrowDown"] = false;
-			break;
-		case "KeyA":
-			pressedKeys["a"] = false;
-			break;
-		case "KeyD":
-			pressedKeys["d"] = false;
-			break;
-		case "KeyS":
-			pressedKeys["s"] = false;
-			break;
-		case "KeyW":
-			pressedKeys["w"] = false;
-			break;
+	const code = e.code;
+	
+	if (code === "Space") {
+		pressedKeys[" "] = false;
+	} else if (code === "ShiftLeft" || code === "ShiftRight") {
+		pressedKeys["SHIFT"] = false;
+	} else if (code === "ArrowLeft") {
+		pressedKeys["ArrowLeft"] = false;
+	} else if (code === "ArrowUp") {
+		pressedKeys["ArrowUp"] = false;
+	} else if (code === "ArrowRight") {
+		pressedKeys["ArrowRight"] = false;
+	} else if (code === "ArrowDown") {
+		pressedKeys["ArrowDown"] = false;
+	} else if (code === "KeyA") {
+		pressedKeys["a"] = false;
+	} else if (code === "KeyD") {
+		pressedKeys["d"] = false;
+	} else if (code === "KeyS") {
+		pressedKeys["s"] = false;
+	} else if (code === "KeyW") {
+		pressedKeys["w"] = false;
 	}
+	
 	// Reset hasMoved if no movement keys are pressed
-	if(!pressedKeys["w"] && !pressedKeys["a"] && !pressedKeys["s"] && !pressedKeys["d"] &&
-	   !pressedKeys["ArrowUp"] && !pressedKeys["ArrowLeft"] && !pressedKeys["ArrowDown"] && !pressedKeys["ArrowRight"]) {
+	if (!pressedKeys["w"] && !pressedKeys["a"] && !pressedKeys["s"] && !pressedKeys["d"] &&
+		!pressedKeys["ArrowUp"] && !pressedKeys["ArrowLeft"] && !pressedKeys["ArrowDown"] && !pressedKeys["ArrowRight"]) {
 		hasMoved = false;
 	}
 }
 
 function calcNewVelocityPerTick(oldVelocity, deltaTick) {
-	var newVelocity = oldVelocity * Math.exp(-deltaTick * 10); // exponential damping: (1 - dt*10) hits zero at 10 fps and goes negative below, which froze slow clients
+	const newVelocity = oldVelocity * Math.exp(-deltaTick * FPS_CAP);
 	if (Math.abs(newVelocity) < 0.1) return 0;
-	if (Math.abs(newVelocity) > maxVelocity) return Math.sign(oldVelocity) * maxVelocity;
+	if (Math.abs(newVelocity) > MAX_VELOCITY) return Math.sign(oldVelocity) * MAX_VELOCITY;
 	return newVelocity;
 }
 
@@ -200,215 +213,277 @@ function reduceFloatPrecision(toReduce) {
 	return toReduce.toFixed(4);
 }
 
-// --- Collision with walls, furniture and other players ---
-// Movement is checked before it happens, separately for the two world axes, so a wall
-// stops the movement into it and lets the movement along it through.
-//  - Small things (furniture, door panels, other players) collide as bounding boxes.
-//    Rays are no good for them: a bunk bed and a barred door are mostly gaps.
-//  - Large structures (cells, hallways, foundation, ramps) are swept with rays at three
-//    body heights and both shoulders. Surfaces you can stand on never block.
-//  - Anything lower than the step height, such as a door sill, is walked over.
-var wallRaycaster = new THREE.Raycaster();
-var playerCollisionRadius = 0.8;   // distance kept from walls
-var bodyHalfWidth = 0.6;           // half width of the body against boxes
-var shoulderOffset = 0.55;         // sideways offset of the two outer rays
-var stepHeight = 1.2;              // obstacles lower than this are stepped over
-var boxMaxFootprint = 8;           // objects up to this size collide as a box
-var sweepDir = new THREE.Vector3();
-var sweepSide = new THREE.Vector3();
-var forwardVec = new THREE.Vector3();
-var rightVec = new THREE.Vector3();
-var colliderCache = new WeakMap();
-var boxColliders = [];
-var rayColliders = [];      // ray targets within reach of the player, rebuilt for every move
-var rayCandidates = [];    // all ray targets with their bounding boxes
-var reachPoint = new THREE.Vector3();
-var neverBoxes = { Ramp: true, Sand: true, Hallway: true, FullHallway: true };
-
-// Sort the collidable objects into boxes and ray targets. Boxes of static objects are
-// refreshed every two seconds (models load late), those of doors and players every frame.
+// Sort the collidable objects into boxes and ray targets
 function updateColliders(meshList) {
-	var now = performance.now();
+	const now = performance.now();
 	boxColliders.length = 0;
 	rayCandidates.length = 0;
-	for (var i = 0; i < meshList.length; i++) {
-		var object = meshList[i];
-		var entry = colliderCache.get(object);
-		var moves = object.playerid !== undefined || (object.userData && object.userData.isOpenable !== undefined);
+
+	for (let i = 0; i < meshList.length; i++) {
+		const object = meshList[i];
+		let entry = colliderCache.get(object);
+		const moves = object.playerid !== undefined || (object.userData && object.userData.isOpenable !== undefined);
+
 		if (!entry) {
 			entry = { box: new THREE.Box3(), time: -1e9, isBox: false };
 			colliderCache.set(object, entry);
 		}
+
 		if (moves || now - entry.time > 2000) {
 			entry.box.setFromObject(object);
-			var footprint = Math.max(entry.box.max.x - entry.box.min.x, entry.box.max.z - entry.box.min.z);
-			entry.isBox = !entry.box.isEmpty() && footprint <= boxMaxFootprint && !neverBoxes[object.constructor.name];
+			const footprint = Math.max(entry.box.max.x - entry.box.min.x, entry.box.max.z - entry.box.min.z);
+			entry.isBox = !entry.box.isEmpty() && footprint <= BOX_MAX_FOOTPRINT && !neverBoxes[object.constructor.name];
 			entry.time = now;
 		}
-		if (entry.isBox) boxColliders.push(entry.box); else rayCandidates.push({ object: object, box: entry.box });
+
+		if (entry.isBox) {
+			boxColliders.push(entry.box);
+		} else {
+			rayCandidates.push({ object: object, box: entry.box });
+		}
 	}
 }
 
 function allowedByBoxes(x, z, feetY, playerHeight, dirX, dirZ, distance) {
-	var low = feetY + stepHeight;
-	var high = feetY + playerHeight - 0.2;
-	var allowed = distance;
-	for (var i = 0; i < boxColliders.length; i++) {
-		var box = boxColliders[i];
+	const low = feetY + STEP_HEIGHT;
+	const high = feetY + playerHeight - 0.2;
+	let allowed = distance;
+
+	for (let i = 0; i < boxColliders.length; i++) {
+		const box = boxColliders[i];
 		if (box.max.y < low || box.min.y > high) continue;
-		var overlapX = x + bodyHalfWidth > box.min.x && x - bodyHalfWidth < box.max.x;
-		var overlapZ = z + bodyHalfWidth > box.min.z && z - bodyHalfWidth < box.max.z;
-		if (overlapX && overlapZ) continue; // already inside (spawned there, door closed on us): never trap the player
-		var gap;
+
+		const overlapX = x + BODY_HALF_WIDTH > box.min.x && x - BODY_HALF_WIDTH < box.max.x;
+		const overlapZ = z + BODY_HALF_WIDTH > box.min.z && z - BODY_HALF_WIDTH < box.max.z;
+
+		if (overlapX && overlapZ) continue; // already inside
+
+		let gap;
 		if (dirX !== 0) {
 			if (!overlapZ) continue;
-			gap = dirX > 0 ? box.min.x - (x + bodyHalfWidth) : (x - bodyHalfWidth) - box.max.x;
+			gap = dirX > 0 ? box.min.x - (x + BODY_HALF_WIDTH) : (x - BODY_HALF_WIDTH) - box.max.x;
 		} else {
 			if (!overlapX) continue;
-			gap = dirZ > 0 ? box.min.z - (z + bodyHalfWidth) : (z - bodyHalfWidth) - box.max.z;
+			gap = dirZ > 0 ? box.min.z - (z + BODY_HALF_WIDTH) : (z - BODY_HALF_WIDTH) - box.max.z;
 		}
+
 		if (gap >= -1e-6 && gap < allowed) allowed = Math.max(0, gap);
 	}
+
 	return allowed;
 }
 
 function allowedByRays(x, z, feetY, playerHeight, dirX, dirZ, distance) {
-	var allowed = distance;
-	// the top ray sits one unit below the eye, door openings are lower than the eye
-	var heights = [feetY + stepHeight, feetY + playerHeight * 0.5, feetY + playerHeight - 1.0];
+	let allowed = distance;
+	const heights = [feetY + STEP_HEIGHT, feetY + playerHeight * 0.5, feetY + playerHeight - 1.0];
+
 	sweepDir.set(dirX, 0, dirZ);
 	sweepSide.set(-dirZ, 0, dirX);
+	
 	wallRaycaster.near = 0;
-	wallRaycaster.far = distance + playerCollisionRadius;
-	for (var h = 0; h < heights.length; h++) {
-		for (var side = -1; side <= 1; side++) {
-			originVec.set(x + sweepSide.x * shoulderOffset * side, heights[h], z + sweepSide.z * shoulderOffset * side);
+	wallRaycaster.far = distance + PLAYER_COLLISION_RADIUS;
+
+	for (let h = 0; h < heights.length; h++) {
+		for (let side = -1; side <= 1; side++) {
+			originVec.set(
+				x + sweepSide.x * SHOULDER_OFFSET * side,
+				heights[h],
+				z + sweepSide.z * SHOULDER_OFFSET * side
+			);
 			wallRaycaster.set(originVec, sweepDir);
-			var hits = wallRaycaster.intersectObjects(rayColliders, true);
-			for (var i = 0; i < hits.length; i++) {
+			const hits = wallRaycaster.intersectObjects(rayColliders, true);
+
+			for (let i = 0; i < hits.length; i++) {
 				if (!hits[i].face) continue;
 				normalVec.copy(hits[i].face.normal);
 				normalVec.transformDirection(hits[i].object.matrixWorld);
-				if (Math.abs(normalVec.y) >= 0.5) continue; // floor, ramp or ceiling: not a wall
-				allowed = Math.min(allowed, hits[i].distance - playerCollisionRadius);
-				break; // hits are sorted by distance, the first wall decides
-			}
-		}
-	}
-	return Math.max(0, allowed);
-}
-
-// Diagnostics: what would stop a move of `distance` from (x, z) in direction (dirX, dirZ)?
-// Uses the colliders of the last frame. Handy from the browser console.
-export function explainCollision(x, z, feetY, playerHeight, dirX, dirZ, distance) {
-	var found = [];
-	var low = feetY + stepHeight, high = feetY + playerHeight - 0.2;
-	for (var i = 0; i < boxColliders.length; i++) {
-		var one = [boxColliders[i]];
-		var saved = boxColliders; boxColliders = one;
-		var a = allowedByBoxes(x, z, feetY, playerHeight, dirX, dirZ, distance);
-		boxColliders = saved;
-		if (a < distance) found.push({ kind: "box", allowed: a, min: one[0].min.toArray(), max: one[0].max.toArray(), low: low, high: high });
-	}
-	var heights = [feetY + stepHeight, feetY + playerHeight * 0.5, feetY + playerHeight - 1.0];
-	sweepDir.set(dirX, 0, dirZ);
-	sweepSide.set(-dirZ, 0, dirX);
-	wallRaycaster.near = 0;
-	wallRaycaster.far = distance + playerCollisionRadius;
-	for (var h = 0; h < heights.length; h++) {
-		for (var side = -1; side <= 1; side++) {
-			originVec.set(x + sweepSide.x * shoulderOffset * side, heights[h], z + sweepSide.z * shoulderOffset * side);
-			wallRaycaster.set(originVec, sweepDir);
-			var hits = wallRaycaster.intersectObjects(rayColliders, true);
-			for (var k = 0; k < hits.length; k++) {
-				if (!hits[k].face) continue;
-				normalVec.copy(hits[k].face.normal);
-				normalVec.transformDirection(hits[k].object.matrixWorld);
-				if (Math.abs(normalVec.y) >= 0.5) continue;
-				var owner = hits[k].object;
-				while (owner.parent && owner.parent.type !== "Scene") owner = owner.parent;
-				found.push({ kind: "ray", height: heights[h], side: side, allowed: hits[k].distance - playerCollisionRadius, point: hits[k].point.toArray(), mesh: hits[k].object.name, owner: owner.name || owner.constructor.name });
+				if (Math.abs(normalVec.y) >= 0.5) continue; // floor, ramp or ceiling
+				allowed = Math.min(allowed, hits[i].distance - PLAYER_COLLISION_RADIUS);
 				break;
 			}
 		}
 	}
-	return found;
+
+	return Math.max(0, allowed);
 }
 
 function allowedDistance(x, z, feetY, playerHeight, dirX, dirZ, distance) {
-	var byBoxes = allowedByBoxes(x, z, feetY, playerHeight, dirX, dirZ, distance);
+	const byBoxes = allowedByBoxes(x, z, feetY, playerHeight, dirX, dirZ, distance);
 	if (byBoxes <= 0) return 0;
 	return Math.min(byBoxes, allowedByRays(x, z, feetY, playerHeight, dirX, dirZ, byBoxes));
 }
 
-// A ray tests every triangle of every mesh whose bounding sphere it crosses, and a horizontal
-// ray crosses a whole row of cells. Only structures within reach of this move are tested.
 function selectRayColliders(x, y, z, reach) {
 	rayColliders.length = 0;
 	reachPoint.set(x, y, z);
-	for (var i = 0; i < rayCandidates.length; i++) {
-		var candidate = rayCandidates[i];
-		if (candidate.box.isEmpty() || candidate.box.distanceToPoint(reachPoint) <= reach) rayColliders.push(candidate.object);
+
+	for (let i = 0; i < rayCandidates.length; i++) {
+		const candidate = rayCandidates[i];
+		if (candidate.box.isEmpty() || candidate.box.distanceToPoint(reachPoint) <= reach) {
+			rayColliders.push(candidate.object);
+		}
 	}
 }
 
 function moveWithCollision(object, dx, dz, playerHeight, meshList) {
 	if (Math.abs(dx) <= 1e-6 && Math.abs(dz) <= 1e-6) return;
+	
 	updateColliders(meshList);
-	var feetY = object.position.y - playerHeight;
-	selectRayColliders(object.position.x, feetY + playerHeight * 0.5, object.position.z, Math.abs(dx) + Math.abs(dz) + playerCollisionRadius + 1);
+	const feetY = object.position.y - playerHeight;
+	selectRayColliders(
+		object.position.x,
+		feetY + playerHeight * 0.5,
+		object.position.z,
+		Math.abs(dx) + Math.abs(dz) + PLAYER_COLLISION_RADIUS + 1
+	);
+
 	if (Math.abs(dx) > 1e-6) {
-		object.position.x += Math.sign(dx) * allowedDistance(object.position.x, object.position.z, feetY, playerHeight, Math.sign(dx), 0, Math.abs(dx));
+		object.position.x += Math.sign(dx) * allowedDistance(
+			object.position.x,
+			object.position.z,
+			feetY,
+			playerHeight,
+			Math.sign(dx),
+			0,
+			Math.abs(dx)
+		);
 	}
+
 	if (Math.abs(dz) > 1e-6) {
-		object.position.z += Math.sign(dz) * allowedDistance(object.position.x, object.position.z, feetY, playerHeight, 0, Math.sign(dz), Math.abs(dz));
+		object.position.z += Math.sign(dz) * allowedDistance(
+			object.position.x,
+			object.position.z,
+			feetY,
+			playerHeight,
+			0,
+			Math.sign(dz),
+			Math.abs(dz)
+		);
 	}
 }
 
-export function updateControls(controlsEnabled, delta, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera) {
+// Diagnostics: what would stop a move of `distance` from (x, z) in direction (dirX, dirZ)?
+export function explainCollision(x, z, feetY, playerHeight, dirX, dirZ, distance) {
+	const found = [];
+	const low = feetY + STEP_HEIGHT;
+	const high = feetY + playerHeight - 0.2;
+
+	for (let i = 0; i < boxColliders.length; i++) {
+		const one = [boxColliders[i]];
+		const saved = boxColliders;
+		boxColliders = one;
+		const a = allowedByBoxes(x, z, feetY, playerHeight, dirX, dirZ, distance);
+		boxColliders = saved;
+		if (a < distance) {
+			found.push({
+				kind: "box",
+				allowed: a,
+				min: one[0].min.toArray(),
+				max: one[0].max.toArray(),
+				low: low,
+				high: high
+			});
+		}
+	}
+
+	const heights = [feetY + STEP_HEIGHT, feetY + playerHeight * 0.5, feetY + playerHeight - 1.0];
+	sweepDir.set(dirX, 0, dirZ);
+	sweepSide.set(-dirZ, 0, dirX);
+	wallRaycaster.near = 0;
+	wallRaycaster.far = distance + PLAYER_COLLISION_RADIUS;
+
+	for (let h = 0; h < heights.length; h++) {
+		for (let side = -1; side <= 1; side++) {
+			originVec.set(
+				x + sweepSide.x * SHOULDER_OFFSET * side,
+				heights[h],
+				z + sweepSide.z * SHOULDER_OFFSET * side
+			);
+			wallRaycaster.set(originVec, sweepDir);
+			const hits = wallRaycaster.intersectObjects(rayColliders, true);
+
+			for (let k = 0; k < hits.length; k++) {
+				if (!hits[k].face) continue;
+				normalVec.copy(hits[k].face.normal);
+				normalVec.transformDirection(hits[k].object.matrixWorld);
+				if (Math.abs(normalVec.y) >= 0.5) continue;
+
+				let owner = hits[k].object;
+				while (owner.parent && owner.parent.type !== "Scene") {
+					owner = owner.parent;
+				}
+
+				found.push({
+					kind: "ray",
+					height: heights[h],
+					side: side,
+					allowed: hits[k].distance - PLAYER_COLLISION_RADIUS,
+					point: hits[k].point.toArray(),
+					mesh: hits[k].object.name,
+					owner: owner.name || owner.constructor.name
+				});
+				break;
+			}
+		}
+	}
+
+	return found;
+}
+
+let cameraDirection = new THREE.Vector3();
+
+export function updateControls(controlsEnabled, delta, controlsParam, collidableMeshList, raycaster, raycasterFront, raycasterCamera) {
+	controls = controlsParam;
+	
 	if (controlsEnabled && !inputBlocked) {
-		// delta is now passed in from main.js, do not call clock.getDelta() here
 		// Prevent physics spiral when tab loses focus
 		if (delta > 0.1) delta = 0.1;
-		var mass = 1;
-		var walkAccel = 180;
-		var jumpImpulse = 12;
-		var playerHeight = controls.object.playerHeight;
 
-		if(pressedKeys[" "]) {
+		const mass = 1;
+		const playerHeight = controls.object.playerHeight;
+
+		// Handle jump
+		if (pressedKeys[" "]) {
 			if (canJump === true) {
-				velocity.y += jumpImpulse;
+				velocity.y += JUMP_IMPULSE;
 				canJump = false;
 			}
 		}
-		if(pressedKeys["SHIFT"] && velocity.y > -30) {
+
+		// Handle crouch
+		if (pressedKeys["SHIFT"] && velocity.y > -30) {
 			velocity.y = -30;
 		}
+
+		// Handle movement input
 		if (pressedKeys["w"] || pressedKeys["ArrowUp"]) {
-			velocity.z -= walkAccel * delta;
+			velocity.z -= WALK_ACCEL * delta;
 		}
 		if (pressedKeys["a"] || pressedKeys["ArrowLeft"]) {
-			velocity.x -= walkAccel * delta;
+			velocity.x -= WALK_ACCEL * delta;
 		}
 		if (pressedKeys["s"] || pressedKeys["ArrowDown"]) {
-			velocity.z += walkAccel * delta;
+			velocity.z += WALK_ACCEL * delta;
 		}
 		if (pressedKeys["d"] || pressedKeys["ArrowRight"]) {
-			velocity.x += walkAccel * delta;
+			velocity.x += WALK_ACCEL * delta;
 		}
 
+		// Apply damping
 		velocity.x = calcNewVelocityPerTick(velocity.x, delta);
 		velocity.z = calcNewVelocityPerTick(velocity.z, delta);
-		velocity.y -= 19.6 * delta * mass;
+		velocity.y -= GRAVITY * delta * mass;
 
-		// Wanted movement in world space: forward and right are the camera's axes flattened to the ground
+		// Calculate movement vectors
 		rightVec.setFromMatrixColumn(controls.object.matrix, 0);
 		rightVec.y = 0;
 		if (rightVec.lengthSq() < 1e-6) rightVec.set(1, 0, 0);
 		rightVec.normalize();
-		forwardVec.set(rightVec.z, 0, -rightVec.x); // up x right
-		var forwardStep = -velocity.z * delta;
-		var rightStep = velocity.x * delta;
+		forwardVec.set(rightVec.z, 0, -rightVec.x);
+
+		const forwardStep = -velocity.z * delta;
+		const rightStep = velocity.x * delta;
+
 		moveWithCollision(
 			controls.object,
 			forwardVec.x * forwardStep + rightVec.x * rightStep,
@@ -419,8 +494,8 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 
 		// Head check: prevent jumping through ceiling
 		if (velocity.y > 0) {
-			// Create upward raycaster from eye position
-			const headRaycaster = new THREE.Raycaster(
+			const headRaycaster = getRaycaster();
+			headRaycaster.set(
 				controls.object.position,
 				new THREE.Vector3(0, 1, 0),
 				0,
@@ -428,66 +503,77 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 			);
 			const headHits = headRaycaster.intersectObjects(collidableMeshList, true);
 			if (headHits.length > 0) {
-				// Hit ceiling, stop upward movement
 				velocity.y = 0;
 			}
+			returnRaycaster(headRaycaster);
 		}
 
-		// Calculate proposed new Y position before applying movement
-		var newY = controls.object.position.y + (velocity.y * delta);
-		
-		// Raycast from the proposed new position to detect ground BEFORE moving there
+		// Calculate proposed new Y position
+		const newY = controls.object.position.y + (velocity.y * delta);
+
+		// Raycast to detect ground
 		tempVec.set(controls.object.position.x, newY, controls.object.position.z);
 		raycaster.ray.origin.copy(tempVec);
 
-		var groundHits = raycaster.intersectObjects(collidableMeshList, true);
-		var onGround = false;
+		const groundHits = raycaster.intersectObjects(collidableMeshList, true);
+		let onGround = false;
+		const feetNow = controls.object.position.y - playerHeight;
+		let groundHit = null;
 
-		// The ground is the first surface at or below knee height. Anything higher between eye and
-		// knee is a table top, a bunk or a ceiling: skip it and keep looking further down, otherwise
-		// the player has no ground at all and falls through the floor.
-		var feetNow = controls.object.position.y - playerHeight;
-		var groundHit = null;
-		for (var g = 0; g < groundHits.length; g++) {
-			if (groundHits[g].point.y <= feetNow + 1.5) { groundHit = groundHits[g]; break; }
+		for (let g = 0; g < groundHits.length; g++) {
+			if (groundHits[g].point.y <= feetNow + 1.5) {
+				groundHit = groundHits[g];
+				break;
+			}
 		}
 
 		if (groundHit) {
-			var groundY = groundHit.point.y;
-			var standingY = groundY + playerHeight;
+			const groundY = groundHit.point.y;
+			const standingY = groundY + playerHeight;
 
 			if (newY < standingY) {
-				// Would fall below ground, so snap to standing position
 				controls.object.position.y = standingY;
 				velocity.y = 0;
 				canJump = true;
 				onGround = true;
 			} else {
-				// Safe to move down
 				controls.object.position.y = newY;
 			}
 		} else {
-			// No ground detected, allow the movement
 			controls.object.position.y = newY;
 		}
 
-		var collidingMeshesListCameraRay = raycasterCamera.intersectObjects(collidableMeshList, true);
+		// Camera collision detection
+		const collidingMeshesListCameraRay = raycasterCamera.intersectObjects(collidableMeshList, true);
 		if (collidingMeshesListCameraRay.length > 0) {
 			lastObject = collidingMeshesListCameraRay[0].object;
 		}
 
-		var toDisplay =
-			"<table id='InfoOutput'>"+
-			"<tr><td>velX:</td><td>"+ reduceFloatPrecision(velocity.x) + "</td><td>posX:</td><td>" + reduceFloatPrecision(controls.object.position.x) + "</td></tr>" +
-			"<tr><td>velY:</td><td>"+ reduceFloatPrecision(velocity.y) + "</td><td>posY:</td><td>" + reduceFloatPrecision(controls.object.position.y) + "</td></tr>" +
-			"<tr><td>velZ:</td><td>"+ reduceFloatPrecision(velocity.z) + "</td><td>posZ:</td><td>" + reduceFloatPrecision(controls.object.position.z) + "</td></tr>" +
-			"<tr><td>FPS:</td><td>"+ Math.round(1 / delta) + "</td><td>ground:</td><td>" + onGround + "</td></tr>";
+		// Debug overlay
+		const toDisplay =
+			"<table id='InfoOutput'>" +
+			"<tr><td>velX:</td><td>" + reduceFloatPrecision(velocity.x) + "</td><td>posX:</td><td>" + reduceFloatPrecision(controls.object.position.x) + "</td></tr>" +
+			"<tr><td>velY:</td><td>" + reduceFloatPrecision(velocity.y) + "</td><td>posY:</td><td>" + reduceFloatPrecision(controls.object.position.y) + "</td></tr>" +
+			"<tr><td>velZ:</td><td>" + reduceFloatPrecision(velocity.z) + "</td><td>posZ:</td><td>" + reduceFloatPrecision(controls.object.position.z) + "</td></tr>" +
+			"<tr><td>FPS:</td><td>" + Math.round(1 / delta) + "</td><td>ground:</td><td>" + onGround + "</td></tr>";
+		
 		if (groundHit) {
 			toDisplay += "<tr><td>groundY:</td><td>" + reduceFloatPrecision(groundHit.point.y) + "</td></tr>";
 		}
 		toDisplay += "</table>";
 
 		showMessageContent(toDisplay);
+	}
+}
 
-    }
+// Helper function for zoom
+function zoom() {
+	if (camera) {
+		if (camera.zoom === 4) {
+			camera.zoom = 1;
+		} else {
+			camera.zoom = 4;
+		}
+		camera.updateProjectionMatrix();
+	}
 }
