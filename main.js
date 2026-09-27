@@ -925,88 +925,45 @@ function showSessionResults(detail) {
 	title.textContent = ((detail && detail.name) || "Session") + " is over";
 	overlay.appendChild(title);
 
-	// Create table for highscore
-	const table = document.createElement("table");
-	table.id = "sessionResults";
-	table.style.borderCollapse = "collapse";
-	table.style.width = "100%";
-	
-	// Table header
-	const thead = document.createElement("thead");
-	const headerRow = document.createElement("tr");
-	["Rank", "Player", "Kills", "Deaths", "K/D Ratio"].forEach(text => {
-		const th = document.createElement("th");
-		th.textContent = text;
-		th.style.padding = "8px";
-		th.style.textAlign = "left";
-		th.style.borderBottom = "2px solid #444";
-		headerRow.appendChild(th);
-	});
-	head.appendChild(headerRow);
-	table.appendChild(thead);
-	
-	// Table body
-	const tbody = document.createElement("tbody");
-	
 	// everyone who scored or was busted; most kills first, then fewest times busted
 	const names = Array.from(new Set(Object.keys(kills).concat(Object.keys(defeats))));
 	names.sort((a, b) => ((kills[b] || 0) - (kills[a] || 0)) || ((defeats[a] || 0) - (defeats[b] || 0)));
-	
+
+	const table = document.createElement("table");
+	table.id = "sessionResults";
+	const thead = document.createElement("thead");
+	const headerRow = document.createElement("tr");
+	["Rank", "Player", "Kills", "Deaths", "K/D"].forEach(text => {
+		const th = document.createElement("th");
+		th.textContent = text;
+		headerRow.appendChild(th);
+	});
+	thead.appendChild(headerRow);
+	table.appendChild(thead);
+
+	const tbody = document.createElement("tbody");
 	if (names.length === 0) {
 		const row = document.createElement("tr");
 		const cell = document.createElement("td");
 		cell.colSpan = 5;
 		cell.textContent = "Nobody was busted.";
-		cell.style.padding = "20px";
-		cell.style.textAlign = "center";
 		row.appendChild(cell);
 		tbody.appendChild(row);
 	} else {
 		names.forEach((name, index) => {
-			const row = document.createElement("tr");
-			
-			// Rank
-			const rankCell = document.createElement("td");
-			rankCell.textContent = (index + 1) + ".";
-			rankCell.style.padding = "8px";
-			rankCell.style.borderBottom = "1px solid #444";
-			row.appendChild(rankCell);
-			
-			// Player name
-			const nameCell = document.createElement("td");
-			nameCell.textContent = name;
-			nameCell.style.padding = "8px";
-			nameCell.style.borderBottom = "1px solid #444";
-			row.appendChild(nameCell);
-			
-			// Kills
-			const killsCell = document.createElement("td");
-			killsCell.textContent = (kills[name] || 0);
-			killsCell.style.padding = "8px";
-			killsCell.style.borderBottom = "1px solid #444";
-			row.appendChild(killsCell);
-			
-			// Deaths (defeats)
-			const defeatsCell = document.createElement("td");
-			defeatsCell.textContent = (defeats[name] || 0);
-			defeatsCell.style.padding = "8px";
-			defeatsCell.style.borderBottom = "1px solid #444";
-			row.appendChild(defeatsCell);
-			
-			// K/D Ratio
-			const kdCell = document.createElement("td");
 			const killCount = kills[name] || 0;
 			const deathCount = defeats[name] || 0;
-			const kdRatio = deathCount === 0 ? (killCount === 0 ? "0" : "Perfect") : (killCount / deathCount).toFixed(2);
-			kdCell.textContent = kdRatio;
-			kdCell.style.padding = "8px";
-			kdCell.style.borderBottom = "1px solid #444";
-			row.appendChild(kdCell);
-			
+			// no deaths: the ratio is undefined, show the kills as they are
+			const ratio = deathCount === 0 ? (killCount === 0 ? "0.00" : killCount + ".00 (never busted)") : (killCount / deathCount).toFixed(2);
+			const row = document.createElement("tr");
+			[(index + 1) + ".", name, String(killCount), String(deathCount), ratio].forEach(text => {
+				const cell = document.createElement("td");
+				cell.textContent = text;
+				row.appendChild(cell);
+			});
 			tbody.appendChild(row);
 		});
 	}
-	
 	table.appendChild(tbody);
 	overlay.appendChild(table);
 
@@ -1024,7 +981,6 @@ function showSessionResults(detail) {
 		}
 	}, 1000);
 }
-
 
 window.addEventListener("orange:sessionJoined", (e) => {
 	updateSessionCountdown(e.detail.secondsLeft, true);
