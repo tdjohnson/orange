@@ -14,6 +14,7 @@ import * as transformModule from './Resources/functions/transform.mjs';
 import * as bulletControl from './Resources/functions/bulletControl.mjs';
 import { orangeSessions } from './Resources/functions/sessions.mjs';
 import * as hallOfFame from './Resources/functions/hallOfFame.mjs';
+import * as loadingScreen from './Resources/functions/loadingScreen.mjs';
 
 var clock;
 var scene, camera, renderer;
@@ -64,7 +65,7 @@ var collidableMeshList = [];
 // var mirrorTextures = [];
 // var mirrorMeshes = [];
 
-var loadDone, toWakeUp = false;
+var toWakeUp = false;
 var animationLock = false;
 
 // Track if we're in an active game
@@ -757,10 +758,6 @@ function init() {
 
 	bulletControl.setPositionReference(camera);
 
-	THREE.DefaultLoadingManager.onLoad = function () {
-		loadDone = true;
-	};
-
 	updateHudVisibility();
 	animate();
 	
@@ -1098,8 +1095,8 @@ function loadMultiplayer(player_name, selected_server){
 	inActiveGame = true;
 	
 	// Show loading screen and set up loading manager
-	showLoadingScreen();
-	setupLoadingManager();
+	loadingScreen.showLoadingScreen();
+	loadingScreen.setupLoadingManager();
 	
 	init();
 	import('./Resources/functions/multiplayer.mjs').then(module => {
@@ -1117,8 +1114,8 @@ function startSingleplayer() {
 	inActiveGame = true;
 	
 	// Show loading screen and set up loading manager
-	showLoadingScreen();
-	setupLoadingManager();
+	loadingScreen.showLoadingScreen();
+	loadingScreen.setupLoadingManager();
 	
 	init();
 }
@@ -1485,133 +1482,421 @@ async function showHallOfFame() {
 inActiveGame = false;
 updateHudVisibility();
 
-// Loading screen functions
-function showLoadingScreen() {
-	// Remove existing loading screen if any
-	hideLoadingScreen();
+showHallOfFame();
+
+// ========== GAME MENU SYSTEM ==========
+let gameMenuOpen = false;
+let optionsMenuOpen = false;
+let gameMenuElement = null;
+let optionsMenuElement = null;
+
+/**
+ * Creates the game menu overlay
+ */
+function createGameMenu() {
+	if (gameMenuElement) return;
 	
-	const loadingOverlay = document.createElement('div');
-	loadingOverlay.id = 'loadingOverlay';
-	loadingOverlay.style.cssText = `
+	gameMenuElement = document.createElement('div');
+	gameMenuElement.id = 'gameMenu';
+	gameMenuElement.style.cssText = `
 		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 0, 0, 0.8);
-		z-index: 10000;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		color: white;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 300px;
+		background: rgba(0, 0, 0, 0.9);
+		border: 2px solid #4CAF50;
+		border-radius: 10px;
+		padding: 20px;
+		z-index: 20000;
 		font-family: Arial, sans-serif;
+		color: white;
+		text-align: center;
+		display: none;
 	`;
 	
-	const loadingTitle = document.createElement('h2');
-	loadingTitle.textContent = 'Loading game...';
-	loadingTitle.style.marginBottom = '20px';
+	const title = document.createElement('h2');
+	title.textContent = 'Game Menu';
+	title.style.marginTop = '0';
+	title.style.color = '#4CAF50';
+	gameMenuElement.appendChild(title);
 	
-	const loadingContainer = document.createElement('div');
-	loadingContainer.style.width = '80%';
-	loadingContainer.style.maxWidth = '400px';
-	loadingContainer.style.textAlign = 'center';
+	const menuList = document.createElement('div');
+	menuList.style.margin = '20px 0';
 	
-	const progressBarContainer = document.createElement('div');
-	progressBarContainer.style.width = '100%';
-	progressBarContainer.style.height = '20px';
-	progressBarContainer.style.background = 'rgba(255, 255, 255, 0.2)';
-	progressBarContainer.style.borderRadius = '10px';
-	progressBarContainer.style.marginBottom = '10px';
-	progressBarContainer.style.overflow = 'hidden';
+	// Back to main menu button
+	const backToMenuBtn = document.createElement('button');
+	backToMenuBtn.textContent = 'Back to Main Menu';
+	backToMenuBtn.style.cssText = `
+		width: 100%;
+		padding: 12px;
+		margin: 8px 0;
+		background: #4CAF50;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		font-size: 16px;
+		cursor: pointer;
+	`;
+	backToMenuBtn.addEventListener('click', () => {
+		hideGameMenu();
+		returnToMainMenu();
+	});
+	backToMenuBtn.addEventListener('mouseover', () => {
+		backToMenuBtn.style.background = '#45a049';
+	});
+	backToMenuBtn.addEventListener('mouseout', () => {
+		backToMenuBtn.style.background = '#4CAF50';
+	});
+	menuList.appendChild(backToMenuBtn);
 	
-	const progressBarFill = document.createElement('div');
-	progressBarFill.id = 'loadingProgressBar';
-	progressBarFill.style.width = '0%';
-	progressBarFill.style.height = '100%';
-	progressBarFill.style.background = 'linear-gradient(90deg, #4CAF50, #8BC34A)';
-	progressBarFill.style.borderRadius = '10px';
-	progressBarFill.style.transition = 'width 0.3s ease';
+	// Options button
+	const optionsBtn = document.createElement('button');
+	optionsBtn.textContent = 'Options';
+	optionsBtn.style.cssText = `
+		width: 100%;
+		padding: 12px;
+		margin: 8px 0;
+		background: #2196F3;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		font-size: 16px;
+		cursor: pointer;
+	`;
+	optionsBtn.addEventListener('click', () => {
+		hideGameMenu();
+		showOptionsMenu();
+	});
+	optionsBtn.addEventListener('mouseover', () => {
+		optionsBtn.style.background = '#0b7dda';
+	});
+	optionsBtn.addEventListener('mouseout', () => {
+		optionsBtn.style.background = '#2196F3';
+	});
+	menuList.appendChild(optionsBtn);
 	
-	const loadedItemText = document.createElement('div');
-	loadedItemText.id = 'loadingItemText';
-	loadedItemText.textContent = 'Preparing...';
-	loadedItemText.style.fontSize = '14px';
-	loadedItemText.style.color = '#ccc';
+	// Resume button
+	const resumeBtn = document.createElement('button');
+	resumeBtn.textContent = 'Resume Game';
+	resumeBtn.style.cssText = `
+		width: 100%;
+		padding: 12px;
+		margin: 8px 0;
+		background: #607D8B;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		font-size: 16px;
+		cursor: pointer;
+	`;
+	resumeBtn.addEventListener('click', () => {
+		hideGameMenu();
+	});
+	resumeBtn.addEventListener('mouseover', () => {
+		resumeBtn.style.background = '#546E7A';
+	});
+	resumeBtn.addEventListener('mouseout', () => {
+		resumeBtn.style.background = '#607D8B';
+	});
+	menuList.appendChild(resumeBtn);
 	
-	const progressText = document.createElement('div');
-	progressText.id = 'loadingProgressText';
-	progressText.textContent = '0%';
-	progressText.style.fontSize = '12px';
-	progressText.style.color = '#aaa';
-	
-	progressBarContainer.appendChild(progressBarFill);
-	loadingContainer.appendChild(loadingTitle);
-	loadingContainer.appendChild(progressBarContainer);
-	loadingContainer.appendChild(loadedItemText);
-	loadingContainer.appendChild(progressText);
-	loadingOverlay.appendChild(loadingContainer);
-	
-	document.body.appendChild(loadingOverlay);
-	
-	// Center the loading overlay
-	loadingOverlay.style.display = 'flex';
+	gameMenuElement.appendChild(menuList);
+	document.body.appendChild(gameMenuElement);
 }
 
-function hideLoadingScreen() {
-	const loadingOverlay = document.getElementById('loadingOverlay');
-	if (loadingOverlay) {
-		loadingOverlay.remove();
+/**
+ * Creates the options menu overlay
+ */
+function createOptionsMenu() {
+	if (optionsMenuElement) return;
+	
+	optionsMenuElement = document.createElement('div');
+	optionsMenuElement.id = 'optionsMenu';
+	optionsMenuElement.style.cssText = `
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 350px;
+		background: rgba(0, 0, 0, 0.9);
+		border: 2px solid #2196F3;
+		border-radius: 10px;
+		padding: 20px;
+		z-index: 20000;
+		font-family: Arial, sans-serif;
+		color: white;
+		text-align: center;
+		display: none;
+	`;
+	
+	const title = document.createElement('h2');
+	title.textContent = 'Options';
+	title.style.marginTop = '0';
+	title.style.color = '#2196F3';
+	optionsMenuElement.appendChild(title);
+	
+	// Quality settings section
+	const qualitySection = document.createElement('div');
+	qualitySection.style.margin = '20px 0';
+	qualitySection.style.textAlign = 'left';
+	
+	const qualityLabel = document.createElement('label');
+	qualityLabel.textContent = 'Quality Mode:';
+	qualityLabel.style.cssText = `
+		display: block;
+		margin-bottom: 8px;
+		font-weight: bold;
+		color: #ccc;
+	`;
+	qualitySection.appendChild(qualityLabel);
+	
+	// Create radio buttons for quality modes
+	const modes = ['performance', 'balanced', 'quality'];
+	const modeLabels = ['Performance', 'Balanced', 'Quality'];
+	
+	modes.forEach((mode, index) => {
+		const radioContainer = document.createElement('div');
+		radioContainer.style.margin = '8px 0';
+		radioContainer.style.display = 'flex';
+		radioContainer.style.alignItems = 'center';
+		
+		const radio = document.createElement('input');
+		radio.type = 'radio';
+		radio.id = 'quality_' + mode;
+		radio.name = 'qualityMode';
+		radio.value = mode;
+		radio.checked = (qualityMode === mode);
+		radio.style.marginRight = '10px';
+		
+		const label = document.createElement('label');
+		label.htmlFor = 'quality_' + mode;
+		label.textContent = modeLabels[index];
+		
+		radioContainer.appendChild(radio);
+		radioContainer.appendChild(label);
+		qualitySection.appendChild(radioContainer);
+	});
+	
+	optionsMenuElement.appendChild(qualitySection);
+	
+	// Buttons container
+	const buttonsContainer = document.createElement('div');
+	buttonsContainer.style.display = 'flex';
+	buttonsContainer.style.justifyContent = 'space-between';
+	buttonsContainer.style.marginTop = '20px';
+	
+	// Cancel button
+	const cancelBtn = document.createElement('button');
+	cancelBtn.textContent = 'Cancel';
+	cancelBtn.style.cssText = `
+		padding: 12px 24px;
+		background: #607D8B;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		font-size: 16px;
+		cursor: pointer;
+	`;
+	cancelBtn.addEventListener('click', () => {
+		hideOptionsMenu();
+		showGameMenu();
+	});
+	cancelBtn.addEventListener('mouseover', () => {
+		cancelBtn.style.background = '#546E7A';
+	});
+	cancelBtn.addEventListener('mouseout', () => {
+		cancelBtn.style.background = '#607D8B';
+	});
+	buttonsContainer.appendChild(cancelBtn);
+	
+	// Apply button
+	const applyBtn = document.createElement('button');
+	applyBtn.textContent = 'Apply';
+	applyBtn.style.cssText = `
+		padding: 12px 24px;
+		background: #4CAF50;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		font-size: 16px;
+		cursor: pointer;
+	`;
+	applyBtn.addEventListener('click', () => {
+		const selectedMode = document.querySelector('input[name="qualityMode"]:checked');
+		if (selectedMode) {
+			localStorage.setItem('orange.qualityMode', selectedMode.value);
+		}
+		// Reload page to apply changes
+		location.reload();
+	});
+	applyBtn.addEventListener('mouseover', () => {
+		applyBtn.style.background = '#45a049';
+	});
+	applyBtn.addEventListener('mouseout', () => {
+		applyBtn.style.background = '#4CAF50';
+	});
+	buttonsContainer.appendChild(applyBtn);
+	
+	optionsMenuElement.appendChild(buttonsContainer);
+	document.body.appendChild(optionsMenuElement);
+}
+
+/**
+ * Shows the game menu and pauses the game
+ */
+function showGameMenu() {
+	if (!gameMenuElement) {
+		createGameMenu();
+	}
+	
+	gameMenuElement.style.display = 'block';
+	gameMenuOpen = true;
+	
+	// Pause the game
+	if (controls) {
+		controls.enabled = false;
+	}
+	controlsModule.setInputBlocked(true);
+	
+	// Try to exit pointer lock
+	if (document.pointerLockElement || 
+		document.mozPointerLockElement || 
+		document.webkitPointerLockElement) {
+		document.exitPointerLock();
 	}
 }
 
-function setupLoadingManager() {
-	// Only set up once
-	if (THREE.DefaultLoadingManager.onProgress !== undefined && 
-	    THREE.DefaultLoadingManager.onProgress !== updateLoadingProgress) {
-		return;
+/**
+ * Hides the game menu and resumes the game
+ */
+function hideGameMenu() {
+	if (gameMenuElement) {
+		gameMenuElement.style.display = 'none';
 	}
+	gameMenuOpen = false;
 	
-	THREE.DefaultLoadingManager.onStart = function(url, loaded, total) {
-		console.log('Loading started: ' + url);
-		updateLoadingProgress(loaded, total, url.split('/').pop().split('?')[0]);
-	};
-	
-	THREE.DefaultLoadingManager.onProgress = function(url, loaded, total) {
-		updateLoadingProgress(loaded, total, url.split('/').pop().split('?')[0]);
-	};
-	
-	THREE.DefaultLoadingManager.onLoad = function() {
-		loadDone = true;
-		// Slight delay to ensure everything is ready
-		setTimeout(() => {
-			hideLoadingScreen();
-			console.log('All assets loaded');
-		}, 300);
-	};
-	
-	THREE.DefaultLoadingManager.onError = function(url) {
-		console.error('Error loading: ' + url);
-		updateLoadingProgress(0, 0, 'Error loading: ' + url.split('/').pop());
-	};
+	// Resume the game
+	if (controls && !roundPaused && health > 0) {
+		controls.enabled = true;
+		controlsModule.setInputBlocked(false);
+	}
 }
 
-function updateLoadingProgress(loaded, total, itemName) {
-	const progressBar = document.getElementById('loadingProgressBar');
-	const progressText = document.getElementById('loadingProgressText');
-	const itemText = document.getElementById('loadingItemText');
+/**
+ * Shows the options menu
+ */
+function showOptionsMenu() {
+	if (!optionsMenuElement) {
+		createOptionsMenu();
+	}
 	
-	if (progressBar && total > 0) {
-		const percent = Math.floor((loaded / total) * 100);
-		progressBar.style.width = percent + '%';
-		if (progressText) {
-			progressText.textContent = percent + '%';
+	// Update radio button selection based on current quality mode
+	const currentMode = localStorage.getItem('orange.qualityMode') || qualityMode;
+	const radios = document.querySelectorAll('input[name="qualityMode"]');
+	radios.forEach(radio => {
+		radio.checked = (radio.value === currentMode);
+	});
+	
+	optionsMenuElement.style.display = 'block';
+	optionsMenuOpen = true;
+}
+
+/**
+ * Hides the options menu
+ */
+function hideOptionsMenu() {
+	if (optionsMenuElement) {
+		optionsMenuElement.style.display = 'none';
+	}
+	optionsMenuOpen = false;
+}
+
+/**
+ * Returns to the main menu
+ */
+function returnToMainMenu() {
+	// Reset game state
+	toWakeUp = false;
+	inActiveGame = false;
+	gameMenuOpen = false;
+	optionsMenuOpen = false;
+	updateHudVisibility();
+	
+	// Clean up pointer lock
+	if (typeof pointerLockModule.cleanupPointerLock === 'function') {
+		pointerLockModule.cleanupPointerLock();
+	}
+	
+	// Stop animation loop if running
+	// Note: We can't really stop requestAnimationFrame, but we can prevent rendering
+	// by setting toWakeUp to false
+	
+	// Hide any game UI
+	hideGameMenu();
+	hideOptionsMenu();
+	
+	// Show start screen
+	const startScreen = document.getElementById('startScreen');
+	if (startScreen) {
+		startScreen.style.display = 'block';
+	}
+	
+	// Clean up multiplayer if active
+	if (multiplayer) {
+		// Note: multiplayer cleanup would need to be implemented in multiplayer.mjs
+	}
+	
+	// Reset camera position for menu
+	if (camera) {
+		camera.position.set(5, 10, 8);
+		camera.lookAt(0, 0, 0);
+	}
+	
+	// Remove scene from renderer if it exists
+	if (renderer && renderer.domElement) {
+		// Just hide it, don't remove from DOM
+	}
+	
+	// Clear scene if it exists
+	if (scene) {
+		while (scene.children.length > 0) {
+			scene.remove(scene.children[0]);
 		}
 	}
 	
-	if (itemText && itemName) {
-		itemText.textContent = 'Loading: ' + itemName;
-	}
+	// Reset player state
+	resetHealth();
+	
+	console.log('Returned to main menu');
 }
 
-showHallOfFame();
+// Add event listener for Escape key
+document.addEventListener('keydown', (event) => {
+	if (event.key === 'Escape') {
+		// Exit pointer lock if active
+		if (document.pointerLockElement || 
+			document.mozPointerLockElement || 
+			document.webkitPointerLockElement) {
+			document.exitPointerLock();
+		}
+		
+		// If options menu is open, close it and show game menu
+		if (optionsMenuOpen) {
+			hideOptionsMenu();
+			showGameMenu();
+			event.preventDefault();
+		} 
+		// If game menu is open, close it
+		else if (gameMenuOpen) {
+			hideGameMenu();
+			event.preventDefault();
+		} 
+		// If game is active and no menu is open, show game menu
+		else if (inActiveGame && toWakeUp) {
+			showGameMenu();
+			event.preventDefault();
+		}
+		// If on start screen, do nothing (let default behavior handle it)
+	}
+});

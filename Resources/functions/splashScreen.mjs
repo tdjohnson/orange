@@ -3,6 +3,11 @@ export function closeStart() {
 	return true;
 }
 
+export function showStart() {
+	document.getElementById("startScreen").style.display = "block";
+	return true;
+}
+
 export function showMessageContent(text) {
 	const messageElement = document.getElementById("message");
 	if (messageElement) {

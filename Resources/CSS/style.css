@@ -520,3 +520,33 @@ div#welcomeMessage {
 	border-radius: 3px;
 	text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
 }
+
+/* Game Menu */
+#gameMenu {
+	position: fixed;
+	z-index: 20000;
+}
+
+#gameMenu h2,
+#optionsMenu h2 {
+	margin-top: 0;
+}
+
+#gameMenu button,
+#optionsMenu button {
+	cursor: pointer;
+	font-family: Arial, sans-serif;
+}
+
+#optionsMenu {
+	position: fixed;
+	z-index: 20000;
+}
+
+#optionsMenu input[type="radio"] {
+	cursor: pointer;
+}
+
+#optionsMenu label {
+	cursor: pointer;
+}
