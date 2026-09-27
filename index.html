@@ -9,7 +9,7 @@ Philipp Weidhas - philipp.weidhas@st.oth-regensburg.de
 <meta charset="utf-8"/>
     <head>
         <title>Orange</title>
-        <link rel="stylesheet" type="text/css" href="./Resources/CSS/style.css?v=20260927024257"/>
+        <link rel="stylesheet" type="text/css" href="./Resources/CSS/style.css?v=20260927200000"/>
 		<link rel="icon" type="image/x-icon" href="./Resources/image/favicon.ico?v=20260927024257">
     </head>
 	<script type="importmap">
@@ -23,12 +23,16 @@ Philipp Weidhas - philipp.weidhas@st.oth-regensburg.de
 		}
 	</script>
 		<!--"umps": "https://tdjohnson.github.io/umps/client/umps.module.js",-->
-	<script src="./main.js?v=20260927024257" type="module"></script>
-
-    <body>   
+    <body>
+	<script src="./loader.js?v=20260927200000"></script>
+	<script src="./main.js?v=20260927200000" type="module"></script>   
     	<div id="healthBarContainer" class="healthBarHidden">
 			<div id="healthBarText">100</div>
 			<div id="healthBar"><div id="healthBarFill"></div></div>
+		</div>
+		<div id="cooldownBarContainer">
+			<div id="cooldownIcon">🔫</div>
+			<div id="cooldownBar"><div id="cooldownBarFill"></div></div>
 		</div>
 		<div id="defeatedCounterContainer" class="healthBarHidden">
 			<div id="defeatedCounterTitle">DEFEATED</div>

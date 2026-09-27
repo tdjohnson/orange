@@ -1,25 +1,14 @@
 import * as THREE from 'three';
 
-export function collisionDetection(objectToCheck, collidableMeshList) {
-    const collidingObjects = [];
-    
-    // Filter out objects that should not be checked for collision
-    const objectsToCheck = collidableMeshList.filter(obj => !obj.name.startsWith("PrisonCell_"));
-    
-    // Compute the bounding box for the object to check
-    const objectBoundingBox = new THREE.Box3().setFromObject(objectToCheck);
+// Reusable Box3 instance for static objects to reduce GC pressure
+const staticBox3Pool = [];
+const MAX_POOL_SIZE = 50;
 
-    for (const collidableObject of objectsToCheck) {
-        // Compute the bounding box for the current collidable object
-        const collidableBoundingBox = new THREE.Box3().setFromObject(collidableObject);
-
-        // Check if the bounding boxes intersect
-        if (objectBoundingBox.intersectsBox(collidableBoundingBox)) {
-            collidingObjects.push(collidableObject);
-        }
-    }
-
-    return collidingObjects;
+function getStaticBox3() {
+	if (staticBox3Pool.length > 0) {
+		return staticBox3Pool.pop();
+	}
+	return new THREE.Box3();
 }
 
 function returnStaticBox3(box) {

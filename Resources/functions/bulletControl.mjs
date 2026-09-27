@@ -1,11 +1,31 @@
 import * as THREE from 'three';
-import {meshloader} from './objects.mjs';
-import {collisionDetection} from './collision.mjs'
+import { meshloader } from './objects.mjs';
+import { collisionDetection } from './collision.mjs';
+
 // Do not import main.js here: the page loads it as main.js?v=<stamp>, and importing the plain URL
 // creates a second module instance whose multiplayer object is undefined, which silently drops events.
 function events2main(type, destination) {
 	if (typeof window.events2main === 'function') window.events2main(type, destination);
 }
+
+// Constants
+const BULLET_LIFETIME = 10000; // 10 seconds in milliseconds
+const BULLET_SPEED = 60; // units per second
+const BULLET_ARRAY_MAX = 100; // Maximum bullets to prevent memory leaks
+
+// State
+const bulletArray = [];
+let currentPosition;
+let collidableMeshList = [];
+
+// Weapon system
+let currentWeapon = 'pistol';
+const weapons = {
+	pistol: { cooldown: 1000, shotsPerFire: 1 },
+	// Can add more weapons here for future expansion
+	// shotgun: { cooldown: 1500, shotsPerFire: 3 },
+	// machinegun: { cooldown: 100, shotsPerFire: 1 },
+};
 
 // Shooting cooldown state
 let cooldownEndTime = 0;
@@ -18,9 +38,10 @@ export class Bullet extends THREE.Mesh {
 	constructor(renderer) {
 		super();
 		this.name = 'Bullet_' + this.id;
-        var scope = this;
-        this.birthday = Date.now();
+		const scope = this;
+		this.birthday = Date.now();
 		this.velocity = new THREE.Vector3();
+		this.isRemote = false;
 
 		meshloader('./Prototypes/Bullet/Bullet.glb', function(model) {
 			scope.add(model);
@@ -36,38 +57,96 @@ export function updateCollidableMeshList(newMeshList) {
 	collidableMeshList = newMeshList;
 }
 
-export function shoot(destination){
-    console.log("You shot: " + destination);
-    events2main("hit", destination);
+export function shoot(destination) {
+	console.log("You shot: " + destination);
+	events2main("hit", destination);
+}
+
+export function canShoot() {
+	return Date.now() >= cooldownEndTime;
+}
+
+export function getCooldownProgress() {
+	const now = Date.now();
+	const endTime = cooldownEndTime;
+	const weapon = weapons[currentWeapon];
+	if (!weapon) return 1.0;
+	if (now >= endTime) return 1.0;
+	return Math.min(1.0, (now - (endTime - weapon.cooldown)) / weapon.cooldown);
+}
+
+export function getCurrentWeaponCooldown() {
+	const weapon = weapons[currentWeapon];
+	return weapon ? weapon.cooldown : 1000;
+}
+
+export function triggerCooldown() {
+	const weapon = weapons[currentWeapon];
+	cooldownEndTime = Date.now() + (weapon ? weapon.cooldown : 1000);
+}
+
+export function setWeapon(weaponName) {
+	if (weapons[weaponName]) {
+		currentWeapon = weaponName;
+		return true;
+	}
+	return false;
+}
+
+export function getCurrentWeapon() {
+	return currentWeapon;
+}
+
+export function getWeaponInfo(weaponName) {
+	return weapons[weaponName];
 }
 
 export function addBullet(renderer) {
-    var newBullet = new Bullet(renderer);
-    var initialBulletPositionVector = currentPositon.position;
-    
-    const bulletDirection = currentPositon.getWorldDirection(new THREE.Vector3(0, 0, -1));
-    const lookAtPoint = new THREE.Vector3().addVectors(bulletDirection, initialBulletPositionVector);
-    newBullet.position.set(initialBulletPositionVector.x, initialBulletPositionVector.y, initialBulletPositionVector.z);
-    newBullet.lookAt(lookAtPoint);
-	// Set initial velocity in the direction the bullet is facing
-	var direction = new THREE.Vector3(0, 0, 1);
+	if (!currentPosition) return;
+
+	if (!canShoot()) {
+		return;
+	}
+	
+	triggerCooldown();
+
+	const newBullet = new Bullet(renderer);
+	const initialBulletPosition = currentPosition.position;
+
+	// Calculate direction
+	currentPosition.getWorldDirection(tempVec3A.set(0, 0, -1));
+	const lookAtPoint = tempVec3B.addVectors(tempVec3A, initialBulletPosition);
+	
+	newBullet.position.copy(initialBulletPosition);
+	newBullet.lookAt(lookAtPoint);
+
+	// Set velocity
+	const direction = tempVec3A.set(0, 0, 1);
 	direction.applyQuaternion(newBullet.quaternion);
-	var bulletSpeed = 60;   // units per second
-	newBullet.velocity.copy(direction.multiplyScalar(bulletSpeed));
-    newBullet.isRemote = false;
-    BulletArray.push(newBullet);
-    
-    // Send bullet event unconditionally (events2main guards for singleplayer)
-    if (typeof events2main === 'function') {
-        events2main("bullet", JSON.stringify({
-            x: initialBulletPositionVector.x,
-            y: initialBulletPositionVector.y,
-            z: initialBulletPositionVector.z,
-            dx: direction.x,
-            dy: direction.y,
-            dz: direction.z
-        }));
-    }
+	newBullet.velocity.copy(direction.multiplyScalar(BULLET_SPEED));
+	
+	newBullet.isRemote = false;
+	bulletArray.push(newBullet);
+
+	// Cleanup old bullets
+	if (bulletArray.length > BULLET_ARRAY_MAX) {
+		const oldBullet = bulletArray.shift();
+		if (oldBullet.parent) {
+			oldBullet.parent.remove(oldBullet);
+		}
+	}
+
+	// Send bullet event unconditionally (events2main guards for singleplayer)
+	if (typeof events2main === 'function') {
+		events2main("bullet", JSON.stringify({
+			x: initialBulletPosition.x,
+			y: initialBulletPosition.y,
+			z: initialBulletPosition.z,
+			dx: direction.x,
+			dy: direction.y,
+			dz: direction.z
+		}));
+	}
 }
 
 export function getBulletArray() {
@@ -75,22 +154,42 @@ export function getBulletArray() {
 }
 
 export function setPositionReference(camera) {
-    currentPositon = camera;
+	currentPosition = camera;
 }
 
 export function addRemoteBullet(renderer, bulletData) {
-    var newBullet = new Bullet(renderer);
-    newBullet.position.set(bulletData.x, bulletData.y, bulletData.z);
-    
-    // Set direction from bulletData
-    var direction = new THREE.Vector3(bulletData.dx, bulletData.dy, bulletData.dz);
-    var lookAtPoint = new THREE.Vector3().addVectors(direction, newBullet.position);
-    newBullet.lookAt(lookAtPoint);
-    
-    // Set velocity
-    var bulletSpeed = 60;   // units per second
-    newBullet.velocity.copy(direction.multiplyScalar(bulletSpeed));
-    newBullet.isRemote = true;
-    
-    BulletArray.push(newBullet);
+	const newBullet = new Bullet(renderer);
+	newBullet.position.set(bulletData.x, bulletData.y, bulletData.z);
+
+	// Set direction from bulletData
+	const direction = tempVec3A.set(bulletData.dx, bulletData.dy, bulletData.dz);
+	const lookAtPoint = tempVec3B.addVectors(direction, newBullet.position);
+	newBullet.lookAt(lookAtPoint);
+
+	// Set velocity
+	newBullet.velocity.copy(direction.multiplyScalar(BULLET_SPEED));
+	newBullet.isRemote = true;
+
+	bulletArray.push(newBullet);
+
+	// Cleanup old bullets
+	if (bulletArray.length > BULLET_ARRAY_MAX) {
+		const oldBullet = bulletArray.shift();
+		if (oldBullet.parent) {
+			oldBullet.parent.remove(oldBullet);
+		}
+	}
+}
+
+export function cleanupBullets() {
+	const now = Date.now();
+	for (let i = bulletArray.length - 1; i >= 0; i--) {
+		const bullet = bulletArray[i];
+		if (bullet.birthday && (now - bullet.birthday) > BULLET_LIFETIME) {
+			if (bullet.parent) {
+				bullet.parent.remove(bullet);
+			}
+			bulletArray.splice(i, 1);
+		}
+	}
 }
