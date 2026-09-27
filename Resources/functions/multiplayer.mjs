@@ -338,6 +338,10 @@ export class Multiplayer extends THREE.Mesh {
             for (let i = 0; i < 40 && this.umps.hub.connection.q !== "Connected"; i++) {
                 await new Promise(resolve => setTimeout(resolve, 250));
             }
+            if (this.umps.hub.connection.q !== "Connected") {
+                // do not create a session on the server that nobody will be able to join
+                throw new Error('no connection to the server');
+            }
             let sessionId = choice;
             if (choice === 'new') {
                 const created = await orangeSessions.create(this.serverBaseUrl);
