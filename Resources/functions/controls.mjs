@@ -48,7 +48,23 @@ export function initControls(currentRender, currentScene) {
 	if (el) el.classList.remove("hidden");
 }
 
+var inputBlocked = false;
+
+// While the player is busted: no walking, no jumping, no shooting
+export function setInputBlocked(blocked) {
+	inputBlocked = !!blocked;
+	if (inputBlocked) resetMovement();
+}
+
+// Forget held keys and any leftover speed, e.g. after a respawn
+export function resetMovement() {
+	velocity.set(0, 0, 0);
+	for (var key in pressedKeys) pressedKeys[key] = false;
+	canJump = true;
+}
+
 export function onMouseDown(e) {
+	if (inputBlocked) return;
 	switch (e.button) {
 		case 0: //left mouse click
 			pressedKeys["LMB"] = true;
@@ -66,6 +82,7 @@ export function onMouseUp(e) {
 }
 
 export function onKeyDown(e) {
+	if (inputBlocked) return;
 	hasMoved = true;
     switch (e.code) {
 		case "Space":
@@ -212,7 +229,7 @@ function hasWallCollision(position, playerHeight, meshList) {
 }
 
 export function updateControls(controlsEnabled, delta, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera) {
-	if (controlsEnabled) {
+	if (controlsEnabled && !inputBlocked) {
 		// delta is now passed in from main.js, do not call clock.getDelta() here
 		// Prevent physics spiral when tab loses focus
 		if (delta > 0.1) delta = 0.1;

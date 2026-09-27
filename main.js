@@ -28,7 +28,10 @@ var collidableObjects;
 var gameMode;
 var health = 100;
 var defeatedPlayers = new Map();
-var serverScoresActive = false; // true once the server has sent its scoreboard; then clients stop counting
+var serverScoresActive = false;
+var sessionKills = new Map();   // kills per player in the running round
+var sessionDeaths = new Map();  // deaths per player in the running round
+var viewBeforeDeath = null;     // camera orientation saved when the player is busted // true once the server has sent its scoreboard; then clients stop counting
 
 // Load defeated scores from localStorage on startup
 try {
@@ -116,11 +119,13 @@ export function takeDamage(amount) {
 		health = 0;
 		updateHealthBar();
 		showBustedMessage();
-			// Flip player to show defeat
-			if (controls && controls.object) {
-				controls.object.rotation.x = Math.PI;
-				playerBody.rotation.x = Math.PI;
-			}
+		// Busted: no input, no mouse look, and the view falls over. The orientation is restored on respawn.
+		controlsModule.setInputBlocked(true);
+		if (controls && controls.object) {
+			viewBeforeDeath = controls.object.quaternion.clone();
+			controls.enabled = false;
+			controls.object.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2));
+		}
 		// Track local player defeat
 		if (multiplayer && multiplayer.name) {
 			const localPlayerName = multiplayer.name;
@@ -133,6 +138,7 @@ export function takeDamage(amount) {
 			if (multiplayer) {
 				// Servers with sessions take JSON {name, by} so kills can be counted; older ones only a plain name
 				const killer = multiplayer.getLastHitterName();
+				if (orangeSessions.current) recordSessionDefeat(localPlayerName, killer);
 				const payload = (orangeSessions.supported && killer) ? JSON.stringify({ name: localPlayerName, by: killer }) : localPlayerName;
 				multiplayer.sendEvent("defeated", payload);
 			}
@@ -149,9 +155,48 @@ export function takeDamage(amount) {
 	}
 }
 
+function recordSessionDefeat(victim, killer) {
+	if (victim) sessionDeaths.set(victim, (sessionDeaths.get(victim) || 0) + 1);
+	if (killer) sessionKills.set(killer, (sessionKills.get(killer) || 0) + 1);
+	updateDefeatedCounter();
+}
+
+function resetSessionStats() {
+	sessionKills = new Map();
+	sessionDeaths = new Map();
+	updateDefeatedCounter();
+}
+
+// Board for the running round: kills / deaths per player, most kills first
+function updateRoundBoard(container, title) {
+	title.textContent = "ROUND  K / D";
+	container.textContent = "";
+	const names = Array.from(new Set(Array.from(sessionKills.keys()).concat(Array.from(sessionDeaths.keys()))));
+	names.sort((a, b) => ((sessionKills.get(b) || 0) - (sessionKills.get(a) || 0)) || ((sessionDeaths.get(a) || 0) - (sessionDeaths.get(b) || 0)));
+	if (names.length === 0) {
+		const empty = document.createElement("div");
+		empty.className = "defeatedEntry";
+		empty.textContent = "0 / 0";
+		container.appendChild(empty);
+		return;
+	}
+	names.forEach(name => {
+		const entry = document.createElement("div");
+		entry.className = "defeatedEntry";
+		entry.textContent = name + ": " + (sessionKills.get(name) || 0) + " / " + (sessionDeaths.get(name) || 0);
+		container.appendChild(entry);
+	});
+}
+
 function updateDefeatedCounter() {
 	const container = document.getElementById("defeatedCounter");
 	if (!container) return;
+	const title = document.getElementById("defeatedCounterTitle");
+	if (orangeSessions.current && title) {
+		updateRoundBoard(container, title);
+		return;
+	}
+	if (title) title.textContent = "DEFEATED";
 	
 	const entries = Array.from(defeatedPlayers.entries()).sort((a, b) => b[1] - a[1]);
 	
@@ -274,9 +319,17 @@ function getCellSpawnPosition(cellIndex) {
 function respawnPlayer() {
 	if (!controls || !controls.object) return;
 	
-	// Reset rotation (unflip after being busted)
-	controls.object.rotation.x = 0;
-	if (playerBody) playerBody.rotation.x = 0;
+	// Restore a level view. Setting rotation.x on the camera is not enough: the mouse look keeps the
+	// orientation as a quaternion in YXZ order, so rebuild it from the heading the player had.
+	const heading = new THREE.Euler().setFromQuaternion(viewBeforeDeath || controls.object.quaternion, 'YXZ');
+	heading.x = 0;
+	heading.z = 0;
+	controls.object.quaternion.setFromEuler(heading);
+	viewBeforeDeath = null;
+	controls.enabled = true;
+	if (playerBody) playerBody.rotation.set(0, 0, 0);
+	controlsModule.resetMovement();
+	controlsModule.setInputBlocked(false);
 	
 	const totalCellcount = 2 * 6; // cellRowCount * cellsPerRow
 	const startCell = Math.floor(Math.random() * totalCellcount);
@@ -1032,6 +1085,20 @@ function showSessionResults(detail) {
 	const names = Array.from(new Set(Object.keys(kills).concat(Object.keys(defeats))));
 	names.sort((a, b) => ((kills[b] || 0) - (kills[a] || 0)) || ((defeats[a] || 0) - (defeats[b] || 0)));
 
+	// winner: best by kills, then by fewest deaths; equal on both is a draw; no kills at all, no winner
+	const winnerLine = document.createElement("h2");
+	winnerLine.id = "sessionWinner";
+	const score = (name) => [(kills[name] || 0), (defeats[name] || 0)];
+	const best = names.filter(name => score(name)[0] === score(names[0])[0] && score(name)[1] === score(names[0])[1]);
+	if (names.length === 0 || score(names[0])[0] === 0) {
+		winnerLine.textContent = "No winner, nobody scored a kill";
+	} else if (best.length > 1) {
+		winnerLine.textContent = "Draw: " + best.join(" and ");
+	} else {
+		winnerLine.textContent = "Winner: " + names[0];
+	}
+	overlay.appendChild(winnerLine);
+
 	const table = document.createElement("table");
 	table.id = "sessionResults";
 	const thead = document.createElement("thead");
@@ -1105,11 +1172,13 @@ function hideSessionResults() {
 
 window.addEventListener("orange:sessionJoined", (e) => {
 	hideSessionResults(); // a new round has started
+	resetSessionStats(); // kills and deaths count per round
 	updateSessionCountdown(e.detail.secondsLeft, true);
 	showSessionNotice("You are in " + (e.detail.name || "a session"));
 });
 window.addEventListener("orange:sessionTime", (e) => updateSessionCountdown(e.detail.secondsLeft, true));
 window.addEventListener("orange:sessionEnded", (e) => {
+	setTimeout(updateDefeatedCounter, 0); // back to the all-time board until the next round starts
 	updateSessionCountdown(0, false);
 	showSessionResults(e.detail);
 });
@@ -1180,4 +1249,5 @@ window.chooseSession = chooseSession;
 window.handleScoresRequest = handleScoresRequest;
 window.handleScores = handleScores;
 window.handleServerScores = handleServerScores;
+window.handleSessionDefeat = recordSessionDefeat;
 window.events2main = events2main;

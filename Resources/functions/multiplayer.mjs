@@ -97,9 +97,13 @@ export class Multiplayer extends THREE.Mesh {
             } else if (event.type === "defeated") {
                 // A player was defeated
                 if (event.source !== this.playerId) {
+                    // event.destination is the player name, or JSON {name, by} on servers with sessions
+                    const defeated = this.parseDefeated(event.destination);
+                    if (this.session && typeof window.handleSessionDefeat === 'function') {
+                        window.handleSessionDefeat(defeated.name, defeated.by);
+                    }
                     if (typeof window.handleDefeated === 'function') {
-                        // event.destination is the player name, or JSON {name, by} on servers with sessions
-                        window.handleDefeated(this.parseDefeated(event.destination).name);
+                        window.handleDefeated(defeated.name);
                     }
                 }
 				} else if (event.type === "healthReset") {
