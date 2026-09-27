@@ -99,6 +99,9 @@ export class Multiplayer extends THREE.Mesh {
                 if (event.source !== this.playerId) {
                     // event.destination is the player name, or JSON {name, by} on servers with sessions
                     const defeated = this.parseDefeated(event.destination);
+                    if (typeof window.handleKillFeed === 'function') {
+                        window.handleKillFeed(defeated.name, defeated.by);
+                    }
                     if (this.session && typeof window.handleSessionDefeat === 'function') {
                         window.handleSessionDefeat(defeated.name, defeated.by);
                     }

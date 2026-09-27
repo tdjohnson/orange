@@ -141,6 +141,7 @@ export function takeDamage(amount) {
 				// Servers with sessions take JSON {name, by} so kills can be counted; older ones only a plain name
 				const killer = multiplayer.getLastHitterName();
 				if (orangeSessions.current) recordSessionDefeat(localPlayerName, killer);
+				addKillFeedEntry(localPlayerName, killer);
 				const payload = (orangeSessions.supported && killer) ? JSON.stringify({ name: localPlayerName, by: killer }) : localPlayerName;
 				multiplayer.sendEvent("defeated", payload);
 			}
@@ -155,6 +156,36 @@ export function takeDamage(amount) {
 			}
 		}, 3000);
 	}
+}
+
+// Kill feed, top left: the last five bustings, each shown for eight seconds
+var killFeedEntries = [];
+const KILL_FEED_MAX = 5;
+const KILL_FEED_MS = 8000;
+
+function addKillFeedEntry(victim, killer) {
+	if (!victim) return;
+	killFeedEntries.push({
+		text: killer ? killer + " busted " + victim : victim + " was busted",
+		until: performance.now() + KILL_FEED_MS
+	});
+	while (killFeedEntries.length > KILL_FEED_MAX) killFeedEntries.shift();
+	renderKillFeed();
+	setTimeout(renderKillFeed, KILL_FEED_MS + 100);
+}
+
+function renderKillFeed() {
+	const feed = document.getElementById("killFeed");
+	if (!feed) return;
+	const now = performance.now();
+	killFeedEntries = killFeedEntries.filter(entry => entry.until > now);
+	feed.textContent = "";
+	killFeedEntries.forEach(entry => {
+		const line = document.createElement("div");
+		line.className = "killFeedEntry";
+		line.textContent = entry.text;
+		feed.appendChild(line);
+	});
 }
 
 function recordSessionDefeat(victim, killer) {
@@ -1240,4 +1271,5 @@ window.handleScoresRequest = handleScoresRequest;
 window.handleScores = handleScores;
 window.handleServerScores = handleServerScores;
 window.handleSessionDefeat = recordSessionDefeat;
+window.handleKillFeed = addKillFeedEntry;
 window.events2main = events2main;

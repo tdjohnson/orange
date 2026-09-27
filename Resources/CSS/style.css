@@ -447,3 +447,26 @@ div#welcomeMessage {
 	color: #aa6600;
 	font-size: 12px;
 }
+
+/* kill feed, top left */
+#killFeed {
+	position: fixed;
+	top: 24px;
+	left: 24px;
+	z-index: 1000;
+	padding: 0;
+	pointer-events: none;
+	font-family: Arial, sans-serif;
+}
+
+#killFeed .killFeedEntry {
+	position: static;
+	padding: 2px 8px;
+	margin-bottom: 3px;
+	color: #ffffff;
+	font-size: 14px;
+	font-weight: bold;
+	background: rgba(0, 0, 0, 0.45);
+	border-radius: 3px;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
+}
