@@ -886,3 +886,4 @@ window.handleDefeated = handleDefeated;
 window.handleScoresRequest = handleScoresRequest;
 window.handleScores = handleScores;
 window.handleServerScores = handleServerScores;
+window.events2main = events2main;

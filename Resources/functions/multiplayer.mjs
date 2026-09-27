@@ -32,6 +32,7 @@ export class Multiplayer extends THREE.Mesh {
         this.playerId = this.umps.GetPlayerId();
         this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
         this.players = [];
+        this.pendingPlayers = new Set();
         // REST base of the selected server, e.g. https://umps.tdj23.com (hub url minus /controlhub)
         this.serverBaseUrl = String(selected_server || '').replace(/\/controlhub\/?$/, '');
 
@@ -46,7 +47,10 @@ export class Multiplayer extends THREE.Mesh {
             const existingPlayer = this.players.find(p => p.id === player.id);
             if (existingPlayer) {
                 this.updatePlayer(existingPlayer, player);
-            } else {
+            } else if (!this.pendingPlayers.has(player.id)) {
+                // addNewPlayer is asynchronous (name lookup); without this guard every position
+                // update that arrives meanwhile creates another body for the same player
+                this.pendingPlayers.add(player.id);
                 this.addNewPlayer(player);
             }
         });
@@ -221,6 +225,10 @@ export class Multiplayer extends THREE.Mesh {
             this.collidableMeshList.push(newPlayer.body);
             this.scene.add(newPlayer.body);
             this.playerLastUpdate[player.id] = performance.now();
+            this.pendingPlayers.delete(player.id);
+        }).catch(err => {
+            this.pendingPlayers.delete(player.id);
+            console.error("Could not add player " + player.id + ": ", err);
         });
         
     }

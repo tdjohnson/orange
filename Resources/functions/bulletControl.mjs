@@ -1,7 +1,11 @@
 import * as THREE from 'three';
 import {meshloader} from './objects.mjs';
 import {collisionDetection} from './collision.mjs'
-import { events2main } from '../../main.js';
+// Do not import main.js here: the page loads it as main.js?v=<stamp>, and importing the plain URL
+// creates a second module instance whose multiplayer object is undefined, which silently drops events.
+function events2main(type, destination) {
+	if (typeof window.events2main === 'function') window.events2main(type, destination);
+}
 
 const BulletArray = [];
 var currentPositon;
