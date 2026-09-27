@@ -826,6 +826,7 @@ export function startMultiplayerWithName() {
 			var selected_server = server_list.find(obj => {
 				return obj.id === selected_server_id;
 			});
+			orangeSessions.choose(chosenSession());
 			showWelcomeMessage(player_name);
 			setTimeout(() => {
 				loadMultiplayer(player_name, selected_server.defaultUrl);
@@ -837,96 +838,54 @@ export function startMultiplayerWithName() {
 
 
 
-// Session handling for multiplayer
+// ---------- Session UI: dropdown, countdown, result screen ----------
+// Plumbing and events live in Resources/functions/sessions.mjs and multiplayer.mjs.
+function formatSeconds(totalSeconds) {
+	const s = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+	return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+}
+
+// Fill the session dropdown for one server. Hides the whole chooser if that server has no sessions.
 async function updateSessionDropdown(baseUrl) {
-	const sessionDropdown = document.getElementById("sessionSelector");
-	if (!sessionDropdown) return;
-	
-	// Check if sessions are supported
-	if (typeof window.orangeSessions === 'undefined' || !window.orangeSessions.supported) {
-		sessionDropdown.style.display = 'none';
+	const chooser = document.getElementById("sessionChooser");
+	const dropdown = document.getElementById("sessionSelector");
+	if (!chooser || !dropdown) return;
+	const sessions = await orangeSessions.list(baseUrl); // sets orangeSessions.supported
+	if (!orangeSessions.supported) {
+		chooser.style.display = "none";
 		return;
 	}
-	
-	// Show the dropdown
-	sessionDropdown.style.display = 'block';
-	
+	const previous = dropdown.value;
+	dropdown.textContent = "";
+	dropdown.add(new Option("Start new session", "new"));
+	sessions.forEach(session => {
+		const label = session.name + " (" + formatSeconds(session.secondsRemaining) + " left, " +
+			session.playerCount + " of " + session.maxPlayers + ")";
+		dropdown.add(new Option(label, String(session.id)));
+	});
+	dropdown.add(new Option("No session (lobby)", "lobby"));
+	if (Array.from(dropdown.options).some(o => o.value === previous)) dropdown.value = previous;
+	chooser.style.display = "block";
+}
+
+async function updateSessionDropdownForSelectedServer(server_list) {
+	const serverSelector = document.getElementById("serverSelector");
+	if (!serverSelector) return;
 	try {
-		const sessions = await window.orangeSessions.list(baseUrl);
-		
-		// Clear existing options (keep "Start new session")
-		const options = sessionDropdown.querySelectorAll('option');
-		options.forEach(opt => {
-			if (opt.value !== 'new') {
-				sessionDropdown.removeChild(opt);
-			}
-		});
-		
-		// Add session options
-		sessions.forEach(session => {
-			const option = document.createElement('option');
-			option.value = session.id;
-			const minutes = Math.floor(session.secondsRemaining / 60);
-			const seconds = session.secondsRemaining % 60;
-			const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-			option.textContent = `${session.name} (${timeStr} left, ${session.playerCount} of ${session.maxPlayers})`;
-			sessionDropdown.appendChild(option);
-		});
-		
-		// If no sessions, just show "Start new session"
-		if (sessions.length === 0) {
-			const onlyNew = sessionDropdown.querySelectorAll('option').length === 1;
-			if (!onlyNew) {
-				const options = sessionDropdown.querySelectorAll('option');
-				options.forEach(opt => {
-					if (opt.value !== 'new') {
-						sessionDropdown.removeChild(opt);
-					}
-				});
-			}
-		}
+		const list = server_list || await retrieveServerList();
+		const selected = list.find(s => s.id === serverSelector.value);
+		if (selected) await updateSessionDropdown(selected.baseUrl);
 	} catch (e) {
-		console.log("Error updating session dropdown:", e);
-		sessionDropdown.style.display = 'none';
+		console.log("Could not update the session list:", e);
 	}
 }
 
-// Update session dropdown when server changes
-function setupSessionDropdown() {
-	const serverSelector = document.getElementById("serverSelector");
-	if (!serverSelector) return;
-	
-	// Update on server change
-	serverSelector.addEventListener('change', async () => {
-		const selectedId = serverSelector.value;
-		if (!selectedId) return;
-		
-		// Get the server baseUrl
-		const serverList = await retrieveServerList();
-		const selectedServer = serverList.find(s => s.id === selectedId);
-		if (selectedServer) {
-			await updateSessionDropdown(selectedServer.baseUrl);
-		}
-	});
-	
-	// Also check for session support and show/hide dropdown
-	if (typeof window.orangeSessions === 'undefined') {
-		// Wait for it to be available
-		const checkSessions = setInterval(() => {
-			if (typeof window.orangeSessions !== 'undefined') {
-				clearInterval(checkSessions);
-				// Trigger initial update
-				if (serverSelector.value) {
-					retrieveServerList().then(serverList => {
-						const selectedServer = serverList.find(s => s.id === serverSelector.value);
-						if (selectedServer) {
-							updateSessionDropdown(selectedServer.baseUrl);
-						}
-					});
-				}
-			}
-		}, 100);
-	}
+// What the player picked: 'new', a session id, or null for the lobby
+function chosenSession() {
+	const chooser = document.getElementById("sessionChooser");
+	const dropdown = document.getElementById("sessionSelector");
+	if (!chooser || !dropdown || chooser.style.display === "none") return null;
+	return dropdown.value === "lobby" || dropdown.value === "" ? null : dropdown.value;
 }
 
 // Session countdown handling
@@ -934,110 +893,94 @@ const defaultSessionCountdown = document.getElementById("sessionCountdown");
 if (defaultSessionCountdown) {
 	defaultSessionCountdown.style.display = 'none';
 }
+}
 
-function updateSessionCountdown(secondsLeft) {
+function updateSessionCountdown(secondsLeft, visible) {
 	const countdown = document.getElementById("sessionCountdown");
 	const timeSpan = document.getElementById("sessionTime");
 	if (!countdown || !timeSpan) return;
-	
-	const minutes = Math.floor(secondsLeft / 60);
-	const seconds = secondsLeft % 60;
-	const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-	timeSpan.textContent = timeStr;
-	
-	// Show/hide based on session state
-	if (secondsLeft > 0) {
-		countdown.style.display = 'block';
-		// Add low class if under 15 seconds
-		if (secondsLeft <= 15) {
-			countdown.classList.add('low');
-		} else {
-			countdown.classList.remove('low');
-		}
-	} else {
-		countdown.style.display = 'none';
-	}
+	timeSpan.textContent = formatSeconds(secondsLeft);
+	countdown.classList.toggle("healthBarHidden", !visible);
+	countdown.classList.toggle("low", visible && secondsLeft <= 15);
 }
 
-// Session result overlay
-defaultResultOverlay = document.createElement('div');
-defaultResultOverlay.id = 'sessionResultOverlay';
-defaultResultOverlay.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; z-index: 2000; display: none; font-family: Arial, sans-serif; text-align: center;';
-defaultResultOverlay.innerHTML = '<h1>Session Results</h1><div id="sessionResults"></div><p>Returning to menu in <span id="sessionResultTimer">10</span> seconds...</p>';
-if (!document.getElementById('sessionResultOverlay')) {
-	document.body.appendChild(defaultResultOverlay);
+function showSessionNotice(text) {
+	let notice = document.getElementById("sessionNotice");
+	if (!notice) {
+		notice = document.createElement("div");
+		notice.id = "sessionNotice";
+		notice.style.cssText = "position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:1000; padding:6px 12px;" +
+			" color:#fff; background:rgba(0,0,0,0.6); border-radius:4px; font-family:Arial,sans-serif; pointer-events:none;";
+		document.body.appendChild(notice);
+	}
+	notice.textContent = text;
+	notice.style.display = "block";
+	setTimeout(() => { notice.style.display = "none"; }, 6000);
 }
 
-function showSessionResults(kills, defeats) {
-	const overlay = document.getElementById('sessionResultOverlay');
-	const resultsDiv = document.getElementById('sessionResults');
-	if (!overlay || !resultsDiv) return;
-	
-	// Clear previous results
-	resultsDiv.innerHTML = '<h2>Kills:</h2>';
-	
-	// Sort by kills descending, then by defeats ascending
-	const sorted = Object.entries(kills).sort((a, b) => b[1] - a[1] || defeats[a[0]] - defeats[b[0]]);
-	
-	if (sorted.length > 0) {
-		sorted.forEach(([name, count]) => {
-			const div = document.createElement('div');
-			div.textContent = `${name}: ${count} kills (defeats: ${defeats[name] || 0})`;
-			resultsDiv.appendChild(div);
-		});
-	} else {
-		const div = document.createElement('div');
-		div.textContent = 'No kills recorded';
-		resultsDiv.appendChild(div);
+function showSessionResults(detail) {
+	const kills = (detail && detail.kills) || {};
+	const defeats = (detail && detail.defeats) || {};
+	let overlay = document.getElementById("sessionResultOverlay");
+	if (!overlay) {
+		overlay = document.createElement("div");
+		overlay.id = "sessionResultOverlay";
+		document.body.appendChild(overlay);
 	}
-	
-	overlay.style.display = 'block';
-	
-	// Hide after 10 seconds and reload
-	let timer = 10;
-	const timerSpan = document.getElementById('sessionResultTimer');
+	overlay.textContent = "";
+	const title = document.createElement("h1");
+	title.textContent = ((detail && detail.name) || "Session") + " is over";
+	overlay.appendChild(title);
+
+	// everyone who scored or was busted; most kills first, then fewest times busted
+	const names = Array.from(new Set(Object.keys(kills).concat(Object.keys(defeats))));
+	names.sort((a, b) => ((kills[b] || 0) - (kills[a] || 0)) || ((defeats[a] || 0) - (defeats[b] || 0)));
+	const list = document.createElement("div");
+	list.id = "sessionResults";
+	if (names.length === 0) {
+		const row = document.createElement("div");
+		row.textContent = "Nobody was busted.";
+		list.appendChild(row);
+	}
+	names.forEach((name, index) => {
+		const row = document.createElement("div");
+		row.textContent = (index + 1) + ". " + name + ": " + (kills[name] || 0) + " kills, busted " + (defeats[name] || 0) + " times";
+		list.appendChild(row);
+	});
+	overlay.appendChild(list);
+
+	const footer = document.createElement("p");
+	overlay.appendChild(footer);
+	overlay.style.display = "block";
+	let remaining = 10;
+	footer.textContent = "Back to the menu in " + remaining + " s";
 	const interval = setInterval(() => {
-		timer--;
-		if (timerSpan) timerSpan.textContent = timer;
-		if (timer <= 0) {
+		remaining--;
+		footer.textContent = "Back to the menu in " + remaining + " s";
+		if (remaining <= 0) {
 			clearInterval(interval);
-			overlay.style.display = 'none';
 			location.reload();
 		}
 	}, 1000);
 }
 
-// Setup event listeners
-function setupSessionEventListeners() {
-	// Session joined
-	window.addEventListener('orange:sessionJoined', (e) => {
-		console.log('Session joined:', e.detail);
-		updateSessionCountdown(e.detail.secondsLeft);
-	});
-	
-	// Session time update
-	window.addEventListener('orange:sessionTime', (e) => {
-		updateSessionCountdown(e.detail.secondsLeft);
-	});
-	
-	// Session ended
-	window.addEventListener('orange:sessionEnded', (e) => {
-		console.log('Session ended:', e.detail);
-		updateSessionCountdown(0);
-		showSessionResults(e.detail.kills, e.detail.defeats);
-	});
-	
-	// Session join failed
-	window.addEventListener('orange:sessionJoinFailed', (e) => {
-		console.log('Session join failed:', e.detail);
-		alert(`Failed to join session: ${e.detail.reason || 'Unknown error'}`);
-		location.reload();
-	});
+window.addEventListener("orange:sessionJoined", (e) => {
+	updateSessionCountdown(e.detail.secondsLeft, true);
+	showSessionNotice("You are in " + (e.detail.name || "a session"));
+});
+window.addEventListener("orange:sessionTime", (e) => updateSessionCountdown(e.detail.secondsLeft, true));
+window.addEventListener("orange:sessionEnded", (e) => {
+	updateSessionCountdown(0, false);
+	showSessionResults(e.detail);
+});
+window.addEventListener("orange:sessionJoinFailed", (e) => {
+	updateSessionCountdown(0, false);
+	showSessionNotice("Session not available (" + ((e.detail && e.detail.reason) || "unknown") + "). You are in the lobby.");
+});
+{
+	const serverSelector = document.getElementById("serverSelector");
+	if (serverSelector) serverSelector.addEventListener("change", () => updateSessionDropdownForSelectedServer());
 }
-
-// Initialize session handling
-setupSessionDropdown();
-setupSessionEventListeners();
 
 export function startMultiplayer() {
 	gameMode = "MultiPlayer";
@@ -1064,6 +1007,7 @@ export function startMultiplayer() {
 		// server_list.push({id: "6666", name: "Lokales Gefängnis", baseUrl: "https://localhost:7000", defaultUrl: "https://localhost:7000/controlhub"});
 		console.log("Working on server list: " + JSON.stringify(server_list));
 		createServerListDropdown(server_list);
+		setTimeout(() => updateSessionDropdownForSelectedServer(server_list), 0);
 			
 			// Try to load saved server after dropdown is populated
 			try {
