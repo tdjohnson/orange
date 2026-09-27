@@ -1200,7 +1200,7 @@ async function updateSessionTable(baseUrl) {
 		th.textContent = text;
 		headerRow.appendChild(th);
 	});
-	head.appendChild(headerRow);
+	thead.appendChild(headerRow);
 	table.appendChild(thead);
 
 	const tbody = document.createElement("tbody");
@@ -1325,7 +1325,7 @@ function showSessionResults(detail) {
 		th.textContent = text;
 		headerRow.appendChild(th);
 	});
-	head.appendChild(headerRow);
+	thead.appendChild(headerRow);
 	table.appendChild(thead);
 
 	const tbody = document.createElement("tbody");
