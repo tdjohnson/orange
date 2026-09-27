@@ -22,6 +22,7 @@ var havePointerLock = pointerLockModule.checkForPointerLock();
 var controls;
 var controlsEnabled = true;
 var multiplayer;
+var mqttEnabled = false;
 var playerBody;
 var collidingObjects;
 var collidableObjects;
@@ -55,13 +56,19 @@ try {
 var loader = new THREE.ObjectLoader();
 var isOpenable = true; //for animating door
 var arrow; //for raycasterhelper
-var mirrorMaterial;
-var mirror_cameras = new Array();
-var mirror_materials= new Array();
-var u = 0; //number of rendered mirrors
 var collidableMeshList = [];
-var loadDone, toWakeUp = false;
-var animationLock = false; // needed to complete animations before selection next object
+
+// ========== MIRROR SYSTEM ==========
+// COMMENTED OUT: THREE.Mirror not available at CDN paths in r186
+// var mirrorCameras = [];
+// var mirrorTextures = [];
+// var mirrorMeshes = [];
+
+var toWakeUp = false;
+var animationLock = false;
+
+// Track if we're in an active game
+var inActiveGame = false;
 
 var collided = false;
 var meshes = new Map();
@@ -73,7 +80,20 @@ const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vecto
 var raycasterCamera;
 
 var playerBoundingBox;
-var performanceBoostGlobal = true;
+
+// ========== RENDERING QUALITY SETTINGS ==========
+var qualityMode = 'balanced';
+
+try {
+	const savedQuality = localStorage.getItem('orange.qualityMode');
+	if (savedQuality && ['performance', 'balanced', 'quality'].includes(savedQuality)) {
+		qualityMode = savedQuality;
+	}
+} catch(e) {
+	console.log("Could not load quality mode from localStorage:", e);
+}
+
+var performanceBoostGlobal = qualityMode === 'performance';
 
 objectsModule.setPerformanceOptimization(performanceBoostGlobal);
 prisonCellModule.setPerformanceOptimization(performanceBoostGlobal);
@@ -393,7 +413,6 @@ function showDefeatedCounter(show) {
 
 async function retrieveServerList() {
     const response = await fetch("https://umps.tdj23.com/api/Server/GetServers");
-
     if (response.ok) {
 		var server_list = await response.json();
         return server_list;
@@ -409,20 +428,28 @@ function createServerListDropdown(server_list) {
 		let option = new Option(element.name, element.id)
 		select.add(option, undefined);
 	});
-
 	select.selectedIndex = 0;
 }
 
-
 function closeStart() {
 	toWakeUp = splashScreenModule.closeStart();
+	updateHudVisibility();
 }
 
 function GetCollidableMeshList() {
 	return collidableMeshList
 }
 
-function init() { 
+// ========== CROSSHAIR FUNCTIONS ==========
+
+/**
+ * Creates a proper 3D crosshair with + shape
+ * Fixed: Now creates proper horizontal and vertical lines
+ */
+function create3DCrosshair() {
+	const crosshairSize = 0.03;
+	const crosshairColor = 0xAAFFAA;
+	const crosshairMaterial = new THREE.LineBasicMaterial({ color: crosshairColor });
 	
 	renderer = new THREE.WebGLRenderer({
 		antialias: false,
@@ -438,54 +465,175 @@ function init() {
 		//renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	}
 
+/**
+ * Updates the cooldown bar progress - bar is always visible
+ */
+function updateCooldownBar(progress) {
+	const barFill = document.getElementById('cooldownBarFill');
+	if (!barFill) return;
+	
+	// Progress goes from 0 (empty) to 1 (full)
+	// When shooting, progress = 0, then increases to 1 over 1 second
+	barFill.style.width = (progress * 100) + '%';
+}
+
+/**
+ * Creates CSS crosshair as fallback/alternative
+ */
+function createCSSCrosshair() {
+	// Remove existing 3D crosshair if any
+	if (camera) {
+		const existingCrosshair = camera.getObjectByName('crosshair');
+		if (existingCrosshair) {
+			camera.remove(existingCrosshair);
+		}
+	}
+	
+	let crosshair = document.getElementById('cssCrosshair');
+	if (!crosshair) {
+		crosshair = document.createElement('div');
+		crosshair.id = 'cssCrosshair';
+		crosshair.innerHTML = `
+			<div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 0; height: 0; pointer-events: none;">
+				<div style="position: absolute; left: -10px; top: 0; width: 20px; height: 2px; background: #AAFFAA;"></div>
+				<div style="position: absolute; left: 0; top: -10px; width: 2px; height: 20px; background: #AAFFAA;"></div>
+			</div>
+		`;
+		
+		const rendererElement = renderer?.domElement;
+		if (rendererElement && rendererElement.parentNode) {
+			rendererElement.parentNode.style.position = 'relative';
+			rendererElement.parentNode.insertBefore(crosshair, rendererElement);
+		} else {
+			document.body.style.position = 'relative';
+			document.body.appendChild(crosshair);
+		}
+	}
+}
+
+// ========== QUALITY SETTINGS ==========
+function applyQualitySettings() {
+	if (!renderer) return;
+	
+	renderer.outputEncoding = THREE.sRGBEncoding;
+	renderer.toneMapping = THREE.ACESFilmicToneMapping;
+	renderer.toneMappingExposure = 1.0;
+	renderer.physicallyCorrectLights = true;
+	
+	// Update performance mode flag for object modules
+	performanceBoostGlobal = (qualityMode === 'performance');
+	
+	switch(qualityMode) {
+		case 'performance':
+			renderer.shadowMap.enabled = false;
+			break;
+		case 'balanced':
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.PCFShadowMap;
+			break;
+		case 'quality':
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.PCFShadowMap;
+			break;
+	}
+	
+	objectsModule.setPerformanceOptimization(performanceBoostGlobal);
+	prisonCellModule.setPerformanceOptimization(performanceBoostGlobal);
+	hallwayModule.setPerformanceOptimization(performanceBoostGlobal);
+	
+	// Force shadow map update by clearing and re-enabling if needed
+	if (renderer.shadowMap.enabled) {
+		renderer.shadowMap.needsUpdate = true;
+	}
+	
+	try {
+		localStorage.setItem('orange.qualityMode', qualityMode);
+	} catch(e) {
+		console.log("Could not save quality mode to localStorage:", e);
+	}
+}
+
+function setQualityMode(mode) {
+	if (['performance', 'balanced', 'quality'].includes(mode)) {
+		qualityMode = mode;
+		applyQualitySettings();
+		console.log("Quality mode set to:", mode);
+	}
+}
+
+function cycleQualityMode() {
+	const modes = ['performance', 'balanced', 'quality'];
+	const currentIndex = modes.indexOf(qualityMode);
+	const nextIndex = (currentIndex + 1) % modes.length;
+	setQualityMode(modes[nextIndex]);
+	showQualityModeNotice();
+	// Force re-apply settings in case renderer is already initialized
+	if (renderer) {
+		applyQualitySettings();
+	}
+	return qualityMode;
+}
+
+function showQualityModeNotice() {
+	let notice = document.getElementById("qualityModeNotice");
+	if (!notice) {
+		notice = document.createElement("div");
+		notice.id = "qualityModeNotice";
+		notice.style.cssText = "position:fixed; top:24px; right:24px; z-index:1000; padding:8px 14px; " +
+			"color:#fff; background:rgba(0,0,0,0.6); border-radius:4px; font-family:Arial,sans-serif; pointer-events:none;";
+		document.body.appendChild(notice);
+	}
+	notice.textContent = "Quality mode: " + qualityMode;
+	notice.style.display = "block";
+	setTimeout(() => { notice.style.display = "none"; }, 2000);
+}
+
+function updateHudVisibility() {
+	const cooldownContainer = document.getElementById("cooldownBarContainer");
+	const pistolContainer = document.getElementById("pistolContainer");
+	if (cooldownContainer) {
+		cooldownContainer.classList.toggle("healthBarHidden", !inActiveGame);
+	}
+	if (pistolContainer) {
+		pistolContainer.classList.toggle("healthBarHidden", !inActiveGame);
+	}
+}
+
+setQualityMode._real = setQualityMode;
+window.setQualityMode = setQualityMode;
+window.cycleQualityMode = cycleQualityMode;
+export { setQualityMode, cycleQualityMode };
+
+// ========== MIRROR SYSTEM FUNCTIONS ==========
+// COMMENTED OUT: THREE.Mirror not available at CDN paths in r186
+// function createMirror(position, size, rotation) { ... }
+// function updateMirrors() { ... }
+
+
+function init() {
+	// Create renderer with improved settings
+	renderer = new THREE.WebGLRenderer({
+		antialias: true,
+		powerPreference: "high-performance",
+		alpha: false
+	});
+	
+	renderer._microCache = MicroCache();
+	renderer.domElement.id = "scene";
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor(0xb2e1f2);
+	
+	// Enable sRGB encoding for correct color display
+	renderer.outputEncoding = THREE.sRGBEncoding;
+	renderer.toneMapping = THREE.ACESFilmicToneMapping;
+	renderer.toneMappingExposure = 1.0;
+	renderer.physicallyCorrectLights = true;
+	
+	// Configure shadows based on quality mode
+	applyQualitySettings();
+	
 	document.body.appendChild(renderer.domElement);
-	
-	//needed for controls
-    clock = new THREE.Clock();
-    scene = new THREE.Scene();
-    //scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
-
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
-    var material = new THREE.LineBasicMaterial({ color: 0xAAFFAA });
-
-	// crosshair size
-	var x = 0.01, y = 0.02;
-	
-	/*
-	var geometry = new THREE.Geometry();
-	var geometry2 = new THREE.BufferGeometry();
-
-	// crosshair
-	geometry.vertices.push(new THREE.Vector3(0.01, y, 0));
-	geometry.vertices.push(new THREE.Vector3(0, 0.01, 0));
-	geometry.vertices.push(new THREE.Vector3(-0.01, y, 0));    
-	geometry.vertices.push(new THREE.Vector3(0, 0.01, 0));
-	*/
-
-	var crosshairPoints = []
-	crosshairPoints.push(new THREE.Vector3(0.01, y, 0));
-	crosshairPoints.push(new THREE.Vector3(0, 0.01, 0));
-	crosshairPoints.push(new THREE.Vector3(-0.01, y, 0));    
-	crosshairPoints.push(new THREE.Vector3(0, 0.01, 0));
-	let geometry = new THREE.BufferGeometry().setFromPoints(crosshairPoints)
-
-	
-	var crosshair = new THREE.LineSegments( geometry, material );
-	
-	// place it in the center
-	var crosshairPercentX = 50;
-	var crosshairPercentY = 50;
-	var crosshairPositionX = (crosshairPercentX / 100) * 2 - 1;
-	var crosshairPositionY = (crosshairPercentY / 100) * 2 - 1;
-	
-	crosshair.position.x = crosshairPositionX * camera.aspect;
-	crosshair.position.y = crosshairPositionY;
-
-	
-	crosshair.position.z = -0.3;
-	camera.add( crosshair );
-	camera.position.z = 1;
 	
 	//hitDirection = 1;
 	//rotationActive = 0;
@@ -500,10 +648,10 @@ function init() {
 	playerBody = new objectsModule.JailBotBody(renderer);
 	controls.object.add(playerBody);
 	playerBody.position.set(0, 0.5, 1); 
-
+	
 	playerBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
 	playerBoundingBox.setFromObject(controls.object);
-
+	playerBody.frustumCulled = true;
 
 	scene.add(controls.object);
 
@@ -541,34 +689,35 @@ function init() {
 	var hallwayStart = -38;
 	for (var i = 0; i < 3; i++) {
 		var hallwayOffset = hallwayStart + (48 * i);
-
-		var fullHallway = new hallwayModule.FullHallway(renderer, collidableMeshList, scene);
-		fullHallway.position.set(hallwayOffset,5,21);
+		var fullHallway = new hallwayModule.FullHallway(renderer, collidableMeshList, scene, i === 1);
+		fullHallway.position.set(hallwayOffset, 5, 21);
+		fullHallway.traverse(function(child) {
+			if (child instanceof THREE.Mesh) {
+				child.frustumCulled = true;
+			}
+		});
 		scene.add(fullHallway);
 	}
 	
-
 	var cellStartX = -30;
 	var cellStartZ = 0;
 	var cameraPositionInCellOfset = 3;
 	camera.position.x = cellStartX + cameraPositionInCellOfset;
 	camera.position.z = cellStartZ + cameraPositionInCellOfset;
+	
 	var rotationPerColumn = Math.PI;
-
 
 	var vector = new THREE.Vector3(0, 0, -1);
 	vector = camera.localToWorld(vector);
-	vector.sub(camera.position); // Now vector is a unit vector with the same direction as the camera
+	vector.sub(camera.position);
 
 	raycasterCamera = new THREE.Raycaster( camera.position, vector, 0, 50);
 
 	var cellRowCount = 2;
 	var cellsPerRow = 6;
-
 	var totalCellcount = cellRowCount * cellsPerRow;
-
 	var startCell = Math.floor(Math.random() * totalCellcount);
-	console.log("StartCell: "+startCell);
+	console.log("StartCell: " + startCell);
 
 	var currentCell = 0;
 	for (var j = 0; j < cellRowCount; j++) {
@@ -577,8 +726,13 @@ function init() {
 			var cellOffsetX = cellStartX + (12 * i);
 			var cellOffsetZ = cellStartZ + (42 * j);
 			var rootCell = new prisonCellModule.PrisonCell(renderer, collidableMeshList, scene);
-			rootCell.position.set(cellOffsetX,5,cellOffsetZ);
+			rootCell.position.set(cellOffsetX, 5, cellOffsetZ);
 			rootCell.rotateY(rotate);
+			rootCell.traverse(function(child) {
+				if (child instanceof THREE.Mesh) {
+					child.frustumCulled = true;
+				}
+			});
 			scene.add(rootCell);
 
 			//console.log("CurrentCell: "+ currentCell);
@@ -594,8 +748,6 @@ function init() {
 
 
 	addWall(renderer);
-
-	//cloning(4);
 	addTowers(renderer);
 
 	pointerLockModule.initPointerLock(havePointerLock);
@@ -630,45 +782,69 @@ function init() {
 		}
 	});
 }
+init._real = init;
+window.init = init;
+export { init };
 
 function cloning(n) {
-	for (let i = 1; i < n; i++) { 
-		
+	for (let i = 1; i < n; i++) {
 		var newCell = rootCell.clone();
-		newCell.position.set(i*11.55,0,0);
+		newCell.position.set(i*11.55, 0, 0);
+		newCell.traverse(function(child) {
+			if (child instanceof THREE.Mesh) {
+				child.frustumCulled = true;
+			}
+		});
 		scene.add(newCell);
 	}
 	
-	for (let j = 1; j < n+1; j++) { 
+	for (let j = 1; j < n+1; j++) {
 		var newCell = rootCell.clone();
-		newCell.rotation.y =  Math.PI;
-		newCell.position.set(j*11.55,0,41.5);
+		newCell.rotation.y = Math.PI;
+		newCell.position.set(j*11.55, 0, 41.5);
+		newCell.traverse(function(child) {
+			if (child instanceof THREE.Mesh) {
+				child.frustumCulled = true;
+			}
+		});
 		scene.add(newCell);
 	}
 }
 
 function addRamps(renderer) {
 	var ramp1 = new objectsModule.Ramp(renderer);
-	ramp1.position.set(-35,2.5,12);
+	ramp1.position.set(-35, 2.5, 12);
+	ramp1.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.castShadow = true;
+			child.receiveShadow = true;
+			child.frustumCulled = true;
+		}
+	});
 	scene.add(ramp1);
 	collidableMeshList.push(ramp1);
 
 	var ramp2 = new objectsModule.Ramp(renderer);
 	ramp2.rotateY(Math.PI);
-	ramp2.position.set(35,2.5,30);
+	ramp2.position.set(35, 2.5, 30);
+	ramp2.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.castShadow = true;
+			child.receiveShadow = true;
+			child.frustumCulled = true;
+		}
+	});
 	scene.add(ramp2);
 	collidableMeshList.push(ramp2);
-
-
-
 }
-
 
 function addFoundation() {
 	// Matches the building footprint (cells x:-30..42, z:0..48)
 	var geometry = new THREE.BoxGeometry(75, 4, 50);
 	var material = new THREE.MeshLambertMaterial({ color: 0x7a6b5a });
 	var foundation = new THREE.Mesh(geometry, material);
+	foundation.receiveShadow = true;
+	foundation.frustumCulled = true;
 	foundation.position.set(6, 2.5, 23);
 	scene.add(foundation);
 	collidableMeshList.push(foundation);
@@ -676,51 +852,118 @@ function addFoundation() {
 
 function addWall(renderer) {
 	prisonWallRoot = new objectsModule.PrisonWall(renderer);
+	prisonWallRoot.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.castShadow = true;
+			child.receiveShadow = true;
+			child.frustumCulled = true;
+		}
+	});
+	
 	prisonWallRoot.rotation.y += Math.PI/2;
 	var y = 0;
 	prisonWallRoot.rotation.y += Math.PI/2;
-	for (let i = -3; i < 5; i++) { 
+	
+	for (let i = -3; i < 5; i++) {
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(i*16+7,y,-50);
+		prisonWall.position.set(i*16+7, y, -50);
+		prisonWall.traverse(function(child) {
+			if (child instanceof THREE.Mesh) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+				child.frustumCulled = true;
+			}
+		});
 		scene.add(prisonWall);
 	}
+	
 	prisonWallRoot.rotation.y += Math.PI/2;
-	for (let i = -3; i < 4; i++) { 
+	for (let i = -3; i < 4; i++) {
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(-50,y,i*16+7);
+		prisonWall.position.set(-50, y, i*16+7);
+		prisonWall.traverse(function(child) {
+			if (child instanceof THREE.Mesh) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+				child.frustumCulled = true;
+			}
+		});
 		scene.add(prisonWall);
 	}
+	
 	prisonWallRoot.rotation.y -= Math.PI/2;
-	for (let i = -3; i < 5; i++) { 
+	for (let i = -3; i < 5; i++) {
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(i*16+7,y,60);
+		prisonWall.position.set(i*16+7, y, 60);
+		prisonWall.traverse(function(child) {
+			if (child instanceof THREE.Mesh) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+				child.frustumCulled = true;
+			}
+		});
 		scene.add(prisonWall);
 	}
+	
 	prisonWallRoot.rotation.y -= Math.PI/2;
-	for (let i = -3; i < 4; i++) { 
+	for (let i = -3; i < 4; i++) {
 		var prisonWall = prisonWallRoot.clone();
-		prisonWall.position.set(80,y,i*16+7);
+		prisonWall.position.set(80, y, i*16+7);
+		prisonWall.traverse(function(child) {
+			if (child instanceof THREE.Mesh) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+				child.frustumCulled = true;
+			}
+		});
 		scene.add(prisonWall);
 	}
 }
 
-
 function addTowers(renderer) {
 	var tower = new objectsModule.Tower(renderer);
-	tower.position.set(-50,0,-50);
+	tower.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.castShadow = true;
+			child.receiveShadow = true;
+			child.frustumCulled = true;
+		}
+	});
+	tower.position.set(-50, 0, -50);
 	scene.add(tower);
 
-	var tower = new objectsModule.Tower(renderer);
-	tower.position.set(80,0,-50);
-	scene.add(tower);
+	var tower2 = new objectsModule.Tower(renderer);
+	tower2.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.castShadow = true;
+			child.receiveShadow = true;
+			child.frustumCulled = true;
+		}
+	});
+	tower2.position.set(80, 0, -50);
+	scene.add(tower2);
 
-	var tower = new objectsModule.Tower(renderer);
-	tower.position.set(80,0,60);
-	scene.add(tower);
+	var tower3 = new objectsModule.Tower(renderer);
+	tower3.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.castShadow = true;
+			child.receiveShadow = true;
+			child.frustumCulled = true;
+		}
+	});
+	tower3.position.set(80, 0, 60);
+	scene.add(tower3);
 
-	var tower = new objectsModule.Tower(renderer);
-	tower.position.set(-50,0,60);
-	scene.add(tower);
+	var tower4 = new objectsModule.Tower(renderer);
+	tower4.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.castShadow = true;
+			child.receiveShadow = true;
+			child.frustumCulled = true;
+		}
+	});
+	tower4.position.set(-50, 0, 60);
+	scene.add(tower4);
 }
 
 
@@ -734,9 +977,20 @@ function sun(){
 	scene.add(dirLight);
 	scene.add(sun);
 	
+	const fillLight = new THREE.DirectionalLight(0xfff5eb, 0.3);
+	fillLight.position.set(-30, 40, -20);
+	fillLight.castShadow = false;
+	scene.add(fillLight);
 }
+
 function addSandFloor(renderer) {
 	var sand = new objectsModule.Sand(renderer);
+	sand.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.receiveShadow = true;
+			child.frustumCulled = true;
+		}
+	});
 	sand.position.set(100, 0, 100);
 	scene.add(sand);
 	collidableMeshList.push(sand);
@@ -744,43 +998,16 @@ function addSandFloor(renderer) {
 
 function addBullets(renderer) {
 	var bullet = new bulletControl.Bullet(renderer);
+	bullet.traverse(function(child) {
+		if (child instanceof THREE.Mesh) {
+			child.frustumCulled = false;
+		}
+	});
 	bullet.position.set(20, 20, 20);
 	scene.add(bullet);	
 }
 
-function showCameraHelpers(){
-	//scene.add( new THREE.CameraHelper(camera)); //main camera
-	for (j = 0; j < mirror_cameras.length ; j++) { 
-    	scene.add( new THREE.CameraHelper( mirror_cameras[j]) ); //mirror cameras
-	}
-}
-
-
-function updateMirrors() { //update mirrors/materials
-	//u = 0; 
-	var d = 10; //+- position of camera 
-	var cx= controls.object.position.x; //get current x-coordinate from world camera
-	for (j = 0; j < mirror_cameras.length ; j++) { 
-			enableMirrors(cx-d,cx+d); //enable and render only mirrors near world camera
-	    }
-	//console.log("mirrors: " + u);
-	}
-	
-function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coordinates
-	    var p = mirror_cameras[j].localToWorld(new THREE.Vector3(location.x, location.y, location.z));
-    	if(p.x >= x1 & p.x <= x2){
-    		//controls.object.updateMatrixWorld();
-			//var rx= controls.object.rotation.y;
-			var rx= controls.object.position.z;
-			var rr =  ((rx/10) * Math.PI);
-			mirror_cameras[j].rotation.set(0, rr,0 );
-   			mirror_cameras[j].updateMatrix();
-    		mirror_cameras[j].updateProjectionMatrix(); //update
-    		renderer.render( scene, mirror_cameras[j], mirror_materials[j], true );	
-    		//u++;
-    	}
-}
-
+const cameraDirection = new THREE.Vector3();
 
 const cameraDirection = new THREE.Vector3();
 
@@ -792,10 +1019,8 @@ function animate() {
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
 
-		//updateMirrors();
-		raycaster.ray.origin.copy( controls.object.position );
-
-		raycasterFront.ray.origin.copy( controls.object.position );
+		raycaster.ray.origin.copy(controls.object.position);
+		raycasterFront.ray.origin.copy(controls.object.position);
 		controls.getDirection(raycasterFront.ray.direction);
 
 		camera.getWorldDirection(cameraDirection); // camera forward direction, normalized
@@ -815,8 +1040,6 @@ function animate() {
 		// proximityModule.proximityDetector() was called here without arguments: it threw on its
 		// first line and swallowed the error, on every frame, and never did anything else.
 		transformModule.animateDoors();
- 		
-
 		transformModule.animateDrop();
 		// new bullets are not in the scene yet; asking the bullet is cheaper than searching the scene by name
 		const bullets = bulletControl.getBulletArray();
@@ -870,6 +1093,12 @@ function loadMultiplayer(player_name, selected_server){
 	console.log("Loading multiplayer...");
 	try { localStorage.setItem('orange.lastMode', 'MultiPlayer'); } catch(e) { console.log('Could not save lastMode:', e); }
 	closeStart();
+	inActiveGame = true;
+	
+	// Show loading screen and set up loading manager
+	loadingScreen.showLoadingScreen();
+	loadingScreen.setupLoadingManager();
+	
 	init();
 	import('./Resources/functions/multiplayer.mjs').then(module => {
 		multiplayer = new module.Multiplayer(renderer, collidableMeshList, scene, player_name, selected_server);
@@ -877,14 +1106,25 @@ function loadMultiplayer(player_name, selected_server){
 	});
 }
 
-export function startSingleplayer() {
+function startSingleplayer() {
 	gameMode = "SinglePlayer";
     console.log("Starting Singleplayer mode...");
 	showDefeatedCounter(false);
 	try { localStorage.setItem('orange.lastMode', 'SinglePlayer'); } catch(e) { console.log('Could not save lastMode:', e); }
 	closeStart();
+	inActiveGame = true;
+	
+	// Show loading screen and set up loading manager
+	loadingScreen.showLoadingScreen();
+	loadingScreen.setupLoadingManager();
+	
 	init();
 }
+startSingleplayer._real = startSingleplayer;
+window.startSingleplayer = startSingleplayer;
+export { startSingleplayer };
+
+var multiplayerStarting = false;
 
 var multiplayerStarting = false;
 
@@ -912,8 +1152,6 @@ export function startMultiplayerWithName() {
 
 		retrieveServerList().then((result) => {
 			var server_list = result;
-			// uncomment this line if you want to have a local url AND ALSO UNCOMMENT THE SAME LINE IN FUNCTION startMultiplayer()
-			// server_list.push({id: "6666", name: "Lokales Gefängnis", baseUrl: "https://localhost:7000", defaultUrl: "https://localhost:7000/controlhub"});
 			var selected_server = server_list.find(obj => {
 				return obj.id === selected_server_id;
 			});
@@ -925,6 +1163,266 @@ export function startMultiplayerWithName() {
 			}, 2000);
 		});
 	}
+}
+startMultiplayerWithName._real = startMultiplayerWithName;
+window.startMultiplayerWithName = startMultiplayerWithName;
+export { startMultiplayerWithName };
+
+function formatSeconds(totalSeconds) {
+	const s = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+	return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+}
+
+async function updateSessionTable(baseUrl) {
+	const chooser = document.getElementById("sessionChooser");
+	const container = document.getElementById("sessionTableContainer");
+	const startButton = document.getElementById("start_multiplayer_button");
+	if (!chooser || !container) return;
+
+	const sessions = await orangeSessions.list(baseUrl);
+	if (!orangeSessions.supported) {
+		chooser.style.display = "none";
+		if (startButton) startButton.style.display = "";
+		return;
+	}
+
+	const rows = [{ id: "new", name: "New session", time: "2:00", players: "you", action: "Start" }];
+	sessions.forEach(session => rows.push({
+		id: String(session.id),
+		name: String(session.name),
+		time: formatSeconds(session.secondsRemaining) + " left",
+		players: session.playerCount + " of " + session.maxPlayers,
+		action: "Join"
+	}));
+	rows.push({ id: "lobby", name: "Lobby (no session)", time: "no limit", players: "open", action: "Join" });
+
+	const table = document.createElement("table");
+	table.className = "sessionTable";
+	const thead = document.createElement("thead");
+	const headerRow = document.createElement("tr");
+	["Session", "Time", "Players", ""].forEach(text => {
+		const th = document.createElement("th");
+		th.textContent = text;
+		headerRow.appendChild(th);
+	});
+	head.appendChild(headerRow);
+	table.appendChild(thead);
+
+	const tbody = document.createElement("tbody");
+	rows.forEach(entry => {
+		const row = document.createElement("tr");
+		[entry.name, entry.time, entry.players].forEach(text => {
+			const cell = document.createElement("td");
+			cell.textContent = text;
+			row.appendChild(cell);
+		});
+		const actionCell = document.createElement("td");
+		const button = document.createElement("button");
+		button.className = "joinButton";
+		button.textContent = entry.action;
+		button.dataset.sessionId = entry.id;
+		button.dataset.sessionName = entry.name;
+		button.addEventListener("click", () => chooseSession(entry.id));
+		actionCell.appendChild(button);
+		row.appendChild(actionCell);
+		tbody.appendChild(row);
+	});
+	table.appendChild(tbody);
+
+	container.textContent = "";
+	container.appendChild(table);
+	chooser.style.display = "block";
+	if (startButton) startButton.style.display = "none";
+}
+
+async function updateSessionDropdown(baseUrl) {
+	return updateSessionTable(baseUrl);
+}
+
+async function updateSessionDropdownForSelectedServer(server_list) {
+	const serverSelector = document.getElementById("serverSelector");
+	if (!serverSelector) return;
+	try {
+		const list = server_list || await retrieveServerList();
+		const selected = list.find(s => s.id === serverSelector.value);
+		if (selected) await updateSessionDropdown(selected.baseUrl);
+	} catch (e) {
+		console.log("Could not update the session list:", e);
+	}
+}
+
+function chosenSession() {
+	const chooser = document.getElementById("sessionChooser");
+	if (!chooser || chooser.style.display === "none") return null;
+	return orangeSessions.choice;
+}
+
+function chooseSession(sessionId) {
+	const lobby = sessionId === "lobby" || sessionId === null || sessionId === undefined || sessionId === "";
+	orangeSessions.choose(lobby ? null : String(sessionId));
+	startMultiplayerWithName();
+}
+chooseSession._real = chooseSession;
+window.chooseSession = chooseSession;
+export { chooseSession };
+
+function updateSessionCountdown(secondsLeft, visible) {
+	const countdown = document.getElementById("sessionCountdown");
+	const timeSpan = document.getElementById("sessionTime");
+	if (!countdown || !timeSpan) return;
+	timeSpan.textContent = formatSeconds(secondsLeft);
+	countdown.classList.toggle("healthBarHidden", !visible);
+	countdown.classList.toggle("low", visible && secondsLeft <= 15);
+}
+
+function showSessionNotice(text) {
+	let notice = document.getElementById("sessionNotice");
+	if (!notice) {
+		notice = document.createElement("div");
+		notice.id = "sessionNotice";
+		notice.style.cssText = "position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:1000; padding:6px 12px;" +
+			" color:#fff; background:rgba(0,0,0,0.6); border-radius:4px; font-family:Arial,sans-serif; pointer-events:none;";
+		document.body.appendChild(notice);
+	}
+	notice.textContent = text;
+	notice.style.display = "block";
+	setTimeout(() => { notice.style.display = "none"; }, 6000);
+}
+
+var sessionResultTimer = null;
+
+function showSessionResults(detail) {
+	const kills = (detail && detail.kills) || {};
+	const defeats = (detail && detail.defeats) || {};
+	let overlay = document.getElementById("sessionResultOverlay");
+	if (!overlay) {
+		overlay = document.createElement("div");
+		overlay.id = "sessionResultOverlay";
+		document.body.appendChild(overlay);
+	}
+	overlay.textContent = "";
+	const title = document.createElement("h1");
+	title.textContent = ((detail && detail.name) || "Session") + " is over";
+	overlay.appendChild(title);
+
+	const names = Array.from(new Set(Object.keys(kills).concat(Object.keys(defeats))));
+	names.sort((a, b) => ((kills[b] || 0) - (kills[a] || 0)) || ((defeats[a] || 0) - (defeats[b] || 0)));
+
+	const winnerLine = document.createElement("h2");
+	winnerLine.id = "sessionWinner";
+	const score = (name) => [(kills[name] || 0), (defeats[name] || 0)];
+	const best = names.filter(name => score(name)[0] === score(names[0])[0] && score(name)[1] === score(names[0])[1]);
+	if (names.length === 0 || score(names[0])[0] === 0) {
+		winnerLine.textContent = "No winner, nobody scored a kill";
+	} else if (best.length > 1) {
+		winnerLine.textContent = "Draw: " + best.join(" and ");
+	} else {
+		winnerLine.textContent = "Winner: " + names[0];
+	}
+	overlay.appendChild(winnerLine);
+
+	const table = document.createElement("table");
+	table.id = "sessionResults";
+	const thead = document.createElement("thead");
+	const headerRow = document.createElement("tr");
+	["Rank", "Player", "Kills", "Deaths", "K/D"].forEach(text => {
+		const th = document.createElement("th");
+		th.textContent = text;
+		headerRow.appendChild(th);
+	});
+	head.appendChild(headerRow);
+	table.appendChild(thead);
+
+	const tbody = document.createElement("tbody");
+	if (names.length === 0) {
+		const row = document.createElement("tr");
+		const cell = document.createElement("td");
+		cell.colSpan = 5;
+		cell.textContent = "Nobody was busted.";
+		row.appendChild(cell);
+		tbody.appendChild(row);
+	} else {
+		names.forEach((name, index) => {
+			const killCount = kills[name] || 0;
+			const deathCount = defeats[name] || 0;
+			const ratio = deathCount === 0 ? (killCount === 0 ? "0.00" : killCount + ".00 (never busted)") : (killCount / deathCount).toFixed(2);
+			const row = document.createElement("tr");
+			[(index + 1) + ".", name, String(killCount), String(deathCount), ratio].forEach(text => {
+				const cell = document.createElement("td");
+				cell.textContent = text;
+				row.appendChild(cell);
+			});
+			tbody.appendChild(row);
+		});
+	}
+	table.appendChild(tbody);
+	overlay.appendChild(table);
+
+	const footer = document.createElement("p");
+	overlay.appendChild(footer);
+	const leaveButton = document.createElement("button");
+	leaveButton.className = "modeButton";
+	leaveButton.textContent = "Back to the menu";
+	leaveButton.addEventListener("click", () => {
+		clearInterval(sessionResultTimer);
+		Promise.resolve(orangeSessions.leave()).finally(() => location.reload());
+	});
+	overlay.appendChild(leaveButton);
+	overlay.style.display = "block";
+
+	let remaining = 10;
+	footer.textContent = "Next round in " + remaining + " s";
+	clearInterval(sessionResultTimer);
+	sessionResultTimer = setInterval(() => {
+		remaining--;
+		footer.textContent = remaining > 0 ? "Next round in " + remaining + " s" : "Waiting for the next round ...";
+		if (remaining <= -4) {
+			clearInterval(sessionResultTimer);
+			location.reload();
+		}
+	}, 1000);
+}
+
+function hideSessionResults() {
+	clearInterval(sessionResultTimer);
+	const overlay = document.getElementById("sessionResultOverlay");
+	if (overlay) overlay.style.display = "none";
+}
+
+window.addEventListener("orange:sessionJoined", (e) => {
+	hideSessionResults();
+	resetSessionStats();
+	roundPaused = false;
+	if (controls && health > 0) {
+		resetHealth();
+		controlsModule.setInputBlocked(false);
+		controls.enabled = true;
+	}
+	updateSessionCountdown(e.detail.secondsLeft, true);
+	showSessionNotice("You are in " + (e.detail.name || "a session"));
+});
+
+window.addEventListener("orange:sessionTime", (e) => updateSessionCountdown(e.detail.secondsLeft, true));
+
+window.addEventListener("orange:sessionEnded", (e) => {
+	hallOfFame.recordRound(e.detail);
+	roundPaused = true;
+	if (controls && health > 0) {
+		resetHealth();
+		respawnPlayer();
+	}
+	setTimeout(updateDefeatedCounter, 0);
+	updateSessionCountdown(0, false);
+	showSessionResults(e.detail);
+});
+
+window.addEventListener("orange:sessionJoinFailed", (e) => {
+	updateSessionCountdown(0, false);
+	showSessionNotice("Session not available (" + ((e.detail && e.detail.reason) || "unknown") + "). You are in the lobby.");
+});
+{
+	const serverSelector = document.getElementById("serverSelector");
+	if (serverSelector) serverSelector.addEventListener("change", () => updateSessionDropdownForSelectedServer());
 }
 
 
@@ -1217,8 +1715,6 @@ export function startMultiplayer() {
 
 	retrieveServerList().then((result) => {
 		var server_list = result;
-		// uncomment this line if you want to have a local url AND ALSO UNCOMMENT THE SAME LINE IN FUNCTION startMultiplayerWithName()
-		// server_list.push({id: "6666", name: "Lokales Gefängnis", baseUrl: "https://localhost:7000", defaultUrl: "https://localhost:7000/controlhub"});
 		console.log("Working on server list: " + JSON.stringify(server_list));
 		createServerListDropdown(server_list);
 		setTimeout(() => updateSessionDropdownForSelectedServer(server_list), 0);
@@ -1240,7 +1736,112 @@ export function startMultiplayer() {
 
 	console.log("Selecting User Details");
 }
+startMultiplayer._real = startMultiplayer;
+window.startMultiplayer = startMultiplayer;
+export { startMultiplayer };
 
+async function showHallOfFame() {
+	if (gameMode === 'SinglePlayer') return;
+	hallOfFame.render(hallOfFame.loadLocal(), 'Rounds played in this browser');
+	try {
+		const servers = await retrieveServerList();
+		let savedId = null;
+		try { savedId = localStorage.getItem('orange.serverId'); } catch (e) { savedId = null; }
+		const server = servers.find(s => s.id === savedId) || servers[0];
+		if (server) await hallOfFame.show(server.baseUrl, server.name);
+	} catch (e) {
+		console.log("Hall of fame: server list not available, showing local entries.", e);
+	}
+}
+
+// Initialize HUD visibility for menu screen
+inActiveGame = false;
+updateHudVisibility();
+
+showHallOfFame();
+
+// ========== GAME MENU SYSTEM ==========
+let gameMenuOpen = false;
+let optionsMenuOpen = false;
+let gameMenuElement = null;
+let optionsMenuElement = null;
+let menuBlockingPointerLock = false;
+// Expose to window for pointerLock.mjs to access
+window.menuBlockingPointerLock = menuBlockingPointerLock;
+
+/**
+ * Creates the game menu overlay
+ */
+function createGameMenu() {
+	if (gameMenuElement) return;
+	
+	gameMenuElement = document.createElement('div');
+	gameMenuElement.id = 'gameMenu';
+	gameMenuElement.style.cssText = `
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		display: none;
+	`;
+	
+	const title = document.createElement('h2');
+	title.textContent = 'Game Menu';
+	gameMenuElement.appendChild(title);
+	
+	const menuList = document.createElement('div');
+	menuList.className = 'menu-list';
+	
+	// Back to main menu button
+	const backToMenuBtn = document.createElement('button');
+	backToMenuBtn.textContent = 'Back to Main Menu';
+	backToMenuBtn.className = 'back-menu-btn';
+	backToMenuBtn.addEventListener('click', () => {
+		hideGameMenu();
+		returnToMainMenu();
+	});
+	backToMenuBtn.addEventListener('mouseover', () => {
+		backToMenuBtn.style.background = '#d32f2f';
+	});
+	backToMenuBtn.addEventListener('mouseout', () => {
+		backToMenuBtn.style.background = '#f44336';
+	});
+	menuList.appendChild(backToMenuBtn);
+	
+	// Options button
+	const optionsBtn = document.createElement('button');
+	optionsBtn.textContent = 'Options';
+	optionsBtn.className = 'options-btn';
+	optionsBtn.addEventListener('click', () => {
+		hideGameMenu();
+		showOptionsMenu();
+	});
+	optionsBtn.addEventListener('mouseover', () => {
+		optionsBtn.style.background = '#0b7dda';
+	});
+	optionsBtn.addEventListener('mouseout', () => {
+		optionsBtn.style.background = '#2196F3';
+	});
+	menuList.appendChild(optionsBtn);
+	
+	// Resume button
+	const resumeBtn = document.createElement('button');
+	resumeBtn.textContent = 'Resume Game';
+	resumeBtn.className = 'resume-btn';
+	resumeBtn.addEventListener('click', () => {
+		hideGameMenu();
+	});
+	resumeBtn.addEventListener('mouseover', () => {
+		resumeBtn.style.background = '#546E7A';
+	});
+	resumeBtn.addEventListener('mouseout', () => {
+		resumeBtn.style.background = '#607D8B';
+	});
+	menuList.appendChild(resumeBtn);
+	
+	gameMenuElement.appendChild(menuList);
+	document.body.appendChild(gameMenuElement);
+}
 
 // Hall of fame on the start screen: from the server the player used last, or the first one in the list
 async function showHallOfFame() {

@@ -5,26 +5,48 @@ var door;
 var soap;
 var droppingSoaps = []; // soaps that are falling right now, several players can drop one at the same time
 
-// rotate object around own axis
-export function rotate(object, axis, degree) { 
-	var angle = degree * Math.PI / 180;
-	if(object.userData.rotatable == true){
-	    var quaternion = new THREE.Quaternion();
-	    quaternion.setFromAxisAngle(axis, angle);
-	    object.quaternion.multiply(quaternion);
-   }
-}  
+// Door animation state
+let door = null;
+let droppingSoaps = [];
 
-//rotatable beim bot global undefined
-export function rotateBot(object, axis, degree) { 
-	var angle = degree * Math.PI / 180;
-	    var quaternion = new THREE.Quaternion();
-	    quaternion.setFromAxisAngle(axis, angle);
-	    object.quaternion.multiply(quaternion);
+// Bot patrol state
+let patrolStatus = 0;
+let botRotateCounter = 0;
+let botArmStatus = 0;
+let botHit = 0;
+let hitDirection = 1;
+let rotationActive = 0;
+
+// Reusable vectors
+const tempVec3A = new THREE.Vector3();
+const tempVec3B = new THREE.Vector3();
+const tempVec3C = new THREE.Vector3();
+
+/**
+ * Rotate object around its own axis
+ */
+export function rotate(object, axis, degree) {
+	if (object.userData.rotatable === true) {
+		const angle = degree * Math.PI / 180;
+		const quaternion = new THREE.Quaternion();
+		quaternion.setFromAxisAngle(axis, angle);
+		object.quaternion.multiply(quaternion);
+	}
 }
 
+/**
+ * Rotate bot without checking rotatable flag
+ */
+export function rotateBot(object, axis, degree) {
+	const angle = degree * Math.PI / 180;
+	const quaternion = new THREE.Quaternion();
+	quaternion.setFromAxisAngle(axis, angle);
+	object.quaternion.multiply(quaternion);
+}
 
-
+/**
+ * Trigger object based on userData
+ */
 export function triggerObject(intersectArray) {
 	/*intersectArray.forEach(element => {
 		console.log(element.object.parent.parent);
@@ -60,8 +82,7 @@ export function triggerObject(intersectArray) {
 				}
 			}
 			break;
-		}
-		case "Door2": {
+		case "Door2":
 			triggerDoor(correctObject);
 			break;
 		}
@@ -71,8 +92,11 @@ export function triggerObject(intersectArray) {
 	}
 }
 
+/**
+ * Trigger drop animation for soap
+ */
 export function triggerDrop(object) {
-	if (object.userData.isDropable == true) {
+	if (object.userData.isDropable === true) {
 		object.userData.isDropable = false;
 		soap = object;
 		if (droppingSoaps.indexOf(object) === -1) droppingSoaps.push(object);
@@ -88,39 +112,36 @@ export function triggerDrop(object) {
 	}
 }
 
+/**
+ * Trigger door open/close
+ */
 export function triggerDoor(object) {
-	//if (null != parentObject.object.parent.parent) {
-		//var object = parentObject.object.parent.parent;
-		if (object.userData.isOpenable === true) {
-			object.userData.isOpenable = false;
-			if (object.userData.isOpen === false) {
-				object.userData.isOpen = true;
-				object.userData.info = "offen!<br/> schließen mit T";
-				door = object;
-			} else if(object.userData.isOpen === true) {
-				object.userData.isOpen = false;
-				object.userData.info = "geschlossen!<br/> öffne mit T";
-				door = object;
-			}
+	if (object.userData.isOpenable === true) {
+		object.userData.isOpenable = false;
+		if (object.userData.isOpen === false) {
+			object.userData.isOpen = true;
+			object.userData.info = "offen!<br/> schlie\u00dfen mit T";
+			door = object;
+		} else if (object.userData.isOpen === true) {
+			object.userData.isOpen = false;
+			object.userData.info = "geschlossen!<br/> \u00f6ffne mit T";
+			door = object;
 		}
-    //}
+	}
 }
 
-export function switchTableLight(object) {
-	if(object.userData.isTurnedOn === false)
-	{
-		object.userData.info = "Licht an mit T";
-		showMessage(object.userData.info);
-		object.children[0].intensity = 0;
-		object.userData.isTurnedOn = true;
-	}
-	else if (object.userData.isTurnedOn === true)
-	{
-		object.userData.info = "Licht aus mit T";
-		showMessage(object.userData.info);
-		object.children[0].intensity = 4;
-		object.userData.isTurnedOn = false;
-	}
+/**
+ * Drop soap by sync ID (called from multiplayer)
+ */
+export function dropSoapById(scene, syncId) {
+	let found = null;
+	scene.traverse(function(object) {
+		if (!found && object.userData && object.userData.syncId === syncId) {
+			found = object;
+		}
+	});
+	if (found) triggerDrop(found);
+	return found !== null;
 }
 
 // Another player dropped a soap: find it by its id and drop it here as well
@@ -156,6 +177,9 @@ export function animateDrop() {
 						droppingSoaps.splice(i, 1); // it lies on the floor
 					}
 				}
+			} else {
+				falling.userData.isDropable = true;
+				droppingSoaps.splice(i, 1);
 			}
 			else {
 				falling.userData.isDropable = true;
@@ -165,32 +189,31 @@ export function animateDrop() {
 		else {
 			droppingSoaps.splice(i, 1);
 		}
-	}	
+	}
 }
 
-
+/**
+ * Animate doors
+ */
 export function animateDoors() {
-	
-	if (door != null) {
-		var rotFact = 1;
-		if (door.userData.isOpenable == false) {
+	if (door !== null) {
+		let rotFact = 1;
 		
-			if (door.userData.info.indexOf("offen")>-1) {
-				if (door.parent.parent.rotation.y == Math.PI / -2) {
+		if (door.userData.isOpenable === false) {
+			if (door.userData.info.includes("offen")) {
+				if (door.parent.parent.rotation.y === Math.PI / -2) {
 					rotFact = -1;
 				}
-					
-				if (door.position.x > door.userData.startPosition-3) {
-					//console.log(door.position.x+" "+door.userData.startPosition+3);
-					door.position.x -= 0.1*rotFact;
+
+				if (door.position.x > door.userData.startPosition - 3) {
+					door.position.x -= 0.1 * rotFact;
 				} else {
 					door.userData.isOpenable = true;
 					door.userData.startPosition = door.position.x;
 				}
 			} else {
-				if (door.position.x < door.userData.startPosition+3) {
-					//console.log(door.position.x+" "+door.userData.startPosition);
-					door.position.x += 0.1*rotFact;
+				if (door.position.x < door.userData.startPosition + 3) {
+					door.position.x += 0.1 * rotFact;
 				} else {
 					door.userData.isOpenable = true;
 					door.userData.startPosition = door.position.x;
@@ -252,140 +275,151 @@ export function animateBullets(bulletList, delta, collidableMeshList) {
 	}
 }
 
+	for (let i = bulletList.length - 1; i >= 0; i--) {
+		const singleBullet = bulletList[i];
 
-//Ausdehnung
+		// Apply gravity
+		singleBullet.velocity.y -= GRAVITY * delta;
 
-//x:24
+		// Store old position
+		const oldPosition = tempVec3A.copy(singleBullet.position);
 
-//y:21,3
+		// Update position
+		singleBullet.position.addScaledVector(singleBullet.velocity, delta);
 
-var patrolStatus = 0;
-var botRotateCounter, botArmStatus, botHit, hitDirection, rotationActive;
+		// Raycast for collision
+		const movementVector = tempVec3B.subVectors(singleBullet.position, oldPosition);
+		bulletRaycaster.set(oldPosition, movementVector.clone().normalize());
+		bulletRaycaster.far = movementVector.length();
+		bulletRaycaster.near = 0;
 
-export function patrolRobot(botBody, botArms)
-{
-	//console.log("180grad");
-	//console.log(Math.PI / 180 *90);
-	//console.log("sein wert");
-	//console.log(bot.rotation.y);
-	
-	if(botBody.position.x <= 43 && botBody.position.z >= 22 && patrolStatus == 0)
-	{
+		const hits = bulletRaycaster.intersectObjects(collidableMeshList, true);
+
+		if (hits.length > 0) {
+			// Find player object
+			let player = hits[0].object;
+			while (player && player.playerid === undefined) {
+				player = player.parent;
+			}
+
+			// Send hit event for local bullets
+			if (!singleBullet.isRemote && player) {
+				bulletControl.shoot(player.playerid);
+			}
+
+			// Remove bullet on collision
+			if (singleBullet.parent) {
+				singleBullet.parent.remove(singleBullet);
+			}
+			bulletList.splice(i, 1);
+			continue;
+		}
+
+		// Check lifetime
+		if (singleBullet.birthday && (now - singleBullet.birthday) > BULLET_LIFETIME) {
+			if (singleBullet.parent) {
+				singleBullet.parent.remove(singleBullet);
+			}
+			bulletList.splice(i, 1);
+		}
+	}
+}
+
+/**
+ * Patrol robot AI
+ */
+export function patrolRobot(botBody, botArms) {
+	if (botBody.position.x <= 43 && botBody.position.z >= 22 && patrolStatus === 0) {
 		hitDirection = 1;
 		rotationActive = 0;
 		botBody.position.x += 0.1;
 		botArms.position.x += 0.1;
-		botRotateCounter=0;
-	}
-	
-	else if(botBody.position.x >= 43  && botBody.position.z == 22  && botRotateCounter<18)//&& bot.rotation.y >  Math.PI / -1024) //(Math.PI / 180 *180))
-	{
+		botRotateCounter = 0;
+	} else if (botBody.position.x >= 43 && botBody.position.z === 22 && botRotateCounter < 18) {
 		rotationActive = 1;
-		if(botArmStatus != 0)
-		{
-			//t(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
+		if (botArmStatus !== 0) {
 			botArmStatus = 0;
 		}
-		
-		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
-		rotateBot(botArms,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
-		
-		
+		rotateBot(botBody, tempVec3A.set(0, 1, 0), 5);
+		rotateBot(botArms, tempVec3A.set(0, 1, 0), 5);
 		botRotateCounter++;
 		patrolStatus = 1;
-	}
-	
-	else if(botBody.position.x >= 43 && botBody.position.z > 18)
-	{
+	} else if (botBody.position.x >= 43 && botBody.position.z > 18) {
 		hitDirection = 0;
 		rotationActive = 0;
 		botBody.position.z -= 0.1;
 		botArms.position.z -= 0.1;
-		botRotateCounter=0;
-	}
-	
-	else if(botBody.position.x >= 43  && botBody.position.z <= 18  && botRotateCounter<18)//&& bot.rotation.y >  Math.PI / -1023) //(Math.PI / 180 *180))
-	{
+		botRotateCounter = 0;
+	} else if (botBody.position.x >= 43 && botBody.position.z <= 18 && botRotateCounter < 18) {
 		rotationActive = 1;
-		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
-		rotateBot(botArms,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
+		rotateBot(botBody, tempVec3A.set(0, 1, 0), 5);
+		rotateBot(botArms, tempVec3A.set(0, 1, 0), 5);
 		botRotateCounter++;
-	}
-	
-	
-	else if(botBody.position.x > 4  && botBody.position.z <= 18 && botBody.rotation.y) //(Math.PI / 180 *180))
-	{
+	} else if (botBody.position.x > 4 && botBody.position.z <= 18 && botBody.rotation.y) {
 		hitDirection = -1;
 		rotationActive = 0;
 		botBody.position.x -= 0.1;
 		botArms.position.x -= 0.1;
-		botRotateCounter=0;
-	}
-
-	else if(botBody.position.x <= 4  && botBody.position.z <= 18  && botRotateCounter<18)//&& bot.rotation.y >  Math.PI / -1023) //(Math.PI / 180 *180))
-	{
+		botRotateCounter = 0;
+	} else if (botBody.position.x <= 4 && botBody.position.z <= 18 && botRotateCounter < 18) {
 		rotationActive = 1;
-		if(botArmStatus != 0)
-		{
-			//rotateBot(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
+		if (botArmStatus !== 0) {
 			botArmStatus = 0;
 		}
-		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
-		rotateBot(botArms,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
+		rotateBot(botBody, tempVec3A.set(0, 1, 0), 5);
+		rotateBot(botArms, tempVec3A.set(0, 1, 0), 5);
 		botRotateCounter++;
-	}
-	
-	else if(botBody.position.x <= 43 && botBody.position.z < 22)
-	{
+	} else if (botBody.position.x <= 43 && botBody.position.z < 22) {
 		hitDirection = 0;
 		rotationActive = 0;
 		botBody.position.z += 0.1;
 		botArms.position.z += 0.1;
-		botRotateCounter=0;
-	}
-	
-	else if(botBody.position.x <= 43  && botBody.position.z >= 22  && botRotateCounter<18 && patrolStatus == 1)//&& bot.rotation.y >  Math.PI / -1023) //(Math.PI / 180 *180))
-	{
+		botRotateCounter = 0;
+	} else if (botBody.position.x <= 43 && botBody.position.z >= 22 && botRotateCounter < 18 && patrolStatus === 1) {
 		rotationActive = 1;
-		if(botArmStatus != 0)
-		{
-			rotateBot(botArms,new THREE.Vector3(1,0,0), botArmStatus); //object,axis,degree
+		if (botArmStatus !== 0) {
+			rotateBot(botArms, tempVec3A.set(1, 0, 0), botArmStatus);
 			botArmStatus = 0;
 		}
-		
-		rotateBot(botBody,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
-		rotateBot(botArms,new THREE.Vector3(0,1,0),5 ); //object,axis,degree
+		rotateBot(botBody, tempVec3A.set(0, 1, 0), 5);
+		rotateBot(botArms, tempVec3A.set(0, 1, 0), 5);
 		botRotateCounter++;
-		
-		if(botRotateCounter == 18)
+		if (botRotateCounter === 18) {
 			patrolStatus = 0;
+		}
 	}
 }
 
-export function robotAttack()
-{
-	
-	if(rotationActive != 1 && hitDirection != 0)
-	{
-		if(botHit == 0)
-		{
-			rotateBot(botArms,new THREE.Vector3(1,0,0), -5);//(5 * hitDirection) ); //object,axis,degree
+/**
+ * Bot attack animation
+ */
+export function robotAttack() {
+	if (rotationActive !== 1 && hitDirection !== 0) {
+		if (botHit === 0) {
+			rotateBot(botArms, tempVec3A.set(1, 0, 0), -5);
 			botArmStatus += 5;
-			if(botArmStatus >= 120)
-			{
+			if (botArmStatus >= 120) {
 				botHit = 1;
-			}			
-		}
-		
-		else if(botHit == 1)
-		{
-			rotateBot(botArms,new THREE.Vector3(1,0,0), 5); //(-5 * hitDirection) ); //object,axis,degree
+			}
+		} else if (botHit === 1) {
+			rotateBot(botArms, tempVec3A.set(1, 0, 0), 5);
 			botArmStatus -= 5;
-			if(botArmStatus <= 20)
-			{
+			if (botArmStatus <= 20) {
 				botHit = 0;
-			}	
+			}
 		}
-	}	
+	}
+}
+
+/**
+ * Reset patrol state
+ */
+export function resetPatrolState() {
+	patrolStatus = 0;
+	botRotateCounter = 0;
+	botArmStatus = 0;
+	botHit = 0;
+	hitDirection = 1;
+	rotationActive = 0;
 }
 

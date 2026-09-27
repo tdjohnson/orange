@@ -7,32 +7,33 @@ function events2main(type, destination) {
 	if (typeof window.events2main === 'function') window.events2main(type, destination);
 }
 
-const BulletArray = [];
-var currentPositon;
-var buletLifetime = 10;
-var collidableMeshList = [];
+// Shooting cooldown state
+let cooldownEndTime = 0;
+
+// Reusable vectors
+const tempVec3A = new THREE.Vector3();
+const tempVec3B = new THREE.Vector3();
 
 export class Bullet extends THREE.Mesh {
-    constructor(renderer) {
-        super();
+	constructor(renderer) {
+		super();
 		this.name = 'Bullet_' + this.id;
         var scope = this;
         this.birthday = Date.now();
 		this.velocity = new THREE.Vector3();
 
-        meshloader('./Prototypes/Bullet/Bullet.glb',function(model) {
+		meshloader('./Prototypes/Bullet/Bullet.glb', function(model) {
 			scope.add(model);
 		}, renderer);
-    }
+	}
 
-    getName() {
-        return this.name;
-    }
-
+	getName() {
+		return this.name;
+	}
 }
 
 export function updateCollidableMeshList(newMeshList) {
-    collidableMeshList = newMeshList;
+	collidableMeshList = newMeshList;
 }
 
 export function shoot(destination){
@@ -70,7 +71,7 @@ export function addBullet(renderer) {
 }
 
 export function getBulletArray() {
-    return BulletArray;
+	return bulletArray;
 }
 
 export function setPositionReference(camera) {

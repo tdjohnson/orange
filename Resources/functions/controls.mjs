@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import {collisionDetection} from './collision.mjs'
-import {showMessageContent} from './splashScreen.mjs';
+import { collisionDetection } from './collision.mjs';
+import { showMessageContent } from './splashScreen.mjs';
 import * as transformModule from './transform.mjs';
 import * as bulletControl from './bulletControl.mjs';
 
@@ -23,15 +23,42 @@ var originVec = new THREE.Vector3();
 var normalVec = new THREE.Vector3();
 var rotationAxis = new THREE.Vector3(0, 1, 0);
 
-var renderer;
-var scene;
-var currentBody;
+// Collision system state
+const colliderCache = new WeakMap();
+let boxColliders = [];
+let rayColliders = [];
+let rayCandidates = [];
 
-var debugOverlayVisible = false;
+// References
+let renderer;
+let scene;
+let currentBody;
+let lastObject;
+let controls;
+
+// Performance settings
+const neverBoxes = { Ramp: true, Sand: true, Hallway: true, FullHallway: true };
+
+// Object pools for collision detection
+const rayCasterPool = [];
+function getRaycaster() {
+	if (rayCasterPool.length > 0) {
+		return rayCasterPool.pop();
+	}
+	return new THREE.Raycaster();
+}
+function returnRaycaster(raycaster) {
+	raycaster.near = 0;
+	raycaster.far = 0;
+	rayCasterPool.push(raycaster);
+}
+
+// Wall raycaster (reused)
+const wallRaycaster = new THREE.Raycaster();
 
 function toggleDebugOverlay() {
 	debugOverlayVisible = !debugOverlayVisible;
-	var el = document.getElementById("message");
+	const el = document.getElementById("message");
 	if (el) el.classList.toggle("hidden", !debugOverlayVisible);
 }
 
@@ -62,6 +89,9 @@ export function resetMovement() {
 	for (var key in pressedKeys) pressedKeys[key] = false;
 	canJump = true;
 }
+
+// Key state tracking
+const pressedKeys = {};
 
 export function onMouseDown(e) {
 	if (inputBlocked) return;
@@ -377,7 +407,7 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 
 		if(pressedKeys[" "]) {
 			if (canJump === true) {
-				velocity.y += jumpImpulse;
+				velocity.y += JUMP_IMPULSE;
 				canJump = false;
 			}
 		}
@@ -397,6 +427,7 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 			velocity.x += walkAccel * delta;
 		}
 
+		// Apply damping
 		velocity.x = calcNewVelocityPerTick(velocity.x, delta);
 		velocity.z = calcNewVelocityPerTick(velocity.z, delta);
 		velocity.y -= 19.6 * delta * mass;
@@ -440,8 +471,9 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 		tempVec.set(controls.object.position.x, newY, controls.object.position.z);
 		raycaster.ray.origin.copy(tempVec);
 
-		var groundHits = raycaster.intersectObjects(collidableMeshList, true);
-		var onGround = false;
+		// Raycast to detect ground
+		tempVec.set(controls.object.position.x, newY, controls.object.position.z);
+		raycaster.ray.origin.copy(tempVec);
 
 		// The ground is the first surface at or below knee height. Anything higher between eye and
 		// knee is a table top, a bunk or a ceiling: skip it and keep looking further down, otherwise
@@ -488,6 +520,17 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 		toDisplay += "</table>";
 
 		showMessageContent(toDisplay);
+	}
+}
 
-    }
+// Helper function for zoom
+function zoom() {
+	if (camera) {
+		if (camera.zoom === 4) {
+			camera.zoom = 1;
+		} else {
+			camera.zoom = 4;
+		}
+		camera.updateProjectionMatrix();
+	}
 }

@@ -145,6 +145,10 @@ export class Multiplayer extends THREE.Mesh {
                 }
             }
         });
+        fetch(this.serverBaseUrl + '/api/Lobby/GetScores')
+            .then(r => (r.ok ? r.json() : null))
+            .then(scores => { if (scores && typeof window.handleServerScores === 'function') window.handleServerScores(scores); })
+            .catch(() => { /* old server without scores, peer sync stays active */ });
 
         // Server-side scoreboard (UMPS >= player_left_scores_type). Old servers never send this.
         this.umps.hub.on("ScoresUpdated", (scores) => {
@@ -173,7 +177,7 @@ export class Multiplayer extends THREE.Mesh {
     }
 
     getCurrentPlayerBody() {
-        this.playerBody;
+        return this.playerBody;
     }
 
  
@@ -282,6 +286,7 @@ export class Multiplayer extends THREE.Mesh {
         context.fillText(nameString, 0, 60);
 
         const texture = new THREE.CanvasTexture(canvas);
+        texture.colorSpace = THREE.SRGBColorSpace;
         const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
         const planeGeometry = new THREE.PlaneGeometry(1, 0.5);
         const plane = new THREE.Mesh(planeGeometry, material);
