@@ -1489,6 +1489,9 @@ let gameMenuOpen = false;
 let optionsMenuOpen = false;
 let gameMenuElement = null;
 let optionsMenuElement = null;
+let menuBlockingPointerLock = false;
+// Expose to window for pointerLock.mjs to access
+window.menuBlockingPointerLock = menuBlockingPointerLock;
 
 /**
  * Creates the game menu overlay
@@ -1503,67 +1506,36 @@ function createGameMenu() {
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 300px;
-		background: rgba(0, 0, 0, 0.9);
-		border: 2px solid #4CAF50;
-		border-radius: 10px;
-		padding: 20px;
-		z-index: 20000;
-		font-family: Arial, sans-serif;
-		color: white;
-		text-align: center;
 		display: none;
 	`;
 	
 	const title = document.createElement('h2');
 	title.textContent = 'Game Menu';
-	title.style.marginTop = '0';
-	title.style.color = '#4CAF50';
 	gameMenuElement.appendChild(title);
 	
 	const menuList = document.createElement('div');
-	menuList.style.margin = '20px 0';
+	menuList.className = 'menu-list';
 	
 	// Back to main menu button
 	const backToMenuBtn = document.createElement('button');
 	backToMenuBtn.textContent = 'Back to Main Menu';
-	backToMenuBtn.style.cssText = `
-		width: 100%;
-		padding: 12px;
-		margin: 8px 0;
-		background: #4CAF50;
-		color: white;
-		border: none;
-		border-radius: 5px;
-		font-size: 16px;
-		cursor: pointer;
-	`;
+	backToMenuBtn.className = 'back-menu-btn';
 	backToMenuBtn.addEventListener('click', () => {
 		hideGameMenu();
 		returnToMainMenu();
 	});
 	backToMenuBtn.addEventListener('mouseover', () => {
-		backToMenuBtn.style.background = '#45a049';
+		backToMenuBtn.style.background = '#d32f2f';
 	});
 	backToMenuBtn.addEventListener('mouseout', () => {
-		backToMenuBtn.style.background = '#4CAF50';
+		backToMenuBtn.style.background = '#f44336';
 	});
 	menuList.appendChild(backToMenuBtn);
 	
 	// Options button
 	const optionsBtn = document.createElement('button');
 	optionsBtn.textContent = 'Options';
-	optionsBtn.style.cssText = `
-		width: 100%;
-		padding: 12px;
-		margin: 8px 0;
-		background: #2196F3;
-		color: white;
-		border: none;
-		border-radius: 5px;
-		font-size: 16px;
-		cursor: pointer;
-	`;
+	optionsBtn.className = 'options-btn';
 	optionsBtn.addEventListener('click', () => {
 		hideGameMenu();
 		showOptionsMenu();
@@ -1579,17 +1551,7 @@ function createGameMenu() {
 	// Resume button
 	const resumeBtn = document.createElement('button');
 	resumeBtn.textContent = 'Resume Game';
-	resumeBtn.style.cssText = `
-		width: 100%;
-		padding: 12px;
-		margin: 8px 0;
-		background: #607D8B;
-		color: white;
-		border: none;
-		border-radius: 5px;
-		font-size: 16px;
-		cursor: pointer;
-	`;
+	resumeBtn.className = 'resume-btn';
 	resumeBtn.addEventListener('click', () => {
 		hideGameMenu();
 	});
@@ -1618,37 +1580,20 @@ function createOptionsMenu() {
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 350px;
-		background: rgba(0, 0, 0, 0.9);
-		border: 2px solid #2196F3;
-		border-radius: 10px;
-		padding: 20px;
-		z-index: 20000;
-		font-family: Arial, sans-serif;
-		color: white;
-		text-align: center;
 		display: none;
 	`;
 	
 	const title = document.createElement('h2');
 	title.textContent = 'Options';
-	title.style.marginTop = '0';
-	title.style.color = '#2196F3';
 	optionsMenuElement.appendChild(title);
 	
 	// Quality settings section
 	const qualitySection = document.createElement('div');
-	qualitySection.style.margin = '20px 0';
-	qualitySection.style.textAlign = 'left';
+	qualitySection.className = 'quality-section';
 	
 	const qualityLabel = document.createElement('label');
 	qualityLabel.textContent = 'Quality Mode:';
-	qualityLabel.style.cssText = `
-		display: block;
-		margin-bottom: 8px;
-		font-weight: bold;
-		color: #ccc;
-	`;
+	qualityLabel.className = 'quality-label';
 	qualitySection.appendChild(qualityLabel);
 	
 	// Create radio buttons for quality modes
@@ -1657,9 +1602,7 @@ function createOptionsMenu() {
 	
 	modes.forEach((mode, index) => {
 		const radioContainer = document.createElement('div');
-		radioContainer.style.margin = '8px 0';
-		radioContainer.style.display = 'flex';
-		radioContainer.style.alignItems = 'center';
+		radioContainer.className = 'radio-container';
 		
 		const radio = document.createElement('input');
 		radio.type = 'radio';
@@ -1667,7 +1610,6 @@ function createOptionsMenu() {
 		radio.name = 'qualityMode';
 		radio.value = mode;
 		radio.checked = (qualityMode === mode);
-		radio.style.marginRight = '10px';
 		
 		const label = document.createElement('label');
 		label.htmlFor = 'quality_' + mode;
@@ -1682,22 +1624,12 @@ function createOptionsMenu() {
 	
 	// Buttons container
 	const buttonsContainer = document.createElement('div');
-	buttonsContainer.style.display = 'flex';
-	buttonsContainer.style.justifyContent = 'space-between';
-	buttonsContainer.style.marginTop = '20px';
+	buttonsContainer.className = 'buttons-container';
 	
 	// Cancel button
 	const cancelBtn = document.createElement('button');
 	cancelBtn.textContent = 'Cancel';
-	cancelBtn.style.cssText = `
-		padding: 12px 24px;
-		background: #607D8B;
-		color: white;
-		border: none;
-		border-radius: 5px;
-		font-size: 16px;
-		cursor: pointer;
-	`;
+	cancelBtn.className = 'cancel-btn';
 	cancelBtn.addEventListener('click', () => {
 		hideOptionsMenu();
 		showGameMenu();
@@ -1713,15 +1645,7 @@ function createOptionsMenu() {
 	// Apply button
 	const applyBtn = document.createElement('button');
 	applyBtn.textContent = 'Apply';
-	applyBtn.style.cssText = `
-		padding: 12px 24px;
-		background: #4CAF50;
-		color: white;
-		border: none;
-		border-radius: 5px;
-		font-size: 16px;
-		cursor: pointer;
-	`;
+	applyBtn.className = 'apply-btn';
 	applyBtn.addEventListener('click', () => {
 		const selectedMode = document.querySelector('input[name="qualityMode"]:checked');
 		if (selectedMode) {
@@ -1752,6 +1676,8 @@ function showGameMenu() {
 	
 	gameMenuElement.style.display = 'block';
 	gameMenuOpen = true;
+	menuBlockingPointerLock = true;
+	window.menuBlockingPointerLock = true;
 	
 	// Pause the game
 	if (controls) {
@@ -1775,6 +1701,8 @@ function hideGameMenu() {
 		gameMenuElement.style.display = 'none';
 	}
 	gameMenuOpen = false;
+	menuBlockingPointerLock = false;
+	window.menuBlockingPointerLock = false;
 	
 	// Resume the game
 	if (controls && !roundPaused && health > 0) {
@@ -1800,6 +1728,9 @@ function showOptionsMenu() {
 	
 	optionsMenuElement.style.display = 'block';
 	optionsMenuOpen = true;
+	// Ensure menuBlockingPointerLock is true while options menu is open
+	menuBlockingPointerLock = true;
+	window.menuBlockingPointerLock = true;
 }
 
 /**
@@ -1810,6 +1741,7 @@ function hideOptionsMenu() {
 		optionsMenuElement.style.display = 'none';
 	}
 	optionsMenuOpen = false;
+	// menuBlockingPointerLock stays true since game menu is still open
 }
 
 /**
@@ -1871,32 +1803,60 @@ function returnToMainMenu() {
 	console.log('Returned to main menu');
 }
 
+// Track if Escape was pressed while pointer lock was active
+let escapePressedDuringPointerLock = false;
+
 // Add event listener for Escape key
 document.addEventListener('keydown', (event) => {
 	if (event.key === 'Escape') {
-		// Exit pointer lock if active
-		if (document.pointerLockElement || 
-			document.mozPointerLockElement || 
-			document.webkitPointerLockElement) {
-			document.exitPointerLock();
-		}
+		// Mark that Escape was pressed
+		escapePressedDuringPointerLock = true;
 		
 		// If options menu is open, close it and show game menu
 		if (optionsMenuOpen) {
 			hideOptionsMenu();
 			showGameMenu();
 			event.preventDefault();
-		} 
+			escapePressedDuringPointerLock = false;
+		}
 		// If game menu is open, close it
+		// NOTE: We do NOT re-request pointer lock here - browser blocks immediate re-lock
+		// User must click to re-engage pointer lock
 		else if (gameMenuOpen) {
 			hideGameMenu();
 			event.preventDefault();
-		} 
-		// If game is active and no menu is open, show game menu
+			escapePressedDuringPointerLock = false;
+		}
+		// If game is active and no menu is open, the menu will be shown when pointer lock is exited
 		else if (inActiveGame && toWakeUp) {
-			showGameMenu();
+			// The menu will be shown by the pointerlockchange handler
 			event.preventDefault();
 		}
 		// If on start screen, do nothing (let default behavior handle it)
+		else {
+			escapePressedDuringPointerLock = false;
+		}
 	}
 });
+
+// Listen for pointer lock changes to show menu when lock is exited
+// This handles the case where Escape is pressed while pointer lock is active
+// (in that case, the browser consumes the Escape key to exit pointer lock, so our keydown handler doesn't fire)
+const handlePointerLockChangeForMenu = () => {
+	const hasPointerLock = document.pointerLockElement || 
+		document.mozPointerLockElement || 
+		document.webkitPointerLockElement;
+	
+	// If pointer lock was just exited and Escape was pressed, show the menu
+	if (!hasPointerLock && escapePressedDuringPointerLock && inActiveGame && toWakeUp && !gameMenuOpen && !optionsMenuOpen) {
+		escapePressedDuringPointerLock = false;
+		// Set flag before showing menu to prevent pointer lock during menu interaction
+		menuBlockingPointerLock = true;
+		window.menuBlockingPointerLock = true;
+		showGameMenu();
+	}
+};
+
+document.addEventListener('pointerlockchange', handlePointerLockChangeForMenu, false);
+document.addEventListener('mozpointerlockchange', handlePointerLockChangeForMenu, false);
+document.addEventListener('webkitpointerlockchange', handlePointerLockChangeForMenu, false);
