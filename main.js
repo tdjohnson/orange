@@ -116,8 +116,8 @@ export function takeDamage(amount) {
 		updateHealthBar();
 		showBustedMessage();
 			// Flip player to show defeat
-			if (controls && controls.object) {
-				controls.object.rotation.x = Math.PI;
+			if (playerBody) {
+				playerBody.rotation.x = Math.PI;
 			}
 		// Track local player defeat
 		if (multiplayer && multiplayer.name) {
@@ -270,7 +270,6 @@ function respawnPlayer() {
 	if (!controls || !controls.object) return;
 	
 	// Reset rotation (unflip after being busted)
-	controls.object.rotation.x = 0;
 	if (playerBody) playerBody.rotation.x = 0;
 	
 	const totalCellcount = 2 * 6; // cellRowCount * cellsPerRow
