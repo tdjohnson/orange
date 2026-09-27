@@ -61,7 +61,7 @@ export class Multiplayer extends THREE.Mesh {
                     // Remote player was hit, update their health
                     const player = this.players.find(p => p.id === event.destination);
                     if (player) {
-                        player.health = Math.max(0, (player.health || 100) - 10);
+                        player.health = Math.max(0, (player.health ?? 100) - 10);
                         this.updateHealthBar(player);
                         
                         // If health reaches zero, flip the player
@@ -214,7 +214,7 @@ export class Multiplayer extends THREE.Mesh {
         player.body.position.set(playerData.x, playerData.y - this.scene.children[0].playerHeight, playerData.z);
 
         // Skip lookAt when player is defeated (health <= 0)
-        if ((player.health || 100) > 0) {
+        if ((player.health ?? 100) > 0) {
             const newDir = new THREE.Vector3(playerData.xd, playerData.yd, playerData.zd);
             const pos = new THREE.Vector3().addVectors(newDir, player.body.position);
             player.body.lookAt(pos);
@@ -282,7 +282,7 @@ export class Multiplayer extends THREE.Mesh {
 		updateHealthBar(player) {
 			if (player.healthBarFill && player.healthBarBg) {
 				// Update health bar color based on health
-				const percentage = Math.max(0, Math.min(100, player.health || 0));
+				const percentage = Math.max(0, Math.min(100, player.health ?? 0));
 				let color = 0x3ddc5a; // Green
 				if (percentage < 34) {
 					color = 0xff3b3b; // Red

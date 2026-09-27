@@ -239,11 +239,15 @@ function getCellSpawnPosition(cellIndex) {
 	const cellOffsetX = cellStartX + (12 * col);
 	const cellOffsetZ = cellStartZ + (42 * row);
 	
+	// For row 1, cells are rotated by Math.PI, so interior faces opposite direction
+	// Need to flip the offset sign for row 1 to spawn inside the cell
+	const sign = row === 0 ? 1 : -1;
+	
 	// Position within cell (similar to initial spawn)
 	return {
-		x: cellOffsetX + cameraPositionInCellOfset,
+		x: cellOffsetX + sign * cameraPositionInCellOfset,
 		y: 10, // Eye height + playerHeight
-		z: cellOffsetZ + cameraPositionInCellOfset
+		z: cellOffsetZ + sign * cameraPositionInCellOfset
 	};
 }
 
@@ -468,9 +472,10 @@ function init() {
 
 			//console.log("CurrentCell: "+ currentCell);
 			if (currentCell == startCell) {
-				camera.position.x = cellOffsetX + cameraPositionInCellOfset;
-				camera.position.z = cellOffsetZ + cameraPositionInCellOfset;
-				camera.position.y = 10;
+				const pos = getCellSpawnPosition(startCell);
+				camera.position.x = pos.x;
+				camera.position.y = pos.y;
+				camera.position.z = pos.z;
 			}
 			currentCell++;
 		}
