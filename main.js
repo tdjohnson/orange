@@ -73,18 +73,14 @@ const raycasterFront = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vecto
 var raycasterCamera;
 
 var playerBoundingBox;
-var performanceBoostGlobal = false;
-
-// Frame rate limiting to 60 FPS
-var lastRenderTime = 0;
-var targetFrameTime = 1000 / 60;
+var performanceBoostGlobal = true;
 
 objectsModule.setPerformanceOptimization(performanceBoostGlobal);
 prisonCellModule.setPerformanceOptimization(performanceBoostGlobal);
 hallwayModule.setPerformanceOptimization(performanceBoostGlobal);
 
 export function events2main(type, destination){
-	if (multiplayer) multiplayer.sendEvent(type, destination);
+	if (mqttEnabled && multiplayer) multiplayer.sendEvent(type, destination);
 }
 
 function updateHealthBar() {
@@ -437,17 +433,17 @@ function init() {
 	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xb2e1f2);
-	// Enable and configure shadow mapping
-	renderer.shadowMap.enabled = true;
-	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	if (!performanceBoostGlobal) {
+		renderer.shadowMap.enabled = true;
+		//renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	}
 
 	document.body.appendChild(renderer.domElement);
 	
 	//needed for controls
     clock = new THREE.Clock();
     scene = new THREE.Scene();
-	// Add fog for depth perception - matches the clear color
-	scene.fog = new THREE.FogExp2(0xb2e1f2, 0.0015);
+    //scene.fog = new THREE.Fog(0xb2e1f2, 0, 750);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     
@@ -618,7 +614,7 @@ function init() {
     	
 	};
 
-	animate(performance.now());	
+	animate();	
 
 	// Add window resize handler for canvas
 	window.addEventListener('resize', () => {
@@ -671,7 +667,7 @@ function addRamps(renderer) {
 function addFoundation() {
 	// Matches the building footprint (cells x:-30..42, z:0..48)
 	var geometry = new THREE.BoxGeometry(75, 4, 50);
-	var material = new THREE.MeshStandardMaterial({ color: 0x7a6b5a, roughness: 0.7, metalness: 0.1 });
+	var material = new THREE.MeshLambertMaterial({ color: 0x7a6b5a });
 	var foundation = new THREE.Mesh(geometry, material);
 	foundation.position.set(6, 2.5, 23);
 	scene.add(foundation);
@@ -730,22 +726,10 @@ function addTowers(renderer) {
 
 function sun(){
 	//let the sun shine in, leeeeeet the sunshine
-	var dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+	var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
 	dirLight.position.set(20, 40, 30);
-	
-	// Configure directional light for shadows
-	dirLight.castShadow = true;
-	dirLight.shadow.mapSize.width = 2048;
-	dirLight.shadow.mapSize.height = 2048;
-	dirLight.shadow.camera.near = 0.5;
-	dirLight.shadow.camera.far = 200;
-	dirLight.shadow.camera.left = -100;
-	dirLight.shadow.camera.right = 100;
-	dirLight.shadow.camera.top = 100;
-	dirLight.shadow.camera.bottom = -100;
-	dirLight.shadow.bias = -0.0001;
 
-	const sun = new THREE.AmbientLight(0x404040, 0.6);
+	const sun = new THREE.AmbientLight(0x404040, 0.4);
 
 	scene.add(dirLight);
 	scene.add(sun);
@@ -800,21 +784,16 @@ function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coo
 
 const cameraDirection = new THREE.Vector3();
 
-function animate(timestamp) {
+function animate() {
 
 	// A bounding-box pass over every collidable object used to run here on each frame.
 	// Its result was never read, so it is gone; movement collisions live in controls.mjs.
 
 	requestAnimationFrame(animate); 
-	
-	// Frame rate limiting to 60 FPS
-	if (!lastRenderTime || timestamp - lastRenderTime >= targetFrameTime) {
-		lastRenderTime = timestamp;
-		
-		if (toWakeUp === true) {
+	if (toWakeUp === true) {
 
-			//updateMirrors();
-			raycaster.ray.origin.copy( controls.object.position );
+		//updateMirrors();
+		raycaster.ray.origin.copy( controls.object.position );
 
 		raycasterFront.ray.origin.copy( controls.object.position );
 		controls.getDirection(raycasterFront.ray.direction);
@@ -854,7 +833,6 @@ function animate(timestamp) {
 			}	 	
 	 	} */
 		// the projection only changes on zoom and resize, which update it themselves
-		}
 	}
 }
 
