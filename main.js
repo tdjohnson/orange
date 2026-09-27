@@ -893,7 +893,6 @@ const defaultSessionCountdown = document.getElementById("sessionCountdown");
 if (defaultSessionCountdown) {
 	defaultSessionCountdown.style.display = 'none';
 }
-}
 
 function updateSessionCountdown(secondsLeft, visible) {
 	const countdown = document.getElementById("sessionCountdown");
