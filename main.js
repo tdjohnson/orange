@@ -255,8 +255,9 @@ function getCellSpawnPosition(cellIndex) {
 function respawnPlayer() {
 	if (!controls || !controls.object) return;
 	
-	// Reset rotation
+	// Reset rotation (unflip after being busted)
 	controls.object.rotation.x = 0;
+	if (playerBody) playerBody.rotation.x = 0;
 	
 	const totalCellcount = 2 * 6; // cellRowCount * cellsPerRow
 	const startCell = Math.floor(Math.random() * totalCellcount);
