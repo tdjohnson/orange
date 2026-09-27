@@ -225,6 +225,28 @@ export function handleScoresRequest(sourcePlayerId) {
 	}
 }
 
+// Get spawn position for a given cell index
+function getCellSpawnPosition(cellIndex) {
+	const cellRowCount = 2;
+	const cellsPerRow = 6;
+	const cellStartX = -30;
+	const cellStartZ = 0;
+	const cameraPositionInCellOfset = 3;
+	
+	const row = Math.floor(cellIndex / cellsPerRow);
+	const col = cellIndex % cellsPerRow;
+	
+	const cellOffsetX = cellStartX + (12 * col);
+	const cellOffsetZ = cellStartZ + (42 * row);
+	
+	// Position within cell (similar to initial spawn)
+	return {
+		x: cellOffsetX + cameraPositionInCellOfset,
+		y: 10, // Eye height + playerHeight
+		z: cellOffsetZ + cameraPositionInCellOfset
+	};
+}
+
 // Respawn player in a random cell (similar to initial spawn)
 function respawnPlayer() {
 	if (!controls || !controls.object) return;
