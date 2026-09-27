@@ -1,25 +1,25 @@
 import * as THREE from 'three';
 
-var collidableObjects;
-
 export function collisionDetection(objectToCheck, collidableMeshList) {
-    const collidingObjects = []; // List to store colliding objects
-	collidableObjects = [];
-	collidableObjects = collidableMeshList.filter(obj => !obj.name.startsWith("PrisonCell_"));
+    const collidingObjects = [];
+    
+    // Filter out objects that should not be checked for collision
+    const objectsToCheck = collidableMeshList.filter(obj => !obj.name.startsWith("PrisonCell_"));
+    
     // Compute the bounding box for the object to check
     const objectBoundingBox = new THREE.Box3().setFromObject(objectToCheck);
 
-    for (const collidableObject of collidableObjects) {
+    for (const collidableObject of objectsToCheck) {
         // Compute the bounding box for the current collidable object
         const collidableBoundingBox = new THREE.Box3().setFromObject(collidableObject);
 
         // Check if the bounding boxes intersect
         if (objectBoundingBox.intersectsBox(collidableBoundingBox)) {
-            collidingObjects.push(collidableObject); // Add to the list if collision detected
+            collidingObjects.push(collidableObject);
         }
     }
 
-    return collidingObjects; // Return the list of colliding objects
+    return collidingObjects;
 }
 
 

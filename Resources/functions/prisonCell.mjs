@@ -101,7 +101,7 @@ export class PrisonCell extends THREE.Mesh {
 		collidableMeshList.push(soap);
 
 		var toilet = new Toilet(renderer);
-		toilet.position.set(2.5,0,5);
+		toilet.position.set(2.5,-0.1,5);
 		toilet.rotation.y =  Math.PI*0.5;
 		this.add(toilet);
 		collidableMeshList.push(toilet);
@@ -173,9 +173,14 @@ class Chair extends THREE.Mesh {
 	}
 }
 
+// Cells are built in the same order on every client, so a running number identifies the
+// same soap for everybody. It is used to tell the other players which soap was dropped.
+var soapCounter = 0;
+
 class Soap extends THREE.Mesh {
 	constructor(renderer) {
 		super();
+		this.userData.syncId = "soap-" + (soapCounter++);
 
 		this.scale.x = this.scale.y = this.scale.z = 0.15;
 		this.userData.info = "Wirf mich runter mit Y!";

@@ -5,3 +5,9 @@ config.js
 key.pem
 server.py
 umps.module.js
+Mosquitto/
+screenshots/
+NOTES.md
+.continuerules
+mqtt_latest.jsonl
+*.jsonl

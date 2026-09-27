@@ -1,4 +1,6 @@
 body{
+	margin: 0;
+	overflow: hidden;
 	font-family: "Arial", monospace;
 }
 
@@ -32,6 +34,127 @@ div
 	padding: 10px;
 }
 
+/* ---- Health HUD (bottom right) ---- */
+#healthBarContainer {
+	position: fixed;
+	bottom: 24px;
+	right: 24px;
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 0;
+	font-family: Arial, sans-serif;
+	pointer-events: none;
+}
+
+/* the global "div { position: fixed; padding: 10px; }" rule above must not leak into the HUD parts */
+#healthBarContainer div {
+	position: static;
+	padding: 0;
+	margin: 0;
+}
+
+#healthBarText {
+	color: #ffffff;
+	font-size: 28px;
+	font-weight: bold;
+	line-height: 1;
+	min-width: 52px;
+	text-align: right;
+	text-shadow: 0 0 6px rgba(0, 0, 0, 0.9), 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+#healthBar {
+	width: 180px;
+	height: 12px;
+	background: rgba(0, 0, 0, 0.55);
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+#healthBarFill {
+	display: block;
+	height: 100%;
+	width: 100%;
+	background-color: #3ddc5a;
+	transition: width 0.15s ease-out, background-color 0.15s ease-out;
+}
+
+#healthBarContainer.low #healthBarText {
+	animation: healthPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes healthPulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.4; }
+}
+
+.healthBarHidden {
+	display: none !important;
+}
+
+/* ---- Defeated Counter (top right) ---- */
+
+/* ---- Session Countdown (top centre) ---- */
+#sessionCountdown {
+	position: fixed;
+	top: 24px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1000;
+	font-family: Arial, sans-serif;
+	font-size: 24px;
+	font-weight: bold;
+	color: white;
+	pointer-events: none;
+	text-shadow: 2px 2px 4px black;
+}
+
+#sessionCountdown.low {
+	color: red;
+}
+
+#defeatedCounterContainer {
+	position: fixed;
+	top: 24px;
+	right: 24px;
+	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 4px;
+	padding: 0;
+	font-family: Arial, sans-serif;
+	pointer-events: none;
+}
+
+#defeatedCounterContainer div {
+	position: static;
+	padding: 0;
+	margin: 0;
+}
+
+#defeatedCounterTitle {
+	color: #ffffff;
+	font-size: 14px;
+	font-weight: bold;
+	text-align: right;
+	text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+#defeatedCounter {
+	color: #ffb020;
+	font-size: 20px;
+	font-weight: bold;
+	text-align: right;
+	text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+	min-width: 40px;
+}
+
 p#credits {
 	color: white;
 }
@@ -63,6 +186,37 @@ div#message.hidden {
 	display: none;
 }
 
+#bustedOverlay {
+	position: fixed;
+	top: 30%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 72px;
+	font-weight: bold;
+	color: #ff0000;
+	text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
+	background: rgba(0, 0, 0, 0.5);
+	padding: 40px 80px;
+	border-radius: 10px;
+	z-index: 1000;
+	display: none;
+	text-align: center;
+	font-family: Arial, sans-serif;
+	letter-spacing: 3px;
+	pointer-events: none;
+}
+
+#bustedOverlay.visible {
+	display: block;
+	animation: bustedPulse 0.5s ease-out;
+}
+
+@keyframes bustedPulse {
+	0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+	50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+	100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
 table#InfoOutput {
 	table-layout: auto;
 	height: auto;
@@ -78,6 +232,7 @@ table#InfoOutput td {
 }
 
 div#startScreen {
+	overflow-y: auto;
 	position: fixed;
 	top:0;
 	left:0;
@@ -150,4 +305,168 @@ div#welcomeMessage {
 	width: 15%;
 	text-align: center;
 	font-size: large;
+}
+
+
+/* ---- Session Result Overlay ---- */
+#sessionResultOverlay {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: rgba(0, 0, 0, 0.8);
+	color: white;
+	padding: 20px;
+	border-radius: 10px;
+	z-index: 2000;
+	display: none;
+	font-family: Arial, sans-serif;
+	text-align: center;
+}
+
+#sessionResults {
+	margin: 20px 0;
+	text-align: left;
+}
+
+#sessionResults table {
+	width: 100%;
+	border-collapse: collapse;
+	color: white;
+}
+
+#sessionResults th {
+	padding: 8px;
+	text-align: left;
+	border-bottom: 2px solid #444;
+}
+
+#sessionResults td {
+	padding: 8px;
+	border-bottom: 1px solid #444;
+}
+
+#sessionResults tr:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+
+/* ---- Session Table ---- */
+#sessionTableContainer {
+	margin: 10px 0;
+}
+
+.sessionTable {
+	width: 100%;
+	border-collapse: collapse;
+	font-family: Arial, sans-serif;
+}
+
+.sessionTable th {
+	padding: 8px;
+	text-align: left;
+	border-bottom: 2px solid #444;
+	background: rgba(0,0,0,0.3);
+}
+
+.sessionTable td {
+	padding: 8px;
+	border-bottom: 1px solid #444;
+}
+
+.sessionTable tr:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.sessionTable .joinButton {
+	padding: 4px 8px;
+	background: #4CAF50;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.sessionTable .joinButton:hover {
+	background: #45a049;
+}
+
+/* selected option in the session chooser */
+.modeButton.selected,
+.joinButton.selected {
+	outline: 3px solid orange;
+	background-color: orange;
+	color: black;
+}
+
+#sessionChoiceLabel {
+	font-size: 16px;
+	color: orange;
+}
+
+#sessionTableContainer table {
+	margin: 0 auto;
+}
+
+/* session table in the multiplayer dialog */
+#sessionTableContainer .sessionTable {
+	margin: 0 auto;
+	border-collapse: collapse;
+}
+
+#sessionTableContainer .sessionTable th,
+#sessionTableContainer .sessionTable td {
+	padding: 6px 14px;
+	text-align: left;
+}
+
+/* hall of fame on the start screen */
+#hallOfFame h2 {
+	margin-bottom: 6px;
+}
+
+.hallOfFameTable {
+	margin: 0 auto;
+	border-collapse: collapse;
+	color: orange;
+	font-size: 14px;
+}
+
+.hallOfFameTable th,
+.hallOfFameTable td {
+	padding: 4px 12px;
+	text-align: left;
+	border-bottom: 1px solid #553300;
+}
+
+.hallOfFameTable tr:first-child td {
+	font-weight: bold;
+}
+
+#hallOfFameSource {
+	color: #aa6600;
+	font-size: 12px;
+}
+
+/* kill feed, top left */
+#killFeed {
+	position: fixed;
+	top: 24px;
+	left: 24px;
+	z-index: 1000;
+	padding: 0;
+	pointer-events: none;
+	font-family: Arial, sans-serif;
+}
+
+#killFeed .killFeedEntry {
+	position: static;
+	padding: 2px 8px;
+	margin-bottom: 3px;
+	color: #ffffff;
+	font-size: 14px;
+	font-weight: bold;
+	background: rgba(0, 0, 0, 0.45);
+	border-radius: 3px;
+	text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
 }
