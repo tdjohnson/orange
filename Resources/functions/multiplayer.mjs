@@ -145,6 +145,10 @@ export class Multiplayer extends THREE.Mesh {
                 }
             }
         });
+        fetch(this.serverBaseUrl + '/api/Lobby/GetScores')
+            .then(r => (r.ok ? r.json() : null))
+            .then(scores => { if (scores && typeof window.handleServerScores === 'function') window.handleServerScores(scores); })
+            .catch(() => { /* old server without scores, peer sync stays active */ });
 
         // Server-side scoreboard (UMPS >= player_left_scores_type). Old servers never send this.
         this.umps.hub.on("ScoresUpdated", (scores) => {
@@ -436,44 +440,44 @@ export class Multiplayer extends THREE.Mesh {
         this.players = this.players.filter(p => p !== player);
     }
 
-    addHealthBar(body, player) {
-        // Create health bar background
-        const barWidth = 2;
-        const barHeight = 0.2;
-        const barDepth = 0.1;
-        
-        const barGeometry = new THREE.BoxGeometry(barWidth, barHeight, barDepth);
-        const barMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
-        const healthBarBg = new THREE.Mesh(barGeometry, barMaterial);
-        healthBarBg.position.set(0, 2.5, 0); // Position above player's head
-        body.add(healthBarBg);
-        
-        // Create health bar fill
-        const fillGeometry = new THREE.BoxGeometry(barWidth, barHeight, barDepth);
-        const fillMaterial = new THREE.MeshBasicMaterial({ color: 0x3ddc5a }); // Green
-        const healthBarFill = new THREE.Mesh(fillGeometry, fillMaterial);
-        healthBarFill.position.set(0, 2.5, 0.05); // Slightly in front of background
-        body.add(healthBarFill);
-        
-        // Store references
-        player.healthBarBg = healthBarBg;
-        player.healthBarFill = healthBarFill;
-    }
+		addHealthBar(body, player) {
+			// Create health bar background
+			const barWidth = 2;
+			const barHeight = 0.2;
+			const barDepth = 0.1;
+			
+			const barGeometry = new THREE.BoxGeometry(barWidth, barHeight, barDepth);
+			const barMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
+			const healthBarBg = new THREE.Mesh(barGeometry, barMaterial);
+			healthBarBg.position.set(0, 2.5, 0); // Position above player's head
+			body.add(healthBarBg);
+			
+			// Create health bar fill
+			const fillGeometry = new THREE.BoxGeometry(barWidth, barHeight, barDepth);
+			const fillMaterial = new THREE.MeshBasicMaterial({ color: 0x3ddc5a }); // Green
+			const healthBarFill = new THREE.Mesh(fillGeometry, fillMaterial);
+			healthBarFill.position.set(0, 2.5, 0.05); // Slightly in front of background
+			body.add(healthBarFill);
+			
+			// Store references
+			player.healthBarBg = healthBarBg;
+			player.healthBarFill = healthBarFill;
+		}
 
-    updateHealthBar(player) {
-        if (player.healthBarFill && player.healthBarBg) {
-            // Update health bar color based on health
-            const percentage = Math.max(0, Math.min(100, player.health ?? 0));
-            let color = 0x3ddc5a; // Green
-            if (percentage < 34) {
-                color = 0xff3b3b; // Red
-            } else if (percentage < 67) {
-                color = 0xffb020; // Orange
-            }
-            player.healthBarFill.material.color.setHex(color);
-            
-            // Scale the fill
-            player.healthBarFill.scale.x = percentage / 100;
-        }
-    }
+		updateHealthBar(player) {
+			if (player.healthBarFill && player.healthBarBg) {
+				// Update health bar color based on health
+				const percentage = Math.max(0, Math.min(100, player.health ?? 0));
+				let color = 0x3ddc5a; // Green
+				if (percentage < 34) {
+					color = 0xff3b3b; // Red
+				} else if (percentage < 67) {
+					color = 0xffb020; // Orange
+				}
+				player.healthBarFill.material.color.setHex(color);
+				
+				// Scale the fill
+				player.healthBarFill.scale.x = percentage / 100;
+			}
+		}
 }

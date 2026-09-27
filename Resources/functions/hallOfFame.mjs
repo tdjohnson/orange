@@ -55,21 +55,15 @@ export function recordRound(detail) {
 	const defeats = detail.defeats || {};
 	const date = new Date().toISOString();
 	const entries = loadLocal();
-	
 	Object.keys(kills).forEach(name => {
 		const entry = clean({ name: name, kills: kills[name], deaths: defeats[name] || 0, date: date, session: detail.name });
 		if (!entry) return;
 		// the same round reported twice within a minute counts once
-		const duplicate = entries.some(other => 
-			other.name === entry.name && 
-			other.session === entry.session &&
-			other.kills === entry.kills && 
-			other.deaths === entry.deaths &&
-			Math.abs(Date.parse(other.date) - Date.parse(entry.date)) < 60000
-		);
+		const duplicate = entries.some(other => other.name === entry.name && other.session === entry.session &&
+			other.kills === entry.kills && other.deaths === entry.deaths &&
+			Math.abs(Date.parse(other.date) - Date.parse(entry.date)) < 60000);
 		if (!duplicate) entries.push(entry);
 	});
-	
 	saveLocal(entries);
 }
 
@@ -96,10 +90,8 @@ export function render(entries, sourceText) {
 	const container = document.getElementById('hallOfFameTable');
 	const source = document.getElementById('hallOfFameSource');
 	if (!container) return;
-	
 	container.textContent = '';
 	const best = rank(entries).slice(0, SHOW);
-	
 	if (best.length === 0) {
 		const empty = document.createElement('p');
 		empty.textContent = 'No entries yet. Win a round with at least one kill.';
@@ -116,7 +108,6 @@ export function render(entries, sourceText) {
 		const thead = document.createElement('thead');
 		thead.appendChild(head);
 		table.appendChild(thead);
-		
 		const tbody = document.createElement('tbody');
 		best.forEach((entry, index) => {
 			const row = document.createElement('tr');
@@ -130,7 +121,6 @@ export function render(entries, sourceText) {
 		table.appendChild(tbody);
 		container.appendChild(table);
 	}
-	
 	if (source) source.textContent = sourceText || '';
 }
 

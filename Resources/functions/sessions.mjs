@@ -3,10 +3,8 @@
 //
 //   await window.orangeSessions.list(baseUrl)   -> [{id, name, startedAt, endsAt, secondsRemaining, playerCount, maxPlayers}]
 //                                                   (empty list if the server has no session support)
-//
 //   window.orangeSessions.choose(idOrNew)        -> 'new', a session id, or null for the lobby (default).
 //                                                   Applied once the game has connected to the server.
-//
 //   window.orangeSessions.supported              -> true once list() got a valid answer
 //   window.orangeSessions.current                -> {id, name} while in a session, else null
 //   await window.orangeSessions.leave()          -> back to the lobby, also during the pause after a round
@@ -26,13 +24,9 @@ function normalizeBase(url) {
 async function list(baseUrl) {
 	if (baseUrl) state.baseUrl = normalizeBase(baseUrl);
 	if (!state.baseUrl) return [];
-	
 	try {
 		const response = await fetch(state.baseUrl + '/api/Lobby/GetSessions');
-		if (!response.ok) {
-			state.supported = false;
-			return [];
-		}
+		if (!response.ok) { state.supported = false; return []; }
 		const data = await response.json();
 		state.supported = Array.isArray(data);
 		return state.supported ? data : [];
@@ -45,7 +39,6 @@ async function list(baseUrl) {
 async function create(baseUrl) {
 	if (baseUrl) state.baseUrl = normalizeBase(baseUrl);
 	if (!state.baseUrl) return null;
-	
 	try {
 		const response = await fetch(state.baseUrl + '/api/Lobby/CreateSession', { method: 'POST' });
 		if (!response.ok) return null;
@@ -70,9 +63,7 @@ export const orangeSessions = {
 	create: create,
 	choose: choose,
 	// leave the current session (or the pause between two rounds) and go back to the lobby
-	leave: async function() { 
-		return state.leave ? await state.leave() : undefined; 
-	},
+	leave: async function () { return state.leave ? state.leave() : undefined; },
 	get choice() { return state.choice; },
 	get supported() { return state.supported; },
 	get current() { return state.current; },
