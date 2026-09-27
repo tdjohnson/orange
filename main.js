@@ -523,11 +523,13 @@ function createMirror(position, size, rotation) {
 		format: THREE.RGBFormat
 	});
 	
-	// Create mirror camera
-	const mirrorCamera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-	mirrorCamera.position.copy(position);
-	mirrorCamera.rotation.copy(rotation);
-	mirrorCamera.lookAt(position.clone().add(new THREE.Vector3(0, 0, -1)));
+	// Create mirror camera with same FOV as main camera
+	const mirrorCamera = new THREE.PerspectiveCamera(
+		camera.fov,
+		width / height,
+		camera.near,
+		camera.far
+	);
 	
 	// Create mirror material using the render target texture
 	const mirrorMaterial = new THREE.MeshBasicMaterial({
@@ -541,8 +543,11 @@ function createMirror(position, size, rotation) {
 	mirrorMesh.position.copy(position);
 	mirrorMesh.rotation.copy(rotation);
 	
-	// Store references
-	mirrorCameras.push(mirrorCamera);
+	// Store references along with the mirror's normal
+	mirrorCameras.push({
+		camera: mirrorCamera,
+		normal: new THREE.Vector3(0, 0, 1).applyEuler(rotation)
+	});
 	mirrorTextures.push(renderTarget);
 	mirrorMeshes.push(mirrorMesh);
 	
@@ -551,39 +556,44 @@ function createMirror(position, size, rotation) {
 
 /**
  * Updates all mirror cameras and renders to their textures
+ * Uses proper reflection calculation for mirror perspective
  */
 function updateMirrors() {
 	if (mirrorCameras.length === 0 || !controls || !controls.object) return;
 	
-	const currentPosition = controls.object.position;
+	const playerCam = controls.object;
 	
 	for (let i = 0; i < mirrorCameras.length; i++) {
-		const mirrorCamera = mirrorCameras[i];
+		const mirrorData = mirrorCameras[i];
+		const mirrorCamera = mirrorData.camera;
 		const mirrorMesh = mirrorMeshes[i];
 		const renderTarget = mirrorTextures[i];
 		
 		if (!mirrorCamera || !mirrorMesh || !renderTarget) continue;
 		
-		// Update mirror camera position relative to player
-		// Mirror should reflect the opposite side
+		// Get mirror position and normal
 		const mirrorPos = mirrorMesh.position;
-		const mirrorNormal = new THREE.Vector3(0, 0, 1).applyQuaternion(mirrorMesh.quaternion);
+		const mirrorNormal = mirrorData.normal;
 		
-		// Calculate reflection of camera position
-		const cameraWorldPos = controls.object.position.clone();
-		const mirrorToCamera = cameraWorldPos.clone().sub(mirrorPos);
-		const reflection = mirrorToCamera.clone().reflect(mirrorNormal);
-		const reflectedCamPos = mirrorPos.clone().add(reflection);
+		// Calculate the reflected camera position
+		// The formula is: reflectedPos = playerPos - 2 * (playerPos - mirrorPos) * dot(normal, playerPos - mirrorPos)
+		const playerToMirror = playerCam.position.clone().sub(mirrorPos);
+		const distanceToPlane = playerToMirror.dot(mirrorNormal);
+		const reflectionOffset = mirrorNormal.clone().multiplyScalar(-2 * distanceToPlane);
+		const reflectedCamPos = playerCam.position.clone().add(reflectionOffset);
 		
-		// Update mirror camera position and orientation
+		// Set mirror camera position
 		mirrorCamera.position.copy(reflectedCamPos);
-		mirrorCamera.quaternion.copy(controls.object.quaternion);
-		mirrorCamera.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI));
 		
-		// Hide objects that would be behind the mirror in the reflection
-		// Save original visibility
-		const sceneChildren = scene.children;
-		const originalVisibility = new Map();
+		// Calculate reflected camera direction
+		// Get the player's look direction in world space
+		const playerDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(playerCam.quaternion);
+		
+		// Reflect the direction across the mirror normal
+		const reflectedDirection = playerDirection.clone().reflect(mirrorNormal);
+		
+		// Point the mirror camera in the reflected direction
+		mirrorCamera.lookAt(reflectedCamPos.clone().add(reflectedDirection));
 		
 		// Temporarily hide the mirror itself from its own reflection
 		mirrorMesh.visible = false;
