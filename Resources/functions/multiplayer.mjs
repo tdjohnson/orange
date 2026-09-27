@@ -111,6 +111,9 @@ export class Multiplayer extends THREE.Mesh {
 						this.updateHealthBar(player);
 					}
 				
+            } else if (event.type === "sessionStarted") {
+                // auto-restart: the server moved us into the next round
+                this.startNextSession(event);
             } else if (event.type === "sessionEnded") {
                 this.endSession(event);
             } else if (event.type === "left") {
@@ -139,6 +142,7 @@ export class Multiplayer extends THREE.Mesh {
             .catch(() => { /* old server without scores, peer sync stays active */ });
 
         this.playerLastUpdate = {};
+        orangeSessions._state.leave = () => this.leaveSession();
         this.applySessionChoice();
         setInterval(() => this.checkIdle(), idleCheckInterval);
         
@@ -370,6 +374,26 @@ export class Multiplayer extends THREE.Mesh {
             const left = Math.max(0, Math.ceil((endsAtLocal - performance.now()) / 1000));
             orangeSessions._emit('orange:sessionTime', { secondsLeft: left });
         }, 1000);
+    }
+
+    startNextSession(event) {
+        let session = null;
+        try { session = JSON.parse(event.destination); } catch (e) { session = null; }
+        if (!session || session.id === undefined) return;
+        orangeSessions.choose(String(session.id));
+        this.enterSession(session);
+    }
+
+    async leaveSession() {
+        clearInterval(this.sessionTimer);
+        this.sessionTimer = null;
+        this.session = null;
+        orangeSessions._state.current = null;
+        orangeSessions.choose(null);
+        this.removeAllPlayers();
+        if (this.umps.hub.connection.q === "Connected") {
+            try { await this.umps.hub.invoke("LeaveSession"); } catch (err) { console.error("Could not leave session: ", err); }
+        }
     }
 
     endSession(event) {

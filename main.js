@@ -911,6 +911,8 @@ function showSessionNotice(text) {
 	setTimeout(() => { notice.style.display = "none"; }, 6000);
 }
 
+var sessionResultTimer = null;
+
 function showSessionResults(detail) {
 	const kills = (detail && detail.kills) || {};
 	const defeats = (detail && detail.defeats) || {};
@@ -969,20 +971,39 @@ function showSessionResults(detail) {
 
 	const footer = document.createElement("p");
 	overlay.appendChild(footer);
+	const leaveButton = document.createElement("button");
+	leaveButton.className = "modeButton";
+	leaveButton.textContent = "Back to the menu";
+	leaveButton.addEventListener("click", () => {
+		clearInterval(sessionResultTimer);
+		Promise.resolve(orangeSessions.leave()).finally(() => location.reload());
+	});
+	overlay.appendChild(leaveButton);
 	overlay.style.display = "block";
+
+	// The server starts the next round 10 s after the end and announces it (orange:sessionJoined).
+	// If nothing arrives a few seconds later (older server, or nobody left), go back to the menu.
 	let remaining = 10;
-	footer.textContent = "Back to the menu in " + remaining + " s";
-	const interval = setInterval(() => {
+	footer.textContent = "Next round in " + remaining + " s";
+	clearInterval(sessionResultTimer);
+	sessionResultTimer = setInterval(() => {
 		remaining--;
-		footer.textContent = "Back to the menu in " + remaining + " s";
-		if (remaining <= 0) {
-			clearInterval(interval);
+		footer.textContent = remaining > 0 ? "Next round in " + remaining + " s" : "Waiting for the next round ...";
+		if (remaining <= -4) {
+			clearInterval(sessionResultTimer);
 			location.reload();
 		}
 	}, 1000);
 }
 
+function hideSessionResults() {
+	clearInterval(sessionResultTimer);
+	const overlay = document.getElementById("sessionResultOverlay");
+	if (overlay) overlay.style.display = "none";
+}
+
 window.addEventListener("orange:sessionJoined", (e) => {
+	hideSessionResults(); // a new round has started
 	updateSessionCountdown(e.detail.secondsLeft, true);
 	showSessionNotice("You are in " + (e.detail.name || "a session"));
 });
