@@ -9,3 +9,5 @@ Mosquitto/
 screenshots/
 NOTES.md
 .continuerules
+mqtt_latest.jsonl
+*.jsonl
