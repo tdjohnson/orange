@@ -201,23 +201,79 @@ function reduceFloatPrecision(toReduce) {
 }
 
 // --- Collision with walls, furniture and other players ---
-// Movement is swept before it happens: from the current position towards the wanted one,
-// at three body heights and at both shoulders. Surfaces you can stand on (floors, ramps,
-// normal pointing up) never block. Anything lower than the step height, such as a door
-// sill, is walked over.
+// Movement is checked before it happens, separately for the two world axes, so a wall
+// stops the movement into it and lets the movement along it through.
+//  - Small things (furniture, door panels, other players) collide as bounding boxes.
+//    Rays are no good for them: a bunk bed and a barred door are mostly gaps.
+//  - Large structures (cells, hallways, foundation, ramps) are swept with rays at three
+//    body heights and both shoulders. Surfaces you can stand on never block.
+//  - Anything lower than the step height, such as a door sill, is walked over.
 var wallRaycaster = new THREE.Raycaster();
-var playerCollisionRadius = 0.8;   // how close the body centre may get to a wall
+var playerCollisionRadius = 0.8;   // distance kept from walls
+var bodyHalfWidth = 0.6;           // half width of the body against boxes
 var shoulderOffset = 0.55;         // sideways offset of the two outer rays
 var stepHeight = 1.2;              // obstacles lower than this are stepped over
+var boxMaxFootprint = 8;           // objects up to this size collide as a box
 var sweepDir = new THREE.Vector3();
 var sweepSide = new THREE.Vector3();
 var forwardVec = new THREE.Vector3();
 var rightVec = new THREE.Vector3();
+var colliderCache = new WeakMap();
+var boxColliders = [];
+var rayColliders = [];
+var neverBoxes = { Ramp: true, Sand: true, Hallway: true, FullHallway: true };
 
-// How far the player may move from (x, z) along dirX/dirZ (unit vector), at most `distance`
-function allowedDistance(x, z, feetY, playerHeight, dirX, dirZ, distance, meshList) {
+// Sort the collidable objects into boxes and ray targets. Boxes of static objects are
+// refreshed every two seconds (models load late), those of doors and players every frame.
+function updateColliders(meshList) {
+	var now = performance.now();
+	boxColliders.length = 0;
+	rayColliders.length = 0;
+	for (var i = 0; i < meshList.length; i++) {
+		var object = meshList[i];
+		var entry = colliderCache.get(object);
+		var moves = object.playerid !== undefined || (object.userData && object.userData.isOpenable !== undefined);
+		if (!entry) {
+			entry = { box: new THREE.Box3(), time: -1e9, isBox: false };
+			colliderCache.set(object, entry);
+		}
+		if (moves || now - entry.time > 2000) {
+			entry.box.setFromObject(object);
+			var footprint = Math.max(entry.box.max.x - entry.box.min.x, entry.box.max.z - entry.box.min.z);
+			entry.isBox = !entry.box.isEmpty() && footprint <= boxMaxFootprint && !neverBoxes[object.constructor.name];
+			entry.time = now;
+		}
+		if (entry.isBox) boxColliders.push(entry.box); else rayColliders.push(object);
+	}
+}
+
+function allowedByBoxes(x, z, feetY, playerHeight, dirX, dirZ, distance) {
+	var low = feetY + stepHeight;
+	var high = feetY + playerHeight - 0.2;
 	var allowed = distance;
-	var heights = [feetY + stepHeight, feetY + playerHeight * 0.5, feetY + playerHeight - 0.4];
+	for (var i = 0; i < boxColliders.length; i++) {
+		var box = boxColliders[i];
+		if (box.max.y < low || box.min.y > high) continue;
+		var overlapX = x + bodyHalfWidth > box.min.x && x - bodyHalfWidth < box.max.x;
+		var overlapZ = z + bodyHalfWidth > box.min.z && z - bodyHalfWidth < box.max.z;
+		if (overlapX && overlapZ) continue; // already inside (spawned there, door closed on us): never trap the player
+		var gap;
+		if (dirX !== 0) {
+			if (!overlapZ) continue;
+			gap = dirX > 0 ? box.min.x - (x + bodyHalfWidth) : (x - bodyHalfWidth) - box.max.x;
+		} else {
+			if (!overlapX) continue;
+			gap = dirZ > 0 ? box.min.z - (z + bodyHalfWidth) : (z - bodyHalfWidth) - box.max.z;
+		}
+		if (gap >= -1e-6 && gap < allowed) allowed = Math.max(0, gap);
+	}
+	return allowed;
+}
+
+function allowedByRays(x, z, feetY, playerHeight, dirX, dirZ, distance) {
+	var allowed = distance;
+	// the top ray sits one unit below the eye, door openings are lower than the eye
+	var heights = [feetY + stepHeight, feetY + playerHeight * 0.5, feetY + playerHeight - 1.0];
 	sweepDir.set(dirX, 0, dirZ);
 	sweepSide.set(-dirZ, 0, dirX);
 	wallRaycaster.near = 0;
@@ -226,7 +282,7 @@ function allowedDistance(x, z, feetY, playerHeight, dirX, dirZ, distance, meshLi
 		for (var side = -1; side <= 1; side++) {
 			originVec.set(x + sweepSide.x * shoulderOffset * side, heights[h], z + sweepSide.z * shoulderOffset * side);
 			wallRaycaster.set(originVec, sweepDir);
-			var hits = wallRaycaster.intersectObjects(meshList, true);
+			var hits = wallRaycaster.intersectObjects(rayColliders, true);
 			for (var i = 0; i < hits.length; i++) {
 				if (!hits[i].face) continue;
 				normalVec.copy(hits[i].face.normal);
@@ -240,17 +296,21 @@ function allowedDistance(x, z, feetY, playerHeight, dirX, dirZ, distance, meshLi
 	return Math.max(0, allowed);
 }
 
-// Move the player by (dx, dz) in world space, each axis on its own, so that a wall
-// stops the movement into it and lets the movement along it through
+function allowedDistance(x, z, feetY, playerHeight, dirX, dirZ, distance) {
+	var byBoxes = allowedByBoxes(x, z, feetY, playerHeight, dirX, dirZ, distance);
+	if (byBoxes <= 0) return 0;
+	return Math.min(byBoxes, allowedByRays(x, z, feetY, playerHeight, dirX, dirZ, byBoxes));
+}
+
 function moveWithCollision(object, dx, dz, playerHeight, meshList) {
+	if (Math.abs(dx) <= 1e-6 && Math.abs(dz) <= 1e-6) return;
+	updateColliders(meshList);
 	var feetY = object.position.y - playerHeight;
 	if (Math.abs(dx) > 1e-6) {
-		var stepX = allowedDistance(object.position.x, object.position.z, feetY, playerHeight, Math.sign(dx), 0, Math.abs(dx), meshList);
-		object.position.x += Math.sign(dx) * stepX;
+		object.position.x += Math.sign(dx) * allowedDistance(object.position.x, object.position.z, feetY, playerHeight, Math.sign(dx), 0, Math.abs(dx));
 	}
 	if (Math.abs(dz) > 1e-6) {
-		var stepZ = allowedDistance(object.position.x, object.position.z, feetY, playerHeight, 0, Math.sign(dz), Math.abs(dz), meshList);
-		object.position.z += Math.sign(dz) * stepZ;
+		object.position.z += Math.sign(dz) * allowedDistance(object.position.x, object.position.z, feetY, playerHeight, 0, Math.sign(dz), Math.abs(dz));
 	}
 }
 
@@ -332,15 +392,20 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 		var groundHits = raycaster.intersectObjects(collidableMeshList, true);
 		var onGround = false;
 
-		if (groundHits.length > 0) {
-			var groundY = groundHits[0].point.y;
+		// The ground is the first surface at or below knee height. Anything higher between eye and
+		// knee is a table top, a bunk or a ceiling: skip it and keep looking further down, otherwise
+		// the player has no ground at all and falls through the floor.
+		var feetNow = controls.object.position.y - playerHeight;
+		var groundHit = null;
+		for (var g = 0; g < groundHits.length; g++) {
+			if (groundHits[g].point.y <= feetNow + 1.5) { groundHit = groundHits[g]; break; }
+		}
+
+		if (groundHit) {
+			var groundY = groundHit.point.y;
 			var standingY = groundY + playerHeight;
 
-			// Check if ground is above current feet position (ceiling, not ground)
-			if (groundY > controls.object.position.y - playerHeight + 1.5) {
-				// This is a ceiling, not ground, ignore it
-				controls.object.position.y = newY;
-			} else if (newY < standingY) {
+			if (newY < standingY) {
 				// Would fall below ground, so snap to standing position
 				controls.object.position.y = standingY;
 				velocity.y = 0;
@@ -366,8 +431,8 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 			"<tr><td>velY:</td><td>"+ reduceFloatPrecision(velocity.y) + "</td><td>posY:</td><td>" + reduceFloatPrecision(controls.object.position.y) + "</td></tr>" +
 			"<tr><td>velZ:</td><td>"+ reduceFloatPrecision(velocity.z) + "</td><td>posZ:</td><td>" + reduceFloatPrecision(controls.object.position.z) + "</td></tr>" +
 			"<tr><td>FPS:</td><td>"+ Math.round(1 / delta) + "</td><td>ground:</td><td>" + onGround + "</td></tr>";
-		if (groundHits.length > 0) {
-			toDisplay += "<tr><td>groundY:</td><td>" + reduceFloatPrecision(groundHits[0].point.y) + "</td></tr>";
+		if (groundHit) {
+			toDisplay += "<tr><td>groundY:</td><td>" + reduceFloatPrecision(groundHit.point.y) + "</td></tr>";
 		}
 		toDisplay += "</table>";
 
