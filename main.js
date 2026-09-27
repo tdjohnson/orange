@@ -449,28 +449,32 @@ function create3DCrosshair() {
 }
 
 /**
- * Creates a cooldown bar below the crosshair
+ * Creates a cooldown bar above the health bar with pistol icon
  */
 function createCooldownBar() {
 	let container = document.getElementById('cooldownBarContainer');
 	if (!container) {
 		container = document.createElement('div');
 		container.id = 'cooldownBarContainer';
-		container.style.cssText = 'position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 200px; height: 8px; pointer-events: none; display: none;';
+		container.style.cssText = 'position: fixed; bottom: 40px; right: 24px; z-index: 1000; display: flex; align-items: center; gap: 8px; padding: 0; font-family: Arial, sans-serif; pointer-events: none;';
+		
+		const icon = document.createElement('span');
+		icon.id = 'cooldownIcon';
+		icon.textContent = '🔫';
+		icon.style.cssText = 'color: #ffff00; font-size: 16px; text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);';
+		container.appendChild(icon);
+		
+		const barContainer = document.createElement('div');
+		barContainer.id = 'cooldownBarWrapper';
+		barContainer.style.cssText = 'width: 180px; height: 12px; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 2px; overflow: hidden;';
+		container.appendChild(barContainer);
 		
 		const bar = document.createElement('div');
 		bar.id = 'cooldownBar';
-		bar.style.cssText = 'width: 0%; height: 100%; background: #ff4444; transition: width 0.1s linear;';
-		container.appendChild(bar);
+		bar.style.cssText = 'width: 0%; height: 100%; background: #ffff00; transition: width 0.1s linear;';
+		barContainer.appendChild(bar);
 		
-		const rendererElement = renderer?.domElement;
-		if (rendererElement && rendererElement.parentNode) {
-			rendererElement.parentNode.style.position = 'relative';
-			rendererElement.parentNode.appendChild(container);
-		} else {
-			document.body.style.position = 'relative';
-			document.body.appendChild(container);
-		}
+		document.body.appendChild(container);
 	}
 	return container;
 }
@@ -484,7 +488,7 @@ function updateCooldownBar(progress) {
 	if (!container || !bar) return;
 	
 	if (progress < 1.0) {
-		container.style.display = 'block';
+		container.style.display = 'flex';
 		bar.style.width = ((1.0 - progress) * 100) + '%';
 	} else {
 		container.style.display = 'none';
