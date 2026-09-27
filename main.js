@@ -374,7 +374,7 @@ function init() {
 	
 	var playerHeight = 5.0;
 	controls.object.playerHeight = playerHeight;
-	controls.object.position.set(5, 10 + playerHeight, 8);
+	controls.object.position.set(5, 5 + playerHeight, 8); // cell floor is at y=5, eye must stay below the cell ceiling (~14.4) or the ground ray lands on the roof
 	playerBody = new objectsModule.JailBotBody(renderer);
 	controls.object.add(playerBody);
 	playerBody.position.set(0, 0.5, 1); 
