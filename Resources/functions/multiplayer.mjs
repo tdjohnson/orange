@@ -57,20 +57,19 @@ export class Multiplayer extends THREE.Mesh {
                     if (typeof window.takeDamage === 'function') {
                         window.takeDamage(10);
                     }
+                } else {
+                    // Remote player was hit, update their health
+                    const player = this.players.find(p => p.id === event.destination);
+                    if (player) {
+                        player.health = Math.max(0, (player.health || 100) - 10);
+                        this.updateHealthBar(player);
+                        
+                        // If health reaches zero, flip the player
+                        if (player.health <= 0) {
+                            player.body.rotation.x = Math.PI;
+                        }
+                    }
                 }
-				} else {
-					// Remote player was hit, update their health
-					const player = this.players.find(p => p.id === event.destination);
-					if (player) {
-						player.health = Math.max(0, (player.health || 100) - 10);
-						this.updateHealthBar(player);
-						
-						// If health reaches zero, flip the player
-						if (player.health <= 0) {
-							player.body.rotation.x = Math.PI;
-						}
-					}
-				}
             } else if (event.type === "bullet") {
                 // Remote player fired a bullet
                 if (event.source !== this.playerId) {
