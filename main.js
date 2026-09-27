@@ -35,6 +35,9 @@ var sessionDeaths = new Map();  // deaths per player in the running round
 var roundPaused = false;        // true between the end of a round and the start of the next one
 var viewBeforeDeath = null;     // camera orientation saved when the player is busted // true once the server has sent its scoreboard; then clients stop counting
 
+// Load game mode from localStorage to persist across page reloads
+try { gameMode = localStorage.getItem('orange.lastMode'); } catch(e) {}
+
 // Load defeated scores from localStorage on startup
 try {
 	const savedScores = localStorage.getItem('orange.defeated');
@@ -865,6 +868,7 @@ function showBustedMessage() {
 
 function loadMultiplayer(player_name, selected_server){
 	console.log("Loading multiplayer...");
+	localStorage.setItem('orange.lastMode', 'MultiPlayer');
 	closeStart();
 	init();
 	import('./Resources/functions/multiplayer.mjs').then(module => {
@@ -877,6 +881,7 @@ export function startSingleplayer() {
 	gameMode = "SinglePlayer";
     console.log("Starting Singleplayer mode...");
 	showDefeatedCounter(false);
+	localStorage.setItem('orange.lastMode', 'SinglePlayer');
 	closeStart();
 	init();
 }
@@ -1239,6 +1244,8 @@ export function startMultiplayer() {
 
 // Hall of fame on the start screen: from the server the player used last, or the first one in the list
 async function showHallOfFame() {
+	// Hide hall of fame in singleplayer mode
+	if (gameMode === 'SinglePlayer') return;
 	hallOfFame.render(hallOfFame.loadLocal(), 'Rounds played in this browser');
 	try {
 		const servers = await retrieveServerList();
