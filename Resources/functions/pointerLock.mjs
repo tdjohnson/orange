@@ -4,8 +4,7 @@ export function checkForPointerLock() {
 		'webkitPointerLockElement' in document;
 }
 
-export function initPointerLock(havePointerLock) {
-	let controlsEnabled = false;
+export function initPointerLock(havePointerLock, controls) {
 	const element = document.body;
 	
 	if (havePointerLock) {
@@ -13,12 +12,11 @@ export function initPointerLock(havePointerLock) {
 			if (document.pointerLockElement === element || 
 				document.mozPointerLockElement === element || 
 				document.webkitPointerLockElement === element) {
-				controlsEnabled = true;
-				if (typeof controls !== 'undefined' && controls) {
+				if (controls) {
 					controls.enabled = true;
 				}
 			} else {
-				if (typeof controls !== 'undefined' && controls) {
+				if (controls) {
 					controls.enabled = false;
 				}
 			}

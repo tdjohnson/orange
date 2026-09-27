@@ -726,7 +726,7 @@ function init() {
 	// 	collidableMeshList.push(mirror2);
 	// }
 
-	pointerLockModule.initPointerLock(havePointerLock);
+	pointerLockModule.initPointerLock(havePointerLock, controls);
 	addRamps(renderer);
 	addFoundation();
 	addSandFloor(renderer);
