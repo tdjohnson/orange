@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import * as bulletControl from './bulletControl.mjs';
 
-var door;
-var soap;
-var droppingSoaps = []; // soaps that are falling right now, several players can drop one at the same time
+// Constants
+const DROP_ANIMATION_DURATION = 3000; // ms
+const BULLET_LIFETIME = 3000; // ms
+const GRAVITY = 9.8;
 
 // Door animation state
 let door = null;
@@ -48,35 +49,24 @@ export function rotateBot(object, axis, degree) {
  * Trigger object based on userData
  */
 export function triggerObject(intersectArray) {
-	/*intersectArray.forEach(element => {
-		console.log(element.object.parent.parent);
-	});*/
-	//we need to traverse all parentObjects, as actual objects with usereData can be hidden deep in the object tree
-	var currentObj = intersectArray[0].object;
-	//console.log(currentObj);
-	var correctObject;
-	var foundParent = false;
+	let currentObj = intersectArray[0].object;
+	let correctObject = null;
 	
-	// Check current object and all parents
+	// Traverse up to find object with isTriggerable
 	while (currentObj) {
 		if (currentObj.userData && currentObj.userData.isTriggerable) {
-			console.log(currentObj);
 			correctObject = currentObj;
-			foundParent = true;
 			break;
 		}
 		currentObj = currentObj.parent;
 	}
 	
-	if (!correctObject) {
-		return; // No triggerable object found
-	}
-	
+	if (!correctObject) return;
+
 	switch (correctObject.userData.name) {
-		case "soap": {
-			if (correctObject.userData.isDropable == true) {
+		case "soap":
+			if (correctObject.userData.isDropable === true) {
 				triggerDrop(correctObject);
-				// tell the other players, they play the same animation
 				if (typeof window.events2main === 'function' && correctObject.userData.syncId) {
 					window.events2main("soap", correctObject.userData.syncId);
 				}
@@ -85,9 +75,8 @@ export function triggerObject(intersectArray) {
 		case "Door2":
 			triggerDoor(correctObject);
 			break;
-		}
 		default:
-			// Unknown triggerable object, do nothing
+			// Unknown triggerable object
 			break;
 	}
 }
@@ -98,17 +87,14 @@ export function triggerObject(intersectArray) {
 export function triggerDrop(object) {
 	if (object.userData.isDropable === true) {
 		object.userData.isDropable = false;
-		soap = object;
-		if (droppingSoaps.indexOf(object) === -1) droppingSoaps.push(object);
-			if (object.userData.info.indexOf("Wirf")>-1) {
-				object.userData.info = "Heb mich auf";
-				
-			} else if(object.userData.info.indexOf("Heb")>-1) {
-	
-				object.userData.info = "Wirf mich runter mit Y!";
-			}
-	} else {
-		
+		if (droppingSoaps.indexOf(object) === -1) {
+			droppingSoaps.push(object);
+		}
+		if (object.userData.info.includes("Wirf")) {
+			object.userData.info = "Heb mich auf";
+		} else if (object.userData.info.includes("Heb")) {
+			object.userData.info = "Wirf mich runter mit Y!";
+		}
 	}
 }
 
@@ -144,49 +130,33 @@ export function dropSoapById(scene, syncId) {
 	return found !== null;
 }
 
-// Another player dropped a soap: find it by its id and drop it here as well
-export function dropSoapById(scene, syncId) {
-	var found = null;
-	scene.traverse(function (object) {
-		if (!found && object.userData && object.userData.syncId === syncId) found = object;
-	});
-	if (found) triggerDrop(found);
-	return found !== null;
-}
-
+/**
+ * Animate dropping soaps
+ */
 export function animateDrop() {
-	// TO DO: fix angle
-	for (var i = droppingSoaps.length - 1; i >= 0; i--) {
-		var falling = droppingSoaps[i];
-		if (falling.userData.isDropable == false) {
-			if (falling.userData.info.indexOf("Heb")>-1) {
-				if(falling.position.z > 11.6){
+	for (let i = droppingSoaps.length - 1; i >= 0; i--) {
+		const falling = droppingSoaps[i];
+		
+		if (falling.userData.isDropable === false) {
+			if (falling.userData.info.includes("Heb")) {
+				if (falling.position.z > 11.6) {
 					falling.position.z -= 0.05;
-				}
-				else{
-					if (falling.position.y > 0.1){
+				} else {
+					if (falling.position.y > 0.1) {
 						falling.position.y -= 0.1;
-						
-						if(falling.position.z > 11 && falling.position.z < 11.6){
+						if (falling.position.z > 11 && falling.position.z < 11.6) {
 							falling.position.z -= 0.05;
 						}
-						
-						rotate(falling, new THREE.Vector3(1,0,0),-8);
-						
-					}else{
-						droppingSoaps.splice(i, 1); // it lies on the floor
+						rotate(falling, tempVec3A.set(1, 0, 0), -8);
+					} else {
+						droppingSoaps.splice(i, 1);
 					}
 				}
 			} else {
 				falling.userData.isDropable = true;
 				droppingSoaps.splice(i, 1);
 			}
-			else {
-				falling.userData.isDropable = true;
-				droppingSoaps.splice(i, 1);
-			}
-		}
-		else {
+		} else {
 			droppingSoaps.splice(i, 1);
 		}
 	}
@@ -223,57 +193,12 @@ export function animateDoors() {
 	}
 }
 
+/**
+ * Animate bullets with physics and collision
+ */
 export function animateBullets(bulletList, delta, collidableMeshList) {
-	var gravity = 9.8;
-	var lifetime = 3000; // 3 seconds in milliseconds
-	var currentTime = Date.now();
-	var bulletRaycaster = new THREE.Raycaster();
-	for (let i = bulletList.length - 1; i >= 0; i--) {
-		var singleBullet = bulletList[i];
-		
-		// Apply gravity to velocity
-		singleBullet.velocity.y -= gravity * delta;
-		
-		// Store old position for collision detection
-		var oldPosition = singleBullet.position.clone();
-		
-		// Update position based on velocity
-		singleBullet.position.addScaledVector(singleBullet.velocity, delta);
-		
-		// Perform raycast from old position to new position to detect collisions
-		var movementVector = new THREE.Vector3().subVectors(singleBullet.position, oldPosition);
-		bulletRaycaster.set(oldPosition, movementVector.clone().normalize());
-		bulletRaycaster.far = movementVector.length();
-		bulletRaycaster.near = 0;
-		
-		var hits = bulletRaycaster.intersectObjects(collidableMeshList, true);
-		
-		if (hits.length > 0) {
-			// Find the player object and send hit event (only for local bullets)
-			var player = hits[0].object;
-			while (player && player.playerid === undefined) player = player.parent;
-			if (!singleBullet.isRemote && player) {
-				bulletControl.shoot(player.playerid);
-			}
-			// Remove bullet on any collision (player or wall)
-			if (singleBullet.parent) {
-				singleBullet.parent.remove(singleBullet);
-			}
-			bulletList.splice(i, 1);
-			continue; // Skip lifetime check for collided bullets
-		}
-		
-		// Check if bullet has exceeded its lifetime
-		if (singleBullet.birthday && (currentTime - singleBullet.birthday) > lifetime) {
-			// Remove bullet from scene
-			if (singleBullet.parent) {
-				singleBullet.parent.remove(singleBullet);
-			}
-			// Remove from array
-			bulletList.splice(i, 1);
-		}
-	}
-}
+	const bulletRaycaster = new THREE.Raycaster();
+	const now = Date.now();
 
 	for (let i = bulletList.length - 1; i >= 0; i--) {
 		const singleBullet = bulletList[i];
@@ -422,4 +347,3 @@ export function resetPatrolState() {
 	hitDirection = 1;
 	rotationActive = 0;
 }
-
