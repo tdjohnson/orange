@@ -449,50 +449,15 @@ function create3DCrosshair() {
 }
 
 /**
- * Creates a cooldown bar above the health bar with pistol icon
- */
-function createCooldownBar() {
-	let container = document.getElementById('cooldownBarContainer');
-	if (!container) {
-		container = document.createElement('div');
-		container.id = 'cooldownBarContainer';
-		container.style.cssText = 'position: fixed; bottom: 40px; right: 24px; z-index: 1000; display: flex; align-items: center; gap: 8px; padding: 0; font-family: Arial, sans-serif; pointer-events: none;';
-		
-		const icon = document.createElement('span');
-		icon.id = 'cooldownIcon';
-		icon.textContent = '🔫';
-		icon.style.cssText = 'color: #ffff00; font-size: 16px; text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);';
-		container.appendChild(icon);
-		
-		const barContainer = document.createElement('div');
-		barContainer.id = 'cooldownBarWrapper';
-		barContainer.style.cssText = 'width: 180px; height: 12px; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 2px; overflow: hidden;';
-		container.appendChild(barContainer);
-		
-		const bar = document.createElement('div');
-		bar.id = 'cooldownBar';
-		bar.style.cssText = 'width: 0%; height: 100%; background: #ffff00; transition: width 0.1s linear;';
-		barContainer.appendChild(bar);
-		
-		document.body.appendChild(container);
-	}
-	return container;
-}
-
-/**
- * Updates the cooldown bar visibility and progress
+ * Updates the cooldown bar progress - bar is always visible
  */
 function updateCooldownBar(progress) {
-	const container = document.getElementById('cooldownBarContainer');
-	const bar = document.getElementById('cooldownBar');
-	if (!container || !bar) return;
+	const barFill = document.getElementById('cooldownBarFill');
+	if (!barFill) return;
 	
-	if (progress < 1.0) {
-		container.style.display = 'flex';
-		bar.style.width = ((1.0 - progress) * 100) + '%';
-	} else {
-		container.style.display = 'none';
-	}
+	// Progress goes from 0 (empty) to 1 (full)
+	// When shooting, progress = 0, then increases to 1 over 1 second
+	barFill.style.width = (progress * 100) + '%';
 }
 
 /**
@@ -629,9 +594,6 @@ function init() {
 	
 	// Create proper 3D crosshair (fixed)
 	create3DCrosshair();
-	
-	// Create cooldown bar
-	createCooldownBar();
 	
 	// Set initial camera position
 	camera.position.x = 5;
