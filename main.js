@@ -409,6 +409,7 @@ function createServerListDropdown(server_list) {
 
 function closeStart() {
 	toWakeUp = splashScreenModule.closeStart();
+	updateHudVisibility();
 }
 
 function GetCollidableMeshList() {
@@ -515,7 +516,7 @@ function applyQualitySettings() {
 			break;
 		case 'quality':
 			renderer.shadowMap.enabled = true;
-			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+			renderer.shadowMap.type = THREE.PCFShadowMap;
 			performanceBoostGlobal = false;
 			break;
 	}
@@ -544,7 +545,29 @@ function cycleQualityMode() {
 	const currentIndex = modes.indexOf(qualityMode);
 	const nextIndex = (currentIndex + 1) % modes.length;
 	setQualityMode(modes[nextIndex]);
+	showQualityModeNotice();
 	return qualityMode;
+}
+
+function showQualityModeNotice() {
+	let notice = document.getElementById("qualityModeNotice");
+	if (!notice) {
+		notice = document.createElement("div");
+		notice.id = "qualityModeNotice";
+		notice.style.cssText = "position:fixed; top:24px; right:24px; z-index:1000; padding:8px 14px; " +
+			"color:#fff; background:rgba(0,0,0,0.6); border-radius:4px; font-family:Arial,sans-serif; pointer-events:none;";
+		document.body.appendChild(notice);
+	}
+	notice.textContent = "Quality mode: " + qualityMode;
+	notice.style.display = "block";
+	setTimeout(() => { notice.style.display = "none"; }, 2000);
+}
+
+function updateHudVisibility() {
+	const cooldownContainer = document.getElementById("cooldownBarContainer");
+	if (cooldownContainer) {
+		cooldownContainer.classList.toggle("healthBarHidden", !toWakeUp);
+	}
 }
 
 setQualityMode._real = setQualityMode;
@@ -717,6 +740,7 @@ function init() {
 		loadDone = true;
 	};
 
+	updateHudVisibility();
 	animate();
 	
 	window.addEventListener('resize', () => {
