@@ -173,7 +173,7 @@ export function onKeyUp(e) {
 }
 
 function calcNewVelocityPerTick(oldVelocity, deltaTick) {
-	var newVelocity = oldVelocity * (1 - deltaTick * 10);
+	var newVelocity = oldVelocity * Math.exp(-deltaTick * 10); // exponential damping: (1 - dt*10) hits zero at 10 fps and goes negative below, which froze slow clients
 	if (Math.abs(newVelocity) < 0.1) return 0;
 	if (Math.abs(newVelocity) > maxVelocity) return Math.sign(oldVelocity) * maxVelocity;
 	return newVelocity;
