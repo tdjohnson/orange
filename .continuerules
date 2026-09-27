@@ -1,0 +1,27 @@
+# Project Context — MQTT
+
+## Environment — Windows
+- The bot runs on a **Windows Server**.
+- **Do not use Linux-specific commands** (e.g. `bash`, `grep`, `sed`, `cat`, `curl` is not guaranteed).
+- Use **PowerShell** for shell commands (e.g. `Invoke-WebRequest`, `Invoke-RestMethod`, `Select-String`, `Get-Content`).
+- Use **Python 3** (`python` or `py`) for scripting tasks.
+- Use Windows-style paths and quoting in commands.
+
+## MQTT broker
+- **Always send MQTT messages to:** `https://mqtt.tdj23.com`
+- **Topic:** `goodvibes`
+- **User tag:** Prefix every message / author identity with `[mistal]`
+
+## Local MQTT tooling
+- **Local mosquitto client:** `D:\Dev\Git\orange\Mosquitto\mosquitto.exe`
+- To publish messages or subscribe from the command line, use this binary, e.g.:
+  - Publish: `D:\Dev\Git\orange\Mosquitto\mosquitto.exe -h mqtt.tdj23.com -t goodvibes -m "[mistal] <message>"`
+  - Subscribe: `D:\Dev\Git\orange\Mosquitto\mosquitto.exe -h mqtt.tdj23.com -t goodvibes`
+- If `mosquitto_pub` / `mosquitto_sub` are also available in the same folder (`D:\Dev\Git\orange\Mosquitto\`), prefer them for publishing/subscribing, and use `mosquitto.exe` only for running a broker.
+
+## MQTT message history
+- **History endpoint:** `https://mqtt.tdj23.com/history/goodvibes/2026-09-27.jsonl`
+- **Auth:** HTTP Basic authentication
+  - Username: `derusi`
+  - Password: `9pN0ecpzPlA4Sgpq3amM`
+- When asked about previous messages, fetch and read the JSONL history from the endpoint above using these Basic Auth credentials before answering.

@@ -58,6 +58,19 @@ export class Multiplayer extends THREE.Mesh {
                         window.takeDamage(10);
                     }
                 }
+				} else {
+					// Remote player was hit, update their health
+					const player = this.players.find(p => p.id === event.destination);
+					if (player) {
+						player.health = Math.max(0, (player.health || 100) - 10);
+						this.updateHealthBar(player);
+						
+						// If health reaches zero, flip the player
+						if (player.health <= 0) {
+							player.body.rotation.x = Math.PI;
+						}
+					}
+				}
             } else if (event.type === "bullet") {
                 // Remote player fired a bullet
                 if (event.source !== this.playerId) {
@@ -77,6 +90,15 @@ export class Multiplayer extends THREE.Mesh {
                         window.handleDefeated(event.destination);
                     }
                 }
+				} else if (event.type === "healthReset") {
+					// A player was respawning, reset their health and rotation
+					const player = this.players.find(p => p.name === event.destination);
+					if (player) {
+						player.health = 100;
+						player.body.rotation.x = 0;
+						this.updateHealthBar(player);
+					}
+				
             } else if (event.type === "scores?") {
                 // Request for scores from another player
                 if (typeof window.handleScoresRequest === 'function') {
@@ -172,8 +194,13 @@ export class Multiplayer extends THREE.Mesh {
                 body: this.playerBody.clone(),
             };
             newPlayer.body.playerid = player.id;
+
+				newPlayer.health = 100; // Track health for this player
+
             console.log(newPlayer)
             this.addPlayerIdText(newPlayer.body, newPlayer.id, newPlayer.name);
+				this.addHealthBar(newPlayer.body, newPlayer);
+
             this.updatePlayer(newPlayer, player);
             this.players.push(newPlayer);
             this.collidableMeshList.push(newPlayer.body);
@@ -225,4 +252,45 @@ export class Multiplayer extends THREE.Mesh {
             return true;
         });
     }
+
+		addHealthBar(body, player) {
+			// Create health bar background
+			const barWidth = 2;
+			const barHeight = 0.2;
+			const barDepth = 0.1;
+			
+			const barGeometry = new THREE.BoxGeometry(barWidth, barHeight, barDepth);
+			const barMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
+			const healthBarBg = new THREE.Mesh(barGeometry, barMaterial);
+			healthBarBg.position.set(0, 2.5, 0); // Position above player's head
+			body.add(healthBarBg);
+			
+			// Create health bar fill
+			const fillGeometry = new THREE.BoxGeometry(barWidth, barHeight, barDepth);
+			const fillMaterial = new THREE.MeshBasicMaterial({ color: 0x3ddc5a }); // Green
+			const healthBarFill = new THREE.Mesh(fillGeometry, fillMaterial);
+			healthBarFill.position.set(0, 2.5, 0.05); // Slightly in front of background
+			body.add(healthBarFill);
+			
+			// Store references
+			player.healthBarBg = healthBarBg;
+			player.healthBarFill = healthBarFill;
+		}
+
+		updateHealthBar(player) {
+			if (player.healthBarFill && player.healthBarBg) {
+				// Update health bar color based on health
+				const percentage = Math.max(0, Math.min(100, player.health || 0));
+				let color = 0x3ddc5a; // Green
+				if (percentage < 34) {
+					color = 0xff3b3b; // Red
+				} else if (percentage < 67) {
+					color = 0xffb020; // Orange
+				}
+				player.healthBarFill.material.color.setHex(color);
+				
+				// Scale the fill
+				player.healthBarFill.scale.x = percentage / 100;
+			}
+		}
 }

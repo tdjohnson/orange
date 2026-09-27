@@ -33,16 +33,22 @@ export function triggerObject(intersectArray) {
 	//console.log(currentObj);
 	var correctObject;
 	var foundParent = false;
-	while (!foundParent) {
-		if (Object.hasOwn(currentObj, 'userData')) {
-			if (Object.hasOwn(currentObj.userData, 'isTriggerable')) {
-				console.log(currentObj);
-				correctObject = currentObj;
-				foundParent = true;
-			}
+	
+	// Check current object and all parents
+	while (currentObj) {
+		if (currentObj.userData && currentObj.userData.isTriggerable) {
+			console.log(currentObj);
+			correctObject = currentObj;
+			foundParent = true;
+			break;
 		}
 		currentObj = currentObj.parent;
 	}
+	
+	if (!correctObject) {
+		return; // No triggerable object found
+	}
+	
 	switch (correctObject.userData.name) {
 		case "soap": {
 			triggerDrop(correctObject);
@@ -52,6 +58,9 @@ export function triggerObject(intersectArray) {
 			triggerDoor(correctObject);
 			break;
 		}
+		default:
+			// Unknown triggerable object, do nothing
+			break;
 	}
 }
 

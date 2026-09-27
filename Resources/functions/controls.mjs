@@ -263,6 +263,22 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 			velocity.x = 0;
 		}
 
+		// Head check: prevent jumping through ceiling
+		if (velocity.y > 0) {
+			// Create upward raycaster from eye position
+			const headRaycaster = new THREE.Raycaster(
+				controls.object.position,
+				new THREE.Vector3(0, 1, 0),
+				0,
+				velocity.y * delta + 0.5
+			);
+			const headHits = headRaycaster.intersectObjects(collidableMeshList, true);
+			if (headHits.length > 0) {
+				// Hit ceiling, stop upward movement
+				velocity.y = 0;
+			}
+		}
+
 		// Calculate proposed new Y position before applying movement
 		var newY = controls.object.position.y + (velocity.y * delta);
 		
@@ -277,7 +293,11 @@ export function updateControls(controlsEnabled, delta, controls, collidableMeshL
 			var groundY = groundHits[0].point.y;
 			var standingY = groundY + playerHeight;
 
-			if (newY < standingY) {
+			// Check if ground is above current feet position (ceiling, not ground)
+			if (groundY > controls.object.position.y - playerHeight + 1.5) {
+				// This is a ceiling, not ground, ignore it
+				controls.object.position.y = newY;
+			} else if (newY < standingY) {
 				// Would fall below ground, so snap to standing position
 				controls.object.position.y = standingY;
 				velocity.y = 0;
