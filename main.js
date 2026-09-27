@@ -930,7 +930,7 @@ function setupSessionDropdown() {
 }
 
 // Session countdown handling
-defaultSessionCountdown = document.getElementById("sessionCountdown");
+const defaultSessionCountdown = document.getElementById("sessionCountdown");
 if (defaultSessionCountdown) {
 	defaultSessionCountdown.style.display = 'none';
 }
