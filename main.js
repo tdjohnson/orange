@@ -67,6 +67,9 @@ var collidableMeshList = [];
 var loadDone, toWakeUp = false;
 var animationLock = false;
 
+// Track if we're in an active game
+var inActiveGame = false;
+
 var collided = false;
 var meshes = new Map();
 var rootCell;
@@ -504,26 +507,31 @@ function applyQualitySettings() {
 	renderer.toneMappingExposure = 1.0;
 	renderer.physicallyCorrectLights = true;
 	
+	// Update performance mode flag for object modules
+	performanceBoostGlobal = (qualityMode === 'performance');
+	
 	switch(qualityMode) {
 		case 'performance':
 			renderer.shadowMap.enabled = false;
-			performanceBoostGlobal = true;
 			break;
 		case 'balanced':
 			renderer.shadowMap.enabled = true;
 			renderer.shadowMap.type = THREE.PCFShadowMap;
-			performanceBoostGlobal = false;
 			break;
 		case 'quality':
 			renderer.shadowMap.enabled = true;
 			renderer.shadowMap.type = THREE.PCFShadowMap;
-			performanceBoostGlobal = false;
 			break;
 	}
 	
 	objectsModule.setPerformanceOptimization(performanceBoostGlobal);
 	prisonCellModule.setPerformanceOptimization(performanceBoostGlobal);
 	hallwayModule.setPerformanceOptimization(performanceBoostGlobal);
+	
+	// Force shadow map update by clearing and re-enabling if needed
+	if (renderer.shadowMap.enabled) {
+		renderer.shadowMap.needsUpdate = true;
+	}
 	
 	try {
 		localStorage.setItem('orange.qualityMode', qualityMode);
@@ -546,6 +554,10 @@ function cycleQualityMode() {
 	const nextIndex = (currentIndex + 1) % modes.length;
 	setQualityMode(modes[nextIndex]);
 	showQualityModeNotice();
+	// Force re-apply settings in case renderer is already initialized
+	if (renderer) {
+		applyQualitySettings();
+	}
 	return qualityMode;
 }
 
@@ -565,8 +577,12 @@ function showQualityModeNotice() {
 
 function updateHudVisibility() {
 	const cooldownContainer = document.getElementById("cooldownBarContainer");
+	const pistolContainer = document.getElementById("pistolContainer");
 	if (cooldownContainer) {
-		cooldownContainer.classList.toggle("healthBarHidden", !toWakeUp);
+		cooldownContainer.classList.toggle("healthBarHidden", !inActiveGame);
+	}
+	if (pistolContainer) {
+		pistolContainer.classList.toggle("healthBarHidden", !inActiveGame);
 	}
 }
 
@@ -726,6 +742,11 @@ function init() {
 	// 	collidableMeshList.push(mirror2);
 	// }
 
+	// Clean up old pointer lock listeners before setting up new ones
+	if (typeof pointerLockModule.cleanupPointerLock === 'function') {
+		pointerLockModule.cleanupPointerLock();
+	}
+	
 	pointerLockModule.initPointerLock(havePointerLock, controls);
 	addRamps(renderer);
 	addFoundation();
@@ -1074,6 +1095,7 @@ function loadMultiplayer(player_name, selected_server){
 	console.log("Loading multiplayer...");
 	try { localStorage.setItem('orange.lastMode', 'MultiPlayer'); } catch(e) { console.log('Could not save lastMode:', e); }
 	closeStart();
+	inActiveGame = true;
 	init();
 	import('./Resources/functions/multiplayer.mjs').then(module => {
 		multiplayer = new module.Multiplayer(renderer, collidableMeshList, scene, player_name, selected_server);
@@ -1087,6 +1109,7 @@ function startSingleplayer() {
 	showDefeatedCounter(false);
 	try { localStorage.setItem('orange.lastMode', 'SinglePlayer'); } catch(e) { console.log('Could not save lastMode:', e); }
 	closeStart();
+	inActiveGame = true;
 	init();
 }
 startSingleplayer._real = startSingleplayer;
@@ -1447,5 +1470,9 @@ async function showHallOfFame() {
 		console.log("Hall of fame: server list not available, showing local entries.", e);
 	}
 }
+
+// Initialize HUD visibility for menu screen
+inActiveGame = false;
+updateHudVisibility();
 
 showHallOfFame();
