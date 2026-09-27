@@ -31,6 +31,7 @@ var defeatedPlayers = new Map();
 var serverScoresActive = false;
 var sessionKills = new Map();   // kills per player in the running round
 var sessionDeaths = new Map();  // deaths per player in the running round
+var roundPaused = false;        // true between the end of a round and the start of the next one
 var viewBeforeDeath = null;     // camera orientation saved when the player is busted // true once the server has sent its scoreboard; then clients stop counting
 
 // Load defeated scores from localStorage on startup
@@ -329,7 +330,9 @@ function respawnPlayer() {
 	controls.enabled = true;
 	if (playerBody) playerBody.rotation.set(0, 0, 0);
 	controlsModule.resetMovement();
-	controlsModule.setInputBlocked(false);
+	// between two rounds everyone waits in a cell; the next round releases the input
+	controlsModule.setInputBlocked(roundPaused);
+	controls.enabled = !roundPaused;
 	
 	const totalCellcount = 2 * 6; // cellRowCount * cellsPerRow
 	const startCell = Math.floor(Math.random() * totalCellcount);
@@ -1129,11 +1132,25 @@ function hideSessionResults() {
 window.addEventListener("orange:sessionJoined", (e) => {
 	hideSessionResults(); // a new round has started
 	resetSessionStats(); // kills and deaths count per round
+	// release the players that were parked in their cells at the end of the last round
+	roundPaused = false;
+	if (controls && health > 0) {
+		resetHealth();
+		controlsModule.setInputBlocked(false);
+		controls.enabled = true;
+	}
 	updateSessionCountdown(e.detail.secondsLeft, true);
 	showSessionNotice("You are in " + (e.detail.name || "a session"));
 });
 window.addEventListener("orange:sessionTime", (e) => updateSessionCountdown(e.detail.secondsLeft, true));
 window.addEventListener("orange:sessionEnded", (e) => {
+	// round over: everyone back into a cell with full health, no moving or shooting during the results.
+	// A player who is busted right now gets there through the respawn that is already scheduled.
+	roundPaused = true;
+	if (controls && health > 0) {
+		resetHealth();
+		respawnPlayer();
+	}
 	setTimeout(updateDefeatedCounter, 0); // back to the all-time board until the next round starts
 	updateSessionCountdown(0, false);
 	showSessionResults(e.detail);
