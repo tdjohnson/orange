@@ -13,6 +13,7 @@ const idleTimeout = 5000;
 var lastMovementTime = 0;
 var lastPosition = new THREE.Vector3();
 var lastDirection = new THREE.Vector3();
+const lookTarget = new THREE.Vector3(); // reused for every position update of a remote player
 
 
 const roundVector = (v) => new THREE.Vector3(
@@ -260,9 +261,8 @@ export class Multiplayer extends THREE.Mesh {
 
         // Skip lookAt when player is defeated (health <= 0)
         if ((player.health ?? 100) > 0) {
-            const newDir = new THREE.Vector3(playerData.xd, playerData.yd, playerData.zd);
-            const pos = new THREE.Vector3().addVectors(newDir, player.body.position);
-            player.body.lookAt(pos);
+            lookTarget.set(playerData.xd, playerData.yd, playerData.zd).add(player.body.position);
+            player.body.lookAt(lookTarget);
         }
         this.playerLastUpdate[player.id] = performance.now();
     }

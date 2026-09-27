@@ -779,16 +779,12 @@ function enableMirrors(x1,x2){ //enable mirros that are between given x-axis coo
 }
 
 
+const cameraDirection = new THREE.Vector3();
+
 function animate() {
 
-	if(gameMode != null && playerBody != null)
-	{
-		collidingObjects = collisionDetection(playerBody, collidableMeshList);
-		//console.log("Colision detected with:");
-		//console.log(collidingObjects);
-
-	}
-
+	// A bounding-box pass over every collidable object used to run here on each frame.
+	// Its result was never read, so it is gone; movement collisions live in controls.mjs.
 
 	requestAnimationFrame(animate); 
 	if (toWakeUp === true) {
@@ -799,14 +795,13 @@ function animate() {
 		raycasterFront.ray.origin.copy( controls.object.position );
 		controls.getDirection(raycasterFront.ray.direction);
 
-		var vector = new THREE.Vector3();
-		camera.getWorldDirection(vector); // Get camera forward direction as normalized vector
+		camera.getWorldDirection(cameraDirection); // camera forward direction, normalized
 
 		raycasterCamera.ray.origin.copy(camera.position);
-		raycasterCamera.ray.direction = vector;
+		raycasterCamera.ray.direction.copy(cameraDirection);
 
 		if (multiplayer) {
-			multiplayer.sendData(controls.object.position, controls.getDirection(raycasterFront.ray.direction));
+			multiplayer.sendData(controls.object.position, raycasterFront.ray.direction);
 			//multiplayer.adjustAudioVolume();
 		}
 
@@ -814,17 +809,17 @@ function animate() {
 		controlsModule.updateControls(controlsEnabled, delta, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
 	    renderer.render(scene, camera);
 	    
-		proximityModule.proximityDetector();
+		// proximityModule.proximityDetector() was called here without arguments: it threw on its
+		// first line and swallowed the error, on every frame, and never did anything else.
 		transformModule.animateDoors();
  		
 
 		transformModule.animateDrop();
-		bulletControl.getBulletArray().forEach(singleBullet => {
-			if(null == scene.getObjectByName(singleBullet.getName())) {
-				//console.log(singleBullet);
-				scene.add(singleBullet);
-			}
-		});
+		// new bullets are not in the scene yet; asking the bullet is cheaper than searching the scene by name
+		const bullets = bulletControl.getBulletArray();
+		for (let i = 0; i < bullets.length; i++) {
+			if (bullets[i].parent === null) scene.add(bullets[i]);
+		}
 		bulletControl.updateCollidableMeshList(collidableMeshList);
 		transformModule.animateBullets(bulletControl.getBulletArray(), delta, collidableMeshList);
 		//transformModule.patrolRobot(botBody);
@@ -834,8 +829,7 @@ function animate() {
 				robotAttack();
 			}	 	
 	 	} */
-		
- 		camera.updateProjectionMatrix();
+		// the projection only changes on zoom and resize, which update it themselves
 	}
 }
 
