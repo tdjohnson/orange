@@ -22,6 +22,7 @@ var havePointerLock = pointerLockModule.checkForPointerLock();
 var controls;
 var controlsEnabled = true;
 var multiplayer;
+var mqttEnabled = false;
 var playerBody;
 var collidingObjects;
 var collidableObjects;
