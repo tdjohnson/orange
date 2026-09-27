@@ -618,7 +618,7 @@ function init() {
 	
 	document.body.appendChild(renderer.domElement);
 	
-	clock = new THREE.Clock();
+	clock = new THREE.Timer();
 	scene = new THREE.Scene();
 	
 	// Add fog for depth perception
