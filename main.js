@@ -13,6 +13,7 @@ import * as hallwayModule from './Resources/functions/fullHallway.mjs';
 import * as transformModule from './Resources/functions/transform.mjs';
 import * as bulletControl from './Resources/functions/bulletControl.mjs';
 import { orangeSessions } from './Resources/functions/sessions.mjs';
+import * as hallOfFame from './Resources/functions/hallOfFame.mjs';
 
 var clock;
 var scene, camera, renderer;
@@ -1144,6 +1145,7 @@ window.addEventListener("orange:sessionJoined", (e) => {
 });
 window.addEventListener("orange:sessionTime", (e) => updateSessionCountdown(e.detail.secondsLeft, true));
 window.addEventListener("orange:sessionEnded", (e) => {
+	hallOfFame.recordRound(e.detail); // best K/D of the round goes into the hall of fame
 	// round over: everyone back into a cell with full health, no moving or shooting during the results.
 	// A player who is busted right now gets there through the respawn that is already scheduled.
 	roundPaused = true;
@@ -1209,6 +1211,21 @@ export function startMultiplayer() {
 	console.log("Selecting User Details");
 }
 
+
+// Hall of fame on the start screen: from the server the player used last, or the first one in the list
+async function showHallOfFame() {
+	hallOfFame.render(hallOfFame.loadLocal(), 'Rounds played in this browser');
+	try {
+		const servers = await retrieveServerList();
+		let savedId = null;
+		try { savedId = localStorage.getItem('orange.serverId'); } catch (e) { savedId = null; }
+		const server = servers.find(s => s.id === savedId) || servers[0];
+		if (server) await hallOfFame.show(server.baseUrl, server.name);
+	} catch (e) {
+		console.log("Hall of fame: server list not available, showing local entries.", e);
+	}
+}
+showHallOfFame();
 
 // Make the functions globally accessible
 window.startSingleplayer = startSingleplayer;

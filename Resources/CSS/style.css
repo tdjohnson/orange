@@ -232,6 +232,7 @@ table#InfoOutput td {
 }
 
 div#startScreen {
+	overflow-y: auto;
 	position: fixed;
 	top:0;
 	left:0;
@@ -417,4 +418,32 @@ div#welcomeMessage {
 #sessionTableContainer .sessionTable td {
 	padding: 6px 14px;
 	text-align: left;
+}
+
+/* hall of fame on the start screen */
+#hallOfFame h2 {
+	margin-bottom: 6px;
+}
+
+.hallOfFameTable {
+	margin: 0 auto;
+	border-collapse: collapse;
+	color: orange;
+	font-size: 14px;
+}
+
+.hallOfFameTable th,
+.hallOfFameTable td {
+	padding: 4px 12px;
+	text-align: left;
+	border-bottom: 1px solid #553300;
+}
+
+.hallOfFameTable tr:first-child td {
+	font-weight: bold;
+}
+
+#hallOfFameSource {
+	color: #aa6600;
+	font-size: 12px;
 }
