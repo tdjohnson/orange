@@ -113,7 +113,9 @@ export function onMouseDown(e) {
 	switch (e.button) {
 		case 0: // left mouse click
 			pressedKeys["LMB"] = true;
-			bulletControl.addBullet(renderer);
+			if (typeof bulletControl.canShoot === 'function' && bulletControl.canShoot()) {
+				bulletControl.addBullet(renderer);
+			}
 			break;
 	}
 }
@@ -165,6 +167,11 @@ export function onKeyDown(e) {
 		if (lastObject) transformModule.triggerDrop(lastObject);
 	} else if (code === "KeyH") {
 		toggleDebugOverlay();
+	} else if (code === "KeyP") {
+		if (typeof window.cycleQualityMode === 'function') {
+			const newMode = window.cycleQualityMode();
+			console.log("Cycled to quality mode:", newMode);
+		}
 	} else if (code === "KeyZ") {
 		zoom();
 	}

@@ -24,6 +24,11 @@ export class FullHallway extends THREE.Mesh {
 		if (!performanceBoost) {
 			const light = new THREE.PointLight(0xffff99, 100);
 			light.position.set(0, 8, 0);
+			light.castShadow = true;
+			light.shadow.mapSize.width = 512;
+			light.shadow.mapSize.height = 512;
+			light.shadow.camera.near = 0.5;
+			light.shadow.camera.far = 50;
 			this.add(light);
 		}
 	}

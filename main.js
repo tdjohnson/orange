@@ -448,6 +448,49 @@ function create3DCrosshair() {
 }
 
 /**
+ * Creates a cooldown bar below the crosshair
+ */
+function createCooldownBar() {
+	let container = document.getElementById('cooldownBarContainer');
+	if (!container) {
+		container = document.createElement('div');
+		container.id = 'cooldownBarContainer';
+		container.style.cssText = 'position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 200px; height: 8px; pointer-events: none; display: none;';
+		
+		const bar = document.createElement('div');
+		bar.id = 'cooldownBar';
+		bar.style.cssText = 'width: 0%; height: 100%; background: #ff4444; transition: width 0.1s linear;';
+		container.appendChild(bar);
+		
+		const rendererElement = renderer?.domElement;
+		if (rendererElement && rendererElement.parentNode) {
+			rendererElement.parentNode.style.position = 'relative';
+			rendererElement.parentNode.appendChild(container);
+		} else {
+			document.body.style.position = 'relative';
+			document.body.appendChild(container);
+		}
+	}
+	return container;
+}
+
+/**
+ * Updates the cooldown bar visibility and progress
+ */
+function updateCooldownBar(progress) {
+	const container = document.getElementById('cooldownBarContainer');
+	const bar = document.getElementById('cooldownBar');
+	if (!container || !bar) return;
+	
+	if (progress < 1.0) {
+		container.style.display = 'block';
+		bar.style.width = ((1.0 - progress) * 100) + '%';
+	} else {
+		container.style.display = 'none';
+	}
+}
+
+/**
  * Creates CSS crosshair as fallback/alternative
  */
 function createCSSCrosshair() {
@@ -525,9 +568,19 @@ function setQualityMode(mode) {
 		console.log("Quality mode set to:", mode);
 	}
 }
+
+function cycleQualityMode() {
+	const modes = ['performance', 'balanced', 'quality'];
+	const currentIndex = modes.indexOf(qualityMode);
+	const nextIndex = (currentIndex + 1) % modes.length;
+	setQualityMode(modes[nextIndex]);
+	return qualityMode;
+}
+
 setQualityMode._real = setQualityMode;
 window.setQualityMode = setQualityMode;
-export { setQualityMode };
+window.cycleQualityMode = cycleQualityMode;
+export { setQualityMode, cycleQualityMode };
 
 // ========== MIRROR SYSTEM FUNCTIONS ==========
 // COMMENTED OUT: THREE.Mirror not available at CDN paths in r186
@@ -571,6 +624,9 @@ function init() {
 	
 	// Create proper 3D crosshair (fixed)
 	create3DCrosshair();
+	
+	// Create cooldown bar
+	createCooldownBar();
 	
 	// Set initial camera position
 	camera.position.x = 5;
@@ -967,6 +1023,11 @@ function animate() {
 
 		var delta = clock.getDelta();
 		controlsModule.updateControls(controlsEnabled, delta, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
+		
+		// Update cooldown bar
+		if (typeof bulletControl.getCooldownProgress === 'function') {
+			updateCooldownBar(bulletControl.getCooldownProgress());
+		}
 		
 		// COMMENTED OUT: Mirror updates disabled
 		// updateMirrors();

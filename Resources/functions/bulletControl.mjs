@@ -18,6 +18,10 @@ const bulletArray = [];
 let currentPosition;
 let collidableMeshList = [];
 
+// Shooting cooldown state
+let lastShotTime = 0;
+const SHOOT_COOLDOWN_MS = 1000;
+
 // Reusable vectors
 const tempVec3A = new THREE.Vector3();
 const tempVec3B = new THREE.Vector3();
@@ -50,8 +54,31 @@ export function shoot(destination) {
 	events2main("hit", destination);
 }
 
+export function canShoot() {
+	const now = Date.now();
+	return (now - lastShotTime) >= SHOOT_COOLDOWN_MS;
+}
+
+export function getCooldownProgress() {
+	const now = Date.now();
+	const elapsed = now - lastShotTime;
+	return Math.min(1.0, elapsed / SHOOT_COOLDOWN_MS);
+}
+
+export function getCooldownRemaining() {
+	const now = Date.now();
+	const remaining = SHOOT_COOLDOWN_MS - (now - lastShotTime);
+	return Math.max(0, remaining) / SHOOT_COOLDOWN_MS;
+}
+
 export function addBullet(renderer) {
 	if (!currentPosition) return;
+
+	const now = Date.now();
+	if (now - lastShotTime < SHOOT_COOLDOWN_MS) {
+		return;
+	}
+	lastShotTime = now;
 
 	const newBullet = new Bullet(renderer);
 	const initialBulletPosition = currentPosition.position;
