@@ -96,6 +96,26 @@ div
 }
 
 /* ---- Defeated Counter (top right) ---- */
+
+/* ---- Session Countdown (top centre) ---- */
+#sessionCountdown {
+	position: fixed;
+	top: 24px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1000;
+	font-family: Arial, sans-serif;
+	font-size: 24px;
+	font-weight: bold;
+	color: white;
+	pointer-events: none;
+	text-shadow: 2px 2px 4px black;
+}
+
+#sessionCountdown.low {
+	color: red;
+}
+
 #defeatedCounterContainer {
 	position: fixed;
 	top: 24px;
@@ -285,3 +305,30 @@ div#welcomeMessage {
 	text-align: center;
 	font-size: large;
 }
+
+
+/* ---- Session Result Overlay ---- */
+#sessionResultOverlay {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: rgba(0, 0, 0, 0.8);
+	color: white;
+	padding: 20px;
+	border-radius: 10px;
+	z-index: 2000;
+	display: none;
+	font-family: Arial, sans-serif;
+	text-align: center;
+}
+
+#sessionResults {
+	margin: 20px 0;
+	text-align: left;
+}
+
+#sessionResults div {
+	padding: 5px 0;
+}
+

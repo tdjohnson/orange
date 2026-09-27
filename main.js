@@ -117,7 +117,8 @@ export function takeDamage(amount) {
 		updateHealthBar();
 		showBustedMessage();
 			// Flip player to show defeat
-			if (playerBody) {
+			if (controls && controls.object) {
+				controls.object.rotation.x = Math.PI;
 				playerBody.rotation.x = Math.PI;
 			}
 		// Track local player defeat
@@ -274,6 +275,7 @@ function respawnPlayer() {
 	if (!controls || !controls.object) return;
 	
 	// Reset rotation (unflip after being busted)
+	controls.object.rotation.x = 0;
 	if (playerBody) playerBody.rotation.x = 0;
 	
 	const totalCellcount = 2 * 6; // cellRowCount * cellsPerRow
@@ -832,6 +834,210 @@ export function startMultiplayerWithName() {
 		});
 	}
 }
+
+
+
+// Session handling for multiplayer
+async function updateSessionDropdown(baseUrl) {
+	const sessionDropdown = document.getElementById("sessionSelector");
+	if (!sessionDropdown) return;
+	
+	// Check if sessions are supported
+	if (typeof window.orangeSessions === 'undefined' || !window.orangeSessions.supported) {
+		sessionDropdown.style.display = 'none';
+		return;
+	}
+	
+	// Show the dropdown
+	sessionDropdown.style.display = 'block';
+	
+	try {
+		const sessions = await window.orangeSessions.list(baseUrl);
+		
+		// Clear existing options (keep "Start new session")
+		const options = sessionDropdown.querySelectorAll('option');
+		options.forEach(opt => {
+			if (opt.value !== 'new') {
+				sessionDropdown.removeChild(opt);
+			}
+		});
+		
+		// Add session options
+		sessions.forEach(session => {
+			const option = document.createElement('option');
+			option.value = session.id;
+			const minutes = Math.floor(session.secondsRemaining / 60);
+			const seconds = session.secondsRemaining % 60;
+			const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+			option.textContent = `${session.name} (${timeStr} left, ${session.playerCount} of ${session.maxPlayers})`;
+			sessionDropdown.appendChild(option);
+		});
+		
+		// If no sessions, just show "Start new session"
+		if (sessions.length === 0) {
+			const onlyNew = sessionDropdown.querySelectorAll('option').length === 1;
+			if (!onlyNew) {
+				const options = sessionDropdown.querySelectorAll('option');
+				options.forEach(opt => {
+					if (opt.value !== 'new') {
+						sessionDropdown.removeChild(opt);
+					}
+				});
+			}
+		}
+	} catch (e) {
+		console.log("Error updating session dropdown:", e);
+		sessionDropdown.style.display = 'none';
+	}
+}
+
+// Update session dropdown when server changes
+function setupSessionDropdown() {
+	const serverSelector = document.getElementById("serverSelector");
+	if (!serverSelector) return;
+	
+	// Update on server change
+	serverSelector.addEventListener('change', async () => {
+		const selectedId = serverSelector.value;
+		if (!selectedId) return;
+		
+		// Get the server baseUrl
+		const serverList = await retrieveServerList();
+		const selectedServer = serverList.find(s => s.id === selectedId);
+		if (selectedServer) {
+			await updateSessionDropdown(selectedServer.baseUrl);
+		}
+	});
+	
+	// Also check for session support and show/hide dropdown
+	if (typeof window.orangeSessions === 'undefined') {
+		// Wait for it to be available
+		const checkSessions = setInterval(() => {
+			if (typeof window.orangeSessions !== 'undefined') {
+				clearInterval(checkSessions);
+				// Trigger initial update
+				if (serverSelector.value) {
+					retrieveServerList().then(serverList => {
+						const selectedServer = serverList.find(s => s.id === serverSelector.value);
+						if (selectedServer) {
+							updateSessionDropdown(selectedServer.baseUrl);
+						}
+					});
+				}
+			}
+		}, 100);
+	}
+}
+
+// Session countdown handling
+defaultSessionCountdown = document.getElementById("sessionCountdown");
+if (defaultSessionCountdown) {
+	defaultSessionCountdown.style.display = 'none';
+}
+
+function updateSessionCountdown(secondsLeft) {
+	const countdown = document.getElementById("sessionCountdown");
+	const timeSpan = document.getElementById("sessionTime");
+	if (!countdown || !timeSpan) return;
+	
+	const minutes = Math.floor(secondsLeft / 60);
+	const seconds = secondsLeft % 60;
+	const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	timeSpan.textContent = timeStr;
+	
+	// Show/hide based on session state
+	if (secondsLeft > 0) {
+		countdown.style.display = 'block';
+		// Add low class if under 15 seconds
+		if (secondsLeft <= 15) {
+			countdown.classList.add('low');
+		} else {
+			countdown.classList.remove('low');
+		}
+	} else {
+		countdown.style.display = 'none';
+	}
+}
+
+// Session result overlay
+defaultResultOverlay = document.createElement('div');
+defaultResultOverlay.id = 'sessionResultOverlay';
+defaultResultOverlay.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; z-index: 2000; display: none; font-family: Arial, sans-serif; text-align: center;';
+defaultResultOverlay.innerHTML = '<h1>Session Results</h1><div id="sessionResults"></div><p>Returning to menu in <span id="sessionResultTimer">10</span> seconds...</p>';
+if (!document.getElementById('sessionResultOverlay')) {
+	document.body.appendChild(defaultResultOverlay);
+}
+
+function showSessionResults(kills, defeats) {
+	const overlay = document.getElementById('sessionResultOverlay');
+	const resultsDiv = document.getElementById('sessionResults');
+	if (!overlay || !resultsDiv) return;
+	
+	// Clear previous results
+	resultsDiv.innerHTML = '<h2>Kills:</h2>';
+	
+	// Sort by kills descending, then by defeats ascending
+	const sorted = Object.entries(kills).sort((a, b) => b[1] - a[1] || defeats[a[0]] - defeats[b[0]]);
+	
+	if (sorted.length > 0) {
+		sorted.forEach(([name, count]) => {
+			const div = document.createElement('div');
+			div.textContent = `${name}: ${count} kills (defeats: ${defeats[name] || 0})`;
+			resultsDiv.appendChild(div);
+		});
+	} else {
+		const div = document.createElement('div');
+		div.textContent = 'No kills recorded';
+		resultsDiv.appendChild(div);
+	}
+	
+	overlay.style.display = 'block';
+	
+	// Hide after 10 seconds and reload
+	let timer = 10;
+	const timerSpan = document.getElementById('sessionResultTimer');
+	const interval = setInterval(() => {
+		timer--;
+		if (timerSpan) timerSpan.textContent = timer;
+		if (timer <= 0) {
+			clearInterval(interval);
+			overlay.style.display = 'none';
+			location.reload();
+		}
+	}, 1000);
+}
+
+// Setup event listeners
+function setupSessionEventListeners() {
+	// Session joined
+	window.addEventListener('orange:sessionJoined', (e) => {
+		console.log('Session joined:', e.detail);
+		updateSessionCountdown(e.detail.secondsLeft);
+	});
+	
+	// Session time update
+	window.addEventListener('orange:sessionTime', (e) => {
+		updateSessionCountdown(e.detail.secondsLeft);
+	});
+	
+	// Session ended
+	window.addEventListener('orange:sessionEnded', (e) => {
+		console.log('Session ended:', e.detail);
+		updateSessionCountdown(0);
+		showSessionResults(e.detail.kills, e.detail.defeats);
+	});
+	
+	// Session join failed
+	window.addEventListener('orange:sessionJoinFailed', (e) => {
+		console.log('Session join failed:', e.detail);
+		alert(`Failed to join session: ${e.detail.reason || 'Unknown error'}`);
+		location.reload();
+	});
+}
+
+// Initialize session handling
+setupSessionDropdown();
+setupSessionEventListeners();
 
 export function startMultiplayer() {
 	gameMode = "MultiPlayer";
