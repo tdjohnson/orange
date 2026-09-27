@@ -213,9 +213,12 @@ export class Multiplayer extends THREE.Mesh {
         //dirty player height hack, might break in the future
         player.body.position.set(playerData.x, playerData.y - this.scene.children[0].playerHeight, playerData.z);
 
-        const newDir = new THREE.Vector3(playerData.xd, playerData.yd, playerData.zd);
-        const pos = new THREE.Vector3().addVectors(newDir, player.body.position);
-        player.body.lookAt(pos);
+        // Skip lookAt when player is defeated (health <= 0)
+        if ((player.health || 100) > 0) {
+            const newDir = new THREE.Vector3(playerData.xd, playerData.yd, playerData.zd);
+            const pos = new THREE.Vector3().addVectors(newDir, player.body.position);
+            player.body.lookAt(pos);
+        }
         this.playerLastUpdate[player.id] = performance.now();
     }
 
