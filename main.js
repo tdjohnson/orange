@@ -27,6 +27,7 @@ var collidableObjects;
 var gameMode;
 var health = 100;
 var defeatedPlayers = new Map();
+var serverScoresActive = false; // true once the server has sent its scoreboard; then clients stop counting
 
 // Load defeated scores from localStorage on startup
 try {
@@ -121,10 +122,12 @@ export function takeDamage(amount) {
 		// Track local player defeat
 		if (multiplayer && multiplayer.name) {
 			const localPlayerName = multiplayer.name;
-			const currentCount = defeatedPlayers.get(localPlayerName) || 0;
-			defeatedPlayers.set(localPlayerName, currentCount + 1);
-			updateDefeatedCounter();
-			// Send defeat event to other players
+			if (!serverScoresActive) {
+				const currentCount = defeatedPlayers.get(localPlayerName) || 0;
+				defeatedPlayers.set(localPlayerName, currentCount + 1);
+				updateDefeatedCounter();
+			}
+			// Send defeat event: other players (old server) or the server's counter (new server)
 			if (multiplayer) {
 				multiplayer.sendEvent("defeated", localPlayerName);
 			}
@@ -170,7 +173,16 @@ function updateDefeatedCounter() {
 	});
 }
 
+// Server-authoritative scoreboard: replaces the local map, called from GetScores and ScoresUpdated
+export function handleServerScores(scores) {
+	if (!scores || typeof scores !== 'object') return;
+	serverScoresActive = true;
+	defeatedPlayers = new Map(Object.entries(scores).map(([name, count]) => [name, Number(count) || 0]));
+	updateDefeatedCounter();
+}
+
 export function handleDefeated(playerName) {
+	if (serverScoresActive) return; // the server counts and will send ScoresUpdated
 	const currentCount = defeatedPlayers.get(playerName) || 0;
 	defeatedPlayers.set(playerName, currentCount + 1);
 	updateDefeatedCounter();
@@ -193,6 +205,7 @@ export function handleDefeated(playerName) {
 
 // Handle scores update from other players
 export function handleScores(scoresJson, sourcePlayerId) {
+	if (serverScoresActive) return; // peer sync is only the fallback for old servers
 	try {
 		const receivedScores = JSON.parse(scoresJson);
 		// Merge with Math.max
@@ -218,6 +231,7 @@ export function handleScores(scoresJson, sourcePlayerId) {
 
 // Handle scores request from other players
 export function handleScoresRequest(sourcePlayerId) {
+	if (serverScoresActive) return;
 	// Send our current scores to the requester
 	if (multiplayer) {
 		const scoresJson = JSON.stringify(Object.fromEntries(defeatedPlayers.entries()));
@@ -870,3 +884,4 @@ window.takeDamage = takeDamage;
 window.handleDefeated = handleDefeated;
 window.handleScoresRequest = handleScoresRequest;
 window.handleScores = handleScores;
+window.handleServerScores = handleServerScores;

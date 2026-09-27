@@ -32,6 +32,8 @@ export class Multiplayer extends THREE.Mesh {
         this.playerId = this.umps.GetPlayerId();
         this.playerName = this.umps.SetPlayerName(this.playerId, player_name);
         this.players = [];
+        // REST base of the selected server, e.g. https://umps.tdj23.com (hub url minus /controlhub)
+        this.serverBaseUrl = String(selected_server || '').replace(/\/controlhub\/?$/, '');
 
     }
     
@@ -98,6 +100,9 @@ export class Multiplayer extends THREE.Mesh {
 						this.updateHealthBar(player);
 					}
 				
+            } else if (event.type === "left") {
+                // Server says this player disconnected (UMPS >= player_left_scores_type)
+                this.removePlayerById(event.source);
             } else if (event.type === "scores?") {
                 // Request for scores from another player
                 if (typeof window.handleScoresRequest === 'function') {
@@ -110,6 +115,15 @@ export class Multiplayer extends THREE.Mesh {
                 }
             }
         });
+
+        // Server-side scoreboard (UMPS >= player_left_scores_type). Old servers never send this.
+        this.umps.hub.on("ScoresUpdated", (scores) => {
+            if (typeof window.handleServerScores === 'function') window.handleServerScores(scores);
+        });
+        fetch(this.serverBaseUrl + '/api/Lobby/GetScores')
+            .then(r => (r.ok ? r.json() : null))
+            .then(scores => { if (scores && typeof window.handleServerScores === 'function') window.handleServerScores(scores); })
+            .catch(() => { /* old server without scores, peer sync stays active */ });
 
         this.playerLastUpdate = {};
         setInterval(() => this.checkIdle(), idleCheckInterval);
@@ -151,7 +165,8 @@ export class Multiplayer extends THREE.Mesh {
                         z: rPos.z,
                         xd: rDir.x,
                         yd: rDir.y,
-                        zd: rDir.z
+                        zd: rDir.z,
+                        type: window.orangePlayerType === 'bot' ? 'bot' : 'human'
                     };
                     if (this.umps.hub.connection.q === "Connected") {
                         this.umps.hub.invoke("SendData", player).catch(err => {
@@ -191,13 +206,14 @@ export class Multiplayer extends THREE.Mesh {
                 id: player.id,
                 name: requested_player_name,
                 body: this.playerBody.clone(),
+                type: player.type === 'bot' ? 'bot' : 'human',
             };
             newPlayer.body.playerid = player.id;
 
 				newPlayer.health = 100; // Track health for this player
 
             console.log(newPlayer)
-            this.addPlayerIdText(newPlayer.body, newPlayer.id, newPlayer.name);
+            newPlayer.nameTag = this.addPlayerIdText(newPlayer.body, newPlayer.id, (newPlayer.type === 'bot' ? '\u{1F916} ' : '') + newPlayer.name);
 				this.addHealthBar(newPlayer.body, newPlayer);
 
             this.updatePlayer(newPlayer, player);
@@ -236,6 +252,7 @@ export class Multiplayer extends THREE.Mesh {
         const plane = new THREE.Mesh(planeGeometry, material);
         plane.position.set(1, 1.2, 0);
         body.add(plane);
+        return plane;
     }
 
     checkIdle() {
@@ -246,29 +263,36 @@ export class Multiplayer extends THREE.Mesh {
 
         this.players = this.players.filter(player => {
             if ((currentTime - this.playerLastUpdate[player.id]) > idleTimeout) {
-                // Dispose of name tag and health bar resources
-                player.body.traverse(o => {
-                    if (o.geometry) o.geometry.dispose();
-                    if (o.material) {
-                        if (o.material.map) o.material.map.dispose();
-                        o.material.dispose();
-                    }
-                });
-                
-                // Remove from scene
-                this.scene.remove(player.body);
-                
-                // Remove from collidableMeshList in place (not reassign)
-                const idx = this.collidableMeshList.indexOf(player.body);
-                if (idx !== -1) this.collidableMeshList.splice(idx, 1);
-                
-                // Clean up playerLastUpdate map
-                delete this.playerLastUpdate[player.id];
-                
+                this.removePlayer(player);
                 return false;
             }
             return true;
         });
+    }
+
+    // Remove one remote player from scene, collision list and bookkeeping.
+    // Only the name tag and the health bar belong to this player alone; the robot
+    // body is a clone that shares geometry and materials with all other robots.
+    removePlayer(player) {
+        for (const own of [player.nameTag, player.healthBarBg, player.healthBarFill]) {
+            if (!own) continue;
+            if (own.geometry) own.geometry.dispose();
+            if (own.material) {
+                if (own.material.map) own.material.map.dispose();
+                own.material.dispose();
+            }
+        }
+        this.scene.remove(player.body);
+        const idx = this.collidableMeshList.indexOf(player.body);
+        if (idx !== -1) this.collidableMeshList.splice(idx, 1);
+        delete this.playerLastUpdate[player.id];
+    }
+
+    removePlayerById(playerId) {
+        const player = this.players.find(p => p.id === playerId);
+        if (!player) return;
+        this.removePlayer(player);
+        this.players = this.players.filter(p => p !== player);
     }
 
 		addHealthBar(body, player) {
