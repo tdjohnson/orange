@@ -1096,6 +1096,11 @@ function loadMultiplayer(player_name, selected_server){
 	try { localStorage.setItem('orange.lastMode', 'MultiPlayer'); } catch(e) { console.log('Could not save lastMode:', e); }
 	closeStart();
 	inActiveGame = true;
+	
+	// Show loading screen and set up loading manager
+	showLoadingScreen();
+	setupLoadingManager();
+	
 	init();
 	import('./Resources/functions/multiplayer.mjs').then(module => {
 		multiplayer = new module.Multiplayer(renderer, collidableMeshList, scene, player_name, selected_server);
@@ -1110,6 +1115,11 @@ function startSingleplayer() {
 	try { localStorage.setItem('orange.lastMode', 'SinglePlayer'); } catch(e) { console.log('Could not save lastMode:', e); }
 	closeStart();
 	inActiveGame = true;
+	
+	// Show loading screen and set up loading manager
+	showLoadingScreen();
+	setupLoadingManager();
+	
 	init();
 }
 startSingleplayer._real = startSingleplayer;
@@ -1474,5 +1484,134 @@ async function showHallOfFame() {
 // Initialize HUD visibility for menu screen
 inActiveGame = false;
 updateHudVisibility();
+
+// Loading screen functions
+function showLoadingScreen() {
+	// Remove existing loading screen if any
+	hideLoadingScreen();
+	
+	const loadingOverlay = document.createElement('div');
+	loadingOverlay.id = 'loadingOverlay';
+	loadingOverlay.style.cssText = `
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.8);
+		z-index: 10000;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		color: white;
+		font-family: Arial, sans-serif;
+	`;
+	
+	const loadingTitle = document.createElement('h2');
+	loadingTitle.textContent = 'Loading game...';
+	loadingTitle.style.marginBottom = '20px';
+	
+	const loadingContainer = document.createElement('div');
+	loadingContainer.style.width = '80%';
+	loadingContainer.style.maxWidth = '400px';
+	loadingContainer.style.textAlign = 'center';
+	
+	const progressBarContainer = document.createElement('div');
+	progressBarContainer.style.width = '100%';
+	progressBarContainer.style.height = '20px';
+	progressBarContainer.style.background = 'rgba(255, 255, 255, 0.2)';
+	progressBarContainer.style.borderRadius = '10px';
+	progressBarContainer.style.marginBottom = '10px';
+	progressBarContainer.style.overflow = 'hidden';
+	
+	const progressBarFill = document.createElement('div');
+	progressBarFill.id = 'loadingProgressBar';
+	progressBarFill.style.width = '0%';
+	progressBarFill.style.height = '100%';
+	progressBarFill.style.background = 'linear-gradient(90deg, #4CAF50, #8BC34A)';
+	progressBarFill.style.borderRadius = '10px';
+	progressBarFill.style.transition = 'width 0.3s ease';
+	
+	const loadedItemText = document.createElement('div');
+	loadedItemText.id = 'loadingItemText';
+	loadedItemText.textContent = 'Preparing...';
+	loadedItemText.style.fontSize = '14px';
+	loadedItemText.style.color = '#ccc';
+	
+	const progressText = document.createElement('div');
+	progressText.id = 'loadingProgressText';
+	progressText.textContent = '0%';
+	progressText.style.fontSize = '12px';
+	progressText.style.color = '#aaa';
+	
+	progressBarContainer.appendChild(progressBarFill);
+	loadingContainer.appendChild(loadingTitle);
+	loadingContainer.appendChild(progressBarContainer);
+	loadingContainer.appendChild(loadedItemText);
+	loadingContainer.appendChild(progressText);
+	loadingOverlay.appendChild(loadingContainer);
+	
+	document.body.appendChild(loadingOverlay);
+	
+	// Center the loading overlay
+	loadingOverlay.style.display = 'flex';
+}
+
+function hideLoadingScreen() {
+	const loadingOverlay = document.getElementById('loadingOverlay');
+	if (loadingOverlay) {
+		loadingOverlay.remove();
+	}
+}
+
+function setupLoadingManager() {
+	// Only set up once
+	if (THREE.DefaultLoadingManager.onProgress !== undefined && 
+	    THREE.DefaultLoadingManager.onProgress !== updateLoadingProgress) {
+		return;
+	}
+	
+	THREE.DefaultLoadingManager.onStart = function(url, loaded, total) {
+		console.log('Loading started: ' + url);
+		updateLoadingProgress(loaded, total, url.split('/').pop().split('?')[0]);
+	};
+	
+	THREE.DefaultLoadingManager.onProgress = function(url, loaded, total) {
+		updateLoadingProgress(loaded, total, url.split('/').pop().split('?')[0]);
+	};
+	
+	THREE.DefaultLoadingManager.onLoad = function() {
+		loadDone = true;
+		// Slight delay to ensure everything is ready
+		setTimeout(() => {
+			hideLoadingScreen();
+			console.log('All assets loaded');
+		}, 300);
+	};
+	
+	THREE.DefaultLoadingManager.onError = function(url) {
+		console.error('Error loading: ' + url);
+		updateLoadingProgress(0, 0, 'Error loading: ' + url.split('/').pop());
+	};
+}
+
+function updateLoadingProgress(loaded, total, itemName) {
+	const progressBar = document.getElementById('loadingProgressBar');
+	const progressText = document.getElementById('loadingProgressText');
+	const itemText = document.getElementById('loadingItemText');
+	
+	if (progressBar && total > 0) {
+		const percent = Math.floor((loaded / total) * 100);
+		progressBar.style.width = percent + '%';
+		if (progressText) {
+			progressText.textContent = percent + '%';
+		}
+	}
+	
+	if (itemText && itemName) {
+		itemText.textContent = 'Loading: ' + itemName;
+	}
+}
 
 showHallOfFame();
