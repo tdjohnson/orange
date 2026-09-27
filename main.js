@@ -868,7 +868,7 @@ function showBustedMessage() {
 
 function loadMultiplayer(player_name, selected_server){
 	console.log("Loading multiplayer...");
-	localStorage.setItem('orange.lastMode', 'MultiPlayer');
+	try { localStorage.setItem('orange.lastMode', 'MultiPlayer'); } catch(e) { console.log('Could not save lastMode:', e); }
 	closeStart();
 	init();
 	import('./Resources/functions/multiplayer.mjs').then(module => {
@@ -881,7 +881,7 @@ export function startSingleplayer() {
 	gameMode = "SinglePlayer";
     console.log("Starting Singleplayer mode...");
 	showDefeatedCounter(false);
-	localStorage.setItem('orange.lastMode', 'SinglePlayer');
+	try { localStorage.setItem('orange.lastMode', 'SinglePlayer'); } catch(e) { console.log('Could not save lastMode:', e); }
 	closeStart();
 	init();
 }
