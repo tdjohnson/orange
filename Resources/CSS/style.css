@@ -349,3 +349,43 @@ div#welcomeMessage {
 	background: rgba(255, 255, 255, 0.1);
 }
 
+
+/* ---- Session Table ---- */
+#sessionTableContainer {
+	margin: 10px 0;
+}
+
+.sessionTable {
+	width: 100%;
+	border-collapse: collapse;
+	font-family: Arial, sans-serif;
+}
+
+.sessionTable th {
+	padding: 8px;
+	text-align: left;
+	border-bottom: 2px solid #444;
+	background: rgba(0,0,0,0.3);
+}
+
+.sessionTable td {
+	padding: 8px;
+	border-bottom: 1px solid #444;
+}
+
+.sessionTable tr:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.sessionTable .joinButton {
+	padding: 4px 8px;
+	background: #4CAF50;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.sessionTable .joinButton:hover {
+	background: #45a049;
+}

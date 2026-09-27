@@ -846,26 +846,82 @@ function formatSeconds(totalSeconds) {
 }
 
 // Fill the session dropdown for one server. Hides the whole chooser if that server has no sessions.
-async function updateSessionDropdown(baseUrl) {
+async function updateSessionTable(baseUrl) {
 	const chooser = document.getElementById("sessionChooser");
-	const dropdown = document.getElementById("sessionSelector");
-	if (!chooser || !dropdown) return;
+	const container = document.getElementById("sessionTableContainer");
+	const newButton = document.getElementById("newSessionButton");
+	const lobbyButton = document.getElementById("lobbyButton");
+	if (!chooser || !container || !newButton || !lobbyButton) return;
+	
 	const sessions = await orangeSessions.list(baseUrl); // sets orangeSessions.supported
 	if (!orangeSessions.supported) {
 		chooser.style.display = "none";
 		return;
 	}
-	const previous = dropdown.value;
-	dropdown.textContent = "";
-	dropdown.add(new Option("Start new session", "new"));
-	sessions.forEach(session => {
-		const label = session.name + " (" + formatSeconds(session.secondsRemaining) + " left, " +
-			session.playerCount + " of " + session.maxPlayers + ")";
-		dropdown.add(new Option(label, String(session.id)));
+	
+	// Clear previous content
+	container.innerHTML = "";
+	
+	// Create table
+	const table = document.createElement("table");
+	table.className = "sessionTable";
+	
+	// Table header
+	const thead = document.createElement("thead");
+	const headerRow = document.createElement("tr");
+	["Session Name", "Time Left", "Players", "Action"].forEach(text => {
+		const th = document.createElement("th");
+		th.textContent = text;
+		headerRow.appendChild(th);
 	});
-	dropdown.add(new Option("No session (lobby)", "lobby"));
-	if (Array.from(dropdown.options).some(o => o.value === previous)) dropdown.value = previous;
+	head.appendChild(headerRow);
+	table.appendChild(thead);
+	
+	// Table body
+	const tbody = document.createElement("tbody");
+	
+	sessions.forEach(session => {
+		const row = document.createElement("tr");
+		
+		// Session name
+		const nameCell = document.createElement("td");
+		nameCell.textContent = session.name;
+		row.appendChild(nameCell);
+		
+		// Time left
+		const timeCell = document.createElement("td");
+		timeCell.textContent = formatSeconds(session.secondsRemaining) + " left";
+		row.appendChild(timeCell);
+		
+		// Players
+		const playersCell = document.createElement("td");
+		playersCell.textContent = session.playerCount + " of " + session.maxPlayers;
+		row.appendChild(playersCell);
+		
+		// Join button
+		const joinCell = document.createElement("td");
+		const joinButton = document.createElement("button");
+		joinButton.className = "joinButton";
+		joinButton.textContent = "Join";
+		joinButton.onclick = () => chooseSession(String(session.id));
+		joinCell.appendChild(joinButton);
+		row.appendChild(joinCell);
+		
+		tbody.appendChild(row);
+	});
+	
+	table.appendChild(tbody);
+	container.appendChild(table);
+	
+	// Show buttons
+	newButton.style.display = "block";
+	lobbyButton.style.display = "block";
 	chooser.style.display = "block";
+}
+
+// Wrapper to maintain backward compatibility
+async function updateSessionDropdown(baseUrl) {
+	return updateSessionTable(baseUrl);
 }
 
 async function updateSessionDropdownForSelectedServer(server_list) {
@@ -882,10 +938,18 @@ async function updateSessionDropdownForSelectedServer(server_list) {
 
 // What the player picked: 'new', a session id, or null for the lobby
 function chosenSession() {
-	const chooser = document.getElementById("sessionChooser");
-	const dropdown = document.getElementById("sessionSelector");
-	if (!chooser || !dropdown || chooser.style.display === "none") return null;
-	return dropdown.value === "lobby" || dropdown.value === "" ? null : dropdown.value;
+	// With the new table UI, we use orangeSessions.choice directly
+	// which is set by chooseSession() when user clicks Join/New/Lobby buttons
+	return orangeSessions.choice;
+}
+
+// Called when user clicks Join button in session table or New/Lobby buttons
+function chooseSession(sessionId) {
+	orangeSessions.choose(sessionId);
+	// If multiplayer exists and is initialized, trigger the session join
+	if (multiplayer && typeof multiplayer.applySessionChoice === 'function') {
+		multiplayer.applySessionChoice();
+	}
 }
 
 function updateSessionCountdown(secondsLeft, visible) {
@@ -1075,6 +1139,7 @@ window.init = init;
 window.showBustedMessage = showBustedMessage;
 window.takeDamage = takeDamage;
 window.handleDefeated = handleDefeated;
+window.chooseSession = chooseSession;
 window.handleScoresRequest = handleScoresRequest;
 window.handleScores = handleScores;
 window.handleServerScores = handleServerScores;

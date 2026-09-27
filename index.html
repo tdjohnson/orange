@@ -47,7 +47,11 @@ Philipp Weidhas - philipp.weidhas@st.oth-regensburg.de
 			<br>
 			<div id="sessionChooser" style="display:none; position:static; padding:0;">
 				<h2>Choose session:</h2>
-				<select name="session" id="sessionSelector" class="orangeDropdown"></select>
+				<div id="sessionTableContainer"></div>
+				<br>
+				<button id="newSessionButton" class="modeButton" onclick="chooseSession('new')" style="display:none;">Start New Session</button>
+				<br>
+				<button id="lobbyButton" class="modeButton" onclick="chooseSession('lobby')" style="display:none;">No Session (Lobby)</button>
 			</div>
 			<br>
 			<br>
