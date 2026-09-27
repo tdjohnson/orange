@@ -406,3 +406,15 @@ div#welcomeMessage {
 #sessionTableContainer table {
 	margin: 0 auto;
 }
+
+/* session table in the multiplayer dialog */
+#sessionTableContainer .sessionTable {
+	margin: 0 auto;
+	border-collapse: collapse;
+}
+
+#sessionTableContainer .sessionTable th,
+#sessionTableContainer .sessionTable td {
+	padding: 6px 14px;
+	text-align: left;
+}

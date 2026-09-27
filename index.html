@@ -45,23 +45,14 @@ Philipp Weidhas - philipp.weidhas@st.oth-regensburg.de
 			</select>
 			<br>
 			<br>
-			<div id="sessionChooser" style="display:none; position:static; padding:0;">
-				<h2>Choose session:</h2>
-				<div id="sessionTableContainer"></div>
-				<br>
-				<button id="newSessionButton" class="modeButton" onclick="chooseSession('new')" style="display:none;">Start New Session</button>
-				<button id="lobbyButton" class="modeButton" onclick="chooseSession('lobby')" style="display:none;">No Session (Lobby)</button>
-				<p id="sessionChoiceLabel"></p>
-			</div>
-			<br>
-			<br>
         	<h2>Choose your username:</h2>
 			<input type="text" class="userInput" id="player_name" name="player_name" placeholder="soaplifter" value="soaplifter" minlength="2" maxlength="100" size="20">
 			<br>
 			<br>
-			<br>
-			<br>
-			<br>
+			<div id="sessionChooser" style="display:none; position:static; padding:0;">
+				<h2>Choose session:</h2>
+				<div id="sessionTableContainer" style="position:static; padding:0;"></div>
+			</div>
 			<br>
 			<button id="start_multiplayer_button" class="modeButton" onclick="startMultiplayerWithName()">Start Game</button>
         </div>

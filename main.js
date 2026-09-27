@@ -852,15 +852,19 @@ export function startSingleplayer() {
 	init();
 }
 
+var multiplayerStarting = false;
+
 export function startMultiplayerWithName() {
-	gameMode = "MultiPlayer";
-	showDefeatedCounter(true);
-	var player_name = document.getElementById("player_name").value;
+	if (multiplayerStarting) return; // already on the way in, e.g. a double click
+	var player_name = document.getElementById("player_name").value.trim();
 	var selected_server_id = document.getElementById("serverSelector").value;
 	if(player_name === "" || player_name === null){
 		alert("Please type in a name for your player!");
 		return;
 	}else{
+		multiplayerStarting = true;
+		gameMode = "MultiPlayer";
+		showDefeatedCounter(true);
 		// Save player name and server to localStorage
 		try {
 			localStorage.setItem('orange.playerName', player_name);
@@ -902,92 +906,65 @@ function formatSeconds(totalSeconds) {
 async function updateSessionTable(baseUrl) {
 	const chooser = document.getElementById("sessionChooser");
 	const container = document.getElementById("sessionTableContainer");
-	const newButton = document.getElementById("newSessionButton");
-	const lobbyButton = document.getElementById("lobbyButton");
-	if (!chooser || !container || !newButton || !lobbyButton) return;
-	
+	const startButton = document.getElementById("start_multiplayer_button");
+	if (!chooser || !container) return;
+
 	const sessions = await orangeSessions.list(baseUrl); // sets orangeSessions.supported
 	if (!orangeSessions.supported) {
+		// server without sessions: the plain Start Game button is the way in
 		chooser.style.display = "none";
+		if (startButton) startButton.style.display = "";
 		return;
 	}
-	
-	// Clear previous content
-	container.innerHTML = "";
-	
-	// Create table
+
+	// One table, one row per option; the button in a row starts the game with that option
+	const rows = [{ id: "new", name: "New session", time: "2:00", players: "you", action: "Start" }];
+	sessions.forEach(session => rows.push({
+		id: String(session.id),
+		name: String(session.name),
+		time: formatSeconds(session.secondsRemaining) + " left",
+		players: session.playerCount + " of " + session.maxPlayers,
+		action: "Join"
+	}));
+	rows.push({ id: "lobby", name: "Lobby (no session)", time: "no limit", players: "open", action: "Join" });
+
 	const table = document.createElement("table");
 	table.className = "sessionTable";
-	
-	// Table header
 	const thead = document.createElement("thead");
 	const headerRow = document.createElement("tr");
-	["Session Name", "Time Left", "Players", "Action"].forEach(text => {
+	["Session", "Time", "Players", ""].forEach(text => {
 		const th = document.createElement("th");
 		th.textContent = text;
 		headerRow.appendChild(th);
 	});
 	thead.appendChild(headerRow);
 	table.appendChild(thead);
-	
-	// Table body
+
 	const tbody = document.createElement("tbody");
-	
-	sessions.forEach(session => {
+	rows.forEach(entry => {
 		const row = document.createElement("tr");
-		
-		// Session name
-		const nameCell = document.createElement("td");
-		nameCell.textContent = session.name;
-		row.appendChild(nameCell);
-		
-		// Time left
-		const timeCell = document.createElement("td");
-		timeCell.textContent = formatSeconds(session.secondsRemaining) + " left";
-		row.appendChild(timeCell);
-		
-		// Players
-		const playersCell = document.createElement("td");
-		playersCell.textContent = session.playerCount + " of " + session.maxPlayers;
-		row.appendChild(playersCell);
-		
-		// Join button
-		const joinCell = document.createElement("td");
-		const joinButton = document.createElement("button");
-		joinButton.className = "joinButton";
-		joinButton.textContent = "Join";
-		joinButton.dataset.sessionId = String(session.id);
-		joinButton.dataset.sessionName = String(session.name);
-		joinButton.onclick = () => chooseSession(String(session.id));
-		joinCell.appendChild(joinButton);
-		row.appendChild(joinCell);
-		
+		[entry.name, entry.time, entry.players].forEach(text => {
+			const cell = document.createElement("td");
+			cell.textContent = text;
+			row.appendChild(cell);
+		});
+		const actionCell = document.createElement("td");
+		const button = document.createElement("button");
+		button.className = "joinButton";
+		button.textContent = entry.action;
+		button.dataset.sessionId = entry.id;
+		button.dataset.sessionName = entry.name;
+		button.addEventListener("click", () => chooseSession(entry.id));
+		actionCell.appendChild(button);
+		row.appendChild(actionCell);
 		tbody.appendChild(row);
 	});
-	
 	table.appendChild(tbody);
+
+	container.textContent = "";
 	container.appendChild(table);
-	
-	if (sessions.length === 0) {
-		const emptyRow = document.createElement("tr");
-		const emptyCell = document.createElement("td");
-		emptyCell.colSpan = 4;
-		emptyCell.textContent = "No session is running.";
-		emptyRow.appendChild(emptyCell);
-		tbody.appendChild(emptyRow);
-	}
-
-	// Default is a new session; a choice for a session that has ended falls back to it too
-	const stillListed = sessions.some(session => String(session.id) === orangeSessions.choice);
-	if (!sessionChoiceMade || (orangeSessions.choice !== null && orangeSessions.choice !== "new" && !stillListed)) {
-		orangeSessions.choose("new");
-	}
-
-	// Show buttons
-	newButton.style.display = "inline-block";
-	lobbyButton.style.display = "inline-block";
 	chooser.style.display = "block";
-	markSessionChoice();
+	if (startButton) startButton.style.display = "none"; // the rows start the game
 }
 
 // Wrapper to maintain backward compatibility
@@ -1014,32 +991,11 @@ function chosenSession() {
 	return orangeSessions.choice;
 }
 
-var sessionChoiceMade = false;
-
-// Called by the Join buttons in the session table and by the New / Lobby buttons
+// A row button in the session table: remember the choice and start the game right away
 function chooseSession(sessionId) {
 	const lobby = sessionId === "lobby" || sessionId === null || sessionId === undefined || sessionId === "";
-	sessionChoiceMade = true;
 	orangeSessions.choose(lobby ? null : String(sessionId));
-	markSessionChoice();
-}
-
-// Show which option is selected
-function markSessionChoice() {
-	const choice = orangeSessions.choice;
-	const newButton = document.getElementById("newSessionButton");
-	const lobbyButton = document.getElementById("lobbyButton");
-	const label = document.getElementById("sessionChoiceLabel");
-	let text = "Selected: no session (lobby)";
-	if (newButton) newButton.classList.toggle("selected", choice === "new");
-	if (lobbyButton) lobbyButton.classList.toggle("selected", choice === null);
-	if (choice === "new") text = "Selected: start a new session";
-	document.querySelectorAll("#sessionTableContainer .joinButton").forEach(button => {
-		const selected = button.dataset.sessionId === choice;
-		button.classList.toggle("selected", selected);
-		if (selected) text = "Selected: " + button.dataset.sessionName;
-	});
-	if (label) label.textContent = text;
+	startMultiplayerWithName();
 }
 
 function updateSessionCountdown(secondsLeft, visible) {
