@@ -988,6 +988,7 @@ function animate() {
 			multiplayer.sendData(controls.object.position, raycasterFront.ray.direction);
 		}
 
+		clock.update();
 		var delta = clock.getDelta();
 		controlsModule.updateControls(controlsEnabled, delta, controls, collidableMeshList, raycaster, raycasterFront, raycasterCamera);
 		
