@@ -89,7 +89,7 @@ div
 /* ---- Cooldown Bar (above health bar) ---- */
 #cooldownBarContainer {
 	position: fixed;
-	bottom: 40px;
+	bottom: 56px;
 	right: 24px;
 	z-index: 1000;
 	display: flex;
@@ -130,7 +130,6 @@ div
 	height: 100%;
 	width: 100%;
 	background-color: #ffff00;
-	transition: width 1s linear;
 }
 
 #healthBarContainer.low #healthBarText {

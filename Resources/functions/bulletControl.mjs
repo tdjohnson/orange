@@ -18,9 +18,17 @@ const bulletArray = [];
 let currentPosition;
 let collidableMeshList = [];
 
+// Weapon system
+let currentWeapon = 'pistol';
+const weapons = {
+	pistol: { cooldown: 1000, shotsPerFire: 1 },
+	// Can add more weapons here for future expansion
+	// shotgun: { cooldown: 1500, shotsPerFire: 3 },
+	// machinegun: { cooldown: 100, shotsPerFire: 1 },
+};
+
 // Shooting cooldown state
 let cooldownEndTime = 0;
-const SHOOT_COOLDOWN_MS = 1000;
 
 // Reusable vectors
 const tempVec3A = new THREE.Vector3();
@@ -61,12 +69,36 @@ export function canShoot() {
 export function getCooldownProgress() {
 	const now = Date.now();
 	const endTime = cooldownEndTime;
+	const weapon = weapons[currentWeapon];
+	if (!weapon) return 1.0;
 	if (now >= endTime) return 1.0;
-	return Math.min(1.0, (now - (endTime - SHOOT_COOLDOWN_MS)) / SHOOT_COOLDOWN_MS);
+	return Math.min(1.0, (now - (endTime - weapon.cooldown)) / weapon.cooldown);
+}
+
+export function getCurrentWeaponCooldown() {
+	const weapon = weapons[currentWeapon];
+	return weapon ? weapon.cooldown : 1000;
 }
 
 export function triggerCooldown() {
-	cooldownEndTime = Date.now() + SHOOT_COOLDOWN_MS;
+	const weapon = weapons[currentWeapon];
+	cooldownEndTime = Date.now() + (weapon ? weapon.cooldown : 1000);
+}
+
+export function setWeapon(weaponName) {
+	if (weapons[weaponName]) {
+		currentWeapon = weaponName;
+		return true;
+	}
+	return false;
+}
+
+export function getCurrentWeapon() {
+	return currentWeapon;
+}
+
+export function getWeaponInfo(weaponName) {
+	return weapons[weaponName];
 }
 
 export function addBullet(renderer) {
